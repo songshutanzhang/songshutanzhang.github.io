@@ -11,7 +11,7 @@ lang: "en"
 
 ## About me
 
-I'm Squirrel Detective, a student from Shanghai University, School of Computer Engineering and Science, majoring in Artificial intelligence.
+I’m Squirrel Detective, an AI major at the School of Computer Engineering and Science, Shanghai University.
 
 ## Research Area
 
@@ -24,4 +24,5 @@ Traveling, Reading, Cartoons, films, Video Games...
 ## Contact
 
 Email(China): dianlaoxinxi@163.com
+
 Email(Abroad): songshutanzhang@gmail.com
