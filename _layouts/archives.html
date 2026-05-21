@@ -5,28 +5,7 @@ description: 正在发展中...
 permalink: /archives.html
 cover: /assets/img/cover.png
 ---
-<style>
-/* 只针对归档页面优化文字颜色（适配浅色封面背景） */
-#archive-articles .archives-title a {
-    color: #1a1a1a !important;  /* 深黑色标题，清晰可见 */
-    font-weight: 500;
-    text-decoration: none;
-}
 
-#archive-articles .archives-title a:hover {
-    color: #1b7eff !important;  /* 悬停时变主题蓝色 */
-    text-decoration: underline;
-}
-
-#archive-articles .archives-date {
-    color: #666666 !important;  /* 深灰色日期，比原来清晰 */
-}
-
-#archive-articles h3.year {
-    color: #222222 !important;  /* 年份标题深色 */
-    font-weight: 600;
-}
-</style>
 {% assign pin_posts = site.posts | where: "pin", "true" | sort: "date" | reverse %}
 {% assign unpin_posts = site.posts | where: "pin", nil | sort: "date" | reverse %}
 {% assign pin_posts_num = pin_posts | size %}
