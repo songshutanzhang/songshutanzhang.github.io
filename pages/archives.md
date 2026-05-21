@@ -1,10 +1,10 @@
 ---
 layout: archives
-home-title: Welcome to zhonger's blog!
-description: Writing, writing, writing ...
+home-title: 松鼠探长的个人自留地
+description: 正在发展中 ... 
 permalink: /archives.html
-cover: 'https://images.unsplash.com/photo-1649771482867-21eaffe6fcd0'
-cover_author: 'Colin + Meg'
-cover_author_link: 'https://unsplash.com/@colinandmeg'
+cover: /assets/img/cover.png
+cover_author: 'Girl Bands Cry'
+cover_author_link: 'https://girls-band-cry.com/'
 permalink: /archives.html
 ---
