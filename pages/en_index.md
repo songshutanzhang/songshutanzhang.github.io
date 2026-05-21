@@ -1,7 +1,7 @@
 ---
 layout: page
-home-title: H2O-ac Theme For Jekyll
-description: 基于可能是最好看的 Jekyll 主题 H2O 的学术版主题
+home-title: Personal Blog of Squirrel Detective
+description: Growing...
 permalink: /en/index.html
 langs: ["zh-Hans", "en"]
 lang: "en"
@@ -11,13 +11,17 @@ lang: "en"
 
 ## About me
 
-&emsp;&emsp;I am a PhD student from xxx University.....
+I'm Squirrel Detective, a student from Shanghai University, School of Computer Engineering and Science, majoring in Artificial intelligence.
 
-## Publications
+## Research Area
 
-1. Publication 1 [[DOI]](https://doi.org)
-2. Publication 2 [[DOI]](https://doi.org)
+Python, Machine Learing(ML), algorithm, etc.
+
+## Interests
+
+Traveling, Reading, Cartoons, films, Video Games...
 
 ## Contact
 
-Email: zhonger[at]live.cn (Please replace [at] with @.)
+Email(China): dianlaoxinxi@163.com
+Email(Abroad): songshutanzhang@gmail.com
