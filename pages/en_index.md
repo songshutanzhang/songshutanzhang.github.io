@@ -15,15 +15,15 @@ I’m Squirrel Detective, an AI major at the School of Computer Engineering and 
 
 ## Education Experiences
 
-2021.9-2024.6 Shanghai Shixi High School
+• 2021.9-2024.6 Shanghai Shixi High School
 
-2024.9-2025.6 <abbr title="Shanghai Future Road Teachers College"></abbr>
+• 2024.9-2025.6 <abbr title="Shanghai Future Road Teachers College"></abbr>
 
-2025.9-now Artificial Intelligence, School of Computer Engineering and Science, Shanghai University
+• 2025.9-now Shanghai University (China), School of Computer Engineering and Science, Artificial Intelligence
 
 ## Research Areas
 
-Python, Machine Learing(ML), algorithm, etc.
+Python, Machine Learing(ML), Mathematical Modeling, algorithm, etc.
 
 ## Interests
 
