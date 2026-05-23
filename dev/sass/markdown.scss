@@ -1,5 +1,18 @@
 // Post style
 .markdown-body {
+        // 黑幕效果
+    .black-mask {
+        background-color: #000;
+        color: #000;
+        transition: all 0.3s ease;
+        cursor: help;
+        display: inline-block;
+        
+        &:hover {
+            background-color: transparent;
+            color: inherit;
+        }
+    }
     font-family: $fonts;
     width: 100%;
     box-sizing: border-box;
@@ -9,6 +22,8 @@
         margin: 0 0 16px;
         /** overflow: scroll;  修复代码高亮 显示两个 scroll的问题 **/
     }
+
+    
 
     img {
         transition: .3s;
