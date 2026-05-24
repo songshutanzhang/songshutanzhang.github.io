@@ -1,7 +1,7 @@
 ---
 layout: page
-home-title: Welcome to zhonger's blog!
-description: Writing, writing, writing ...
+home-title: 松鼠探长的个人自留地
+description: 正在发展中 ...
 permalink: /tos.html
 ---
 
