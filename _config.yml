@@ -219,6 +219,7 @@ markdown: kramdown
 highlighter: rouge
 kramdown:
   input: GFM
+  parse_block_html: true
 
 # Prism settings
 # Support all offical and extended themes
