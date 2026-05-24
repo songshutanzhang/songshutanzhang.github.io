@@ -19,6 +19,8 @@ lang: "zh-Hans"
 
 • 2024.9-2025.5 <span class="black-mask">上海未来路进修学院</span>
 
+• 2024.9-2025.5 <p style="background-color: black; color: black; display: inline-block; cursor: help;" onmouseover="this.style.backgroundColor='transparent'; this.style.color='inherit';" onmouseout="this.style.backgroundColor='black'; this.style.color='black';">上海未来路进修学院</p>
+
 • 2025.9-至今 上海大学（中国），计算机工程与科学学院，人工智能
 
 ## 研究方向
