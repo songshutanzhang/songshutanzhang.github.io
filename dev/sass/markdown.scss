@@ -59,6 +59,20 @@
         width: 100%;
     }
 
+    // MathJax 公式大小调整
+    mjx-container {
+
+        // 行内公式（默认）  
+        &[display="false"] {
+            font-size: 1.2em !important; // 放大到 120%
+        }
+
+        // 独立公式块
+        &[display="true"] {
+            font-size: 1.1em !important; // 放大到 110%
+        }
+    }
+
     .copy-container {
         position: relative;
         background-color: #e2e2e2;

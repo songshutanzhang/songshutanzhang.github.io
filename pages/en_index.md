@@ -15,10 +15,6 @@ I’m Squirrel Detective, an AI major at the School of Computer Engineering and 
 
 ## Education Experiences
 
-• 2021.9-2024.6 Shanghai Shixi High School
-
-• 2024.9-2025.5 <span class="black-mask"></span>
-
 • 2025.9-now Shanghai University (China), School of Computer Engineering and Science, Artificial Intelligence
 
 ## Research Areas
