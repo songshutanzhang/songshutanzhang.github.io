@@ -69,13 +69,37 @@
 }
 
 /* ====================================================================== *
- * 2. 灯箱里透明背景 SVG 的白底
- *    只上背景色，绝不加 padding / border / border-radius：
- *    Fancybox 用图片固有尺寸 + border-box 计算 wrapper 的可用宽高，
- *    额外的 padding 会吃掉这部分空间，导致图片被压得极小、缩放锚点也偏移。
- *    公式图片导出时为透明底，同样靠这里的背景色在灯箱里显示成白底。
+ * 2. 图片底色总表
+ *
+ *   位置 \ 模式          常规（亮色）              黑夜（暗色）
+ *   ────────────────────────────────────────────────────────────────────
+ *   正文 · 照片/图表     原样（无底色）            原样（无底色）
+ *   正文 · SVG 线稿      白底 + 内边距             白底 + 内边距
+ *     （黑线透明底，深色背景上会糊掉，必须给白底）
+ *   正文 · LaTeX 公式    原样（浅色线条）          原样（浅色线条）
+ *     （公式线条走 currentColor，自带对比度，不需要底色）
+ *   灯箱主图 · 照片      原样（无底色）            原样（无底色）
+ *   灯箱主图 · SVG/公式  白底                      白底
+ *     （暗色遮罩上透明 = 看不见）
+ *   灯箱缩略图           白底                      白底
+ *   原图（下载）         保持文件原样，不做任何加工
+ *
+ *   要点：灯箱内的图片只能改 background-color，
+ *   绝不能加 padding / border —— Fancybox 用图片固有尺寸 + border-box
+ *   计算 wrapper 的可用宽高，padding 会吃掉空间导致图片被压小、缩放锚点偏移。
  * ====================================================================== */
 
+/* 正文 · SVG 线稿：任何模式都给白底，否则深色背景上看不清黑线 */
+.markdown-body img[data-svg-image] {
+    background-color: #ffffff;
+    padding: 10px;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* ---- 灯箱 ---- */
+
+/* 灯箱主图：照片原样；SVG 线稿与公式图给白底 */
 .fancybox__container .f-panzoom__content[src^="data:image/svg+xml"],
 .fancybox__container .f-panzoom__content[data-svg-image],
 .fancybox__container.is-svg-preview .f-panzoom__content,
@@ -85,21 +109,22 @@
     background-image: none !important;
 }
 
-/* 缩略图保持透明底：Fancybox 会给缩略图自带半透明衬底，
-   这里只清掉从正文图片继承来的白底，避免缩略图变成一个个白块。 */
-.fancybox__container .fancybox__thumbs img,
+/* 灯箱缩略图：一律白底，否则在暗色遮罩上等于看不见 */
 .fancybox__container .f-thumbs__slide,
-.fancybox__container .f-thumbs__slide img,
 .fancybox__container .f-thumbs__slide button,
-.fancybox__container .f-thumbs__slide .f-html {
-    background-color: transparent !important;
+.fancybox__container .fancybox__thumbs img {
+    background-color: #ffffff !important;
     background-image: none !important;
 }
 
-/* 暗色模式下，正文里的 SVG 示意图（黑线透明底）也给一层白底，避免与深色背景糊在一起。
-   同样只用背景色，不加 padding，免得改变图片的显示尺寸。 */
-.night-mode .markdown-body img[data-svg-image] {
-    background-color: #ffffff;
+/* 缩略图之间留一点缝，避免连成一条白带 */
+.fancybox__container .f-thumbs__slide {
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.fancybox__container .fancybox__thumbs .f-thumbs__slide {
+    margin-inline: 2px;
 }
 
 /* ====================================================================== *
