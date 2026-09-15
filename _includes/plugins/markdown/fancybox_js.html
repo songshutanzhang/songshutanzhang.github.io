@@ -28,16 +28,61 @@
             return src;
         }
 
+        /* ------------------------------------------------------------------ *
+         * SVG 线稿 / 公式图内联
+         *
+         * 这类图是「黑线 + 透明底」，作为 <img> 时是封闭文档，外部 CSS 改不了颜色，
+         * 只能在深色背景上补一层白底。改成内联 <svg> 后就能像公式容器一样，
+         * 用 fill: currentColor 跟随主题换色 —— 于是正文里不再需要任何衬底。
+         * ------------------------------------------------------------------ */
+        function inlineSvg(svgEl, source, onReady) {
+            fetch(source)
+                .then(function (r) { return r.ok ? r.text() : null; })
+                .then(function (text) {
+                    if (!text) return null;
+                    var doc = new DOMParser().parseFromString(text, "image/svg+xml");
+                    var svg = doc.documentElement;
+                    if (!svg || svg.nodeName.toLowerCase() !== "svg") return null;
+
+                    // 换成随主题变化的颜色；没有显式 fill 的路径默认黑色，正好靠 currentColor 接管
+                    svg.setAttribute("fill", "currentColor");
+                    svg.setAttribute("stroke", "currentColor");
+                    svg.removeAttribute("width");
+                    svg.removeAttribute("height");
+                    if (!svg.getAttribute("viewBox")) return null;
+
+                    var box = svg.getAttribute("viewBox").split(/[\s,]+/).map(parseFloat);
+                    svg.style.maxWidth = "100%";
+                    svg.style.height = "auto";
+                    // 宽度超过正文列宽时按比例缩小
+                    if (box.length === 4 && box[2] > 0 && box[3] > 0 && box[2] > 695) {
+                        svg.style.width = "100%";
+                    }
+                    svg.setAttribute("role", "img");
+                    if (svgEl.getAttribute("alt")) {
+                        svg.setAttribute("aria-label", svgEl.getAttribute("alt"));
+                    }
+                    svgEl.parentNode.replaceChild(svg, svgEl);
+                    if (onReady) onReady(svg, text);
+                    return svg;
+                })
+                .catch(function (err) {
+                    console.warn("[svg] 内联失败，保留原图：", source, err);
+                });
+        }
+
         var links = document.querySelectorAll("p img");
         Array.prototype.forEach.call(links, function (img) {
             var original = img.getAttribute("src");
             if (!original) return;
 
+            var alt = img.getAttribute("alt") || "";
             var largeSrc = largeVersionOf(original);
             img.setAttribute("data-original", original);
             img.setAttribute("data-large", largeSrc);
 
-            if (IS_SVG.test(original)) {
+            var isSvg = IS_SVG.test(original);
+            if (isSvg) {
                 img.setAttribute("data-svg-image", "");
             }
             // 原生懒加载 + 异步解码，省掉 lazysizes 依赖
@@ -54,13 +99,23 @@
             link.setAttribute("ref", "gallery");
             link.setAttribute("href", largeSrc);
             link.setAttribute("data-original", original);
-            link.setAttribute("data-caption", img.getAttribute("alt") || "");
+            link.setAttribute("data-caption", alt);
             img.parentNode.insertBefore(link, img);
             link.appendChild(img);
 
+            // SVG 交给内联逻辑处理（不参与懒加载占位图，避免替换时机错乱）
+            if (isSvg) {
+                link.setAttribute("data-svg-slide", "");
+                inlineSvg(img, original, function (svg, text) {
+                    link.setAttribute("data-svg-markup", svg.outerHTML);
+                    var thumb = darkSvgDataUri(text);
+                    if (thumb) link.setAttribute("data-svg-thumb", thumb);
+                });
+            }
+
             var caption = document.createElement("span");
             caption.className = "caption";
-            caption.textContent = img.getAttribute("alt") || "";
+            caption.textContent = alt;
             link.parentNode.insertBefore(caption, link.nextSibling);
         });
 
@@ -145,11 +200,31 @@
         function slideOfImage(link) {
             var large = link.getAttribute("href");
             var original = link.getAttribute("data-original") || large;
+            var caption = link.getAttribute("data-caption") || undefined;
+            var name = fileNameOf(original);
+
+            // SVG 线稿：内联成 <svg> 作为幻灯片，颜色跟随主题，
+            // 与正文表现完全一致（都不加浅色衬底）。
+            // 万一还没取到源码，先按图片打开，下次点击即为内联版本。
+            var markup = link.getAttribute("data-svg-markup");
+            if (markup) {
+                var maxWidth = Math.round(Math.min(window.innerWidth * 0.86, 1200));
+                return {
+                    html: '<div class="mlb-svg-slide" style="max-width:' + maxWidth + 'px">' + markup + "</div>",
+                    // 缩略图是白底，用固定深色线条的单独 SVG，避免跟随灯箱浅色而看不见
+                    thumb: link.getAttribute("data-svg-thumb") || undefined,
+                    caption: caption,
+                    downloadName: name,
+                    originalSrc: original,
+                    isSvg: true,
+                };
+            }
+
             return {
                 src: large,                 // 灯箱里看的是大图
                 type: "image",
-                caption: link.getAttribute("data-caption") || undefined,
-                downloadName: fileNameOf(original),
+                caption: caption,
+                downloadName: name,
                 originalSrc: original,      // 「保存原图」下载站内原始文件
             };
         }
@@ -174,6 +249,26 @@
                 .replace(/>/g, "&gt;");
         }
 
+        /**
+         * 把 SVG 源码固定成深色线条，做成 data URI。
+         * 用途：给缩略图当图源 —— 缩略图是白底，必须用深色线条才看得见。
+         */
+        function darkSvgDataUri(text) {
+            try {
+                var doc = new DOMParser().parseFromString(text, "image/svg+xml");
+                var svg = doc.documentElement;
+                if (!svg || svg.nodeName.toLowerCase() !== "svg") return undefined;
+                svg.setAttribute("fill", "#222222");
+                svg.setAttribute("stroke", "#222222");
+                svg.removeAttribute("width");
+                svg.removeAttribute("height");
+                return "data:image/svg+xml;charset=utf-8," +
+                    encodeURIComponent(new XMLSerializer().serializeToString(svg));
+            } catch (err) {
+                return undefined;
+            }
+        }
+
         /** 按文档顺序收集正文里的图片与公式，保证同一个画廊里可以前后翻 */
         function collectSlides() {
             var body = document.querySelector(".markdown-body");
@@ -194,7 +289,7 @@
 
         function indexOfSrc(slides, src) {
             for (var i = 0; i < slides.length; i++) {
-                if (slides[i].src === src) return i;
+                if (slides[i].src === src || slides[i].originalSrc === src) return i;
             }
             return 0;
         }
@@ -208,14 +303,14 @@
             });
         }
 
-        /** 正文图片：接管点击，这样图片和公式才能组成同一个画廊 */
+        /** 正文图片（含内联后的 SVG）：接管点击，这样图片和公式才能组成同一个画廊 */
         var links = document.querySelectorAll("a[data-fancybox]");
         Array.prototype.forEach.call(links, function (link) {
             link.addEventListener("click", function (e) {
                 e.preventDefault();
                 var slides = collectSlides();
                 Fancybox.show(slides, {
-                    startIndex: indexOfSrc(slides, link.getAttribute("href")),
+                    startIndex: indexOfSrc(slides, link.getAttribute("data-original") || link.getAttribute("href")),
                     triggerEl: link,
                 });
             });
@@ -271,11 +366,10 @@
             box.classList.toggle("is-svg-preview", isSvgImage);
         }
 
-        /** 保存图片：GIF 直接存原文件以保留动画，其余走画布转码保持原格式 */
+        /** 保存图片：GIF/SVG 直接存原文件（canvas 会丢动画、丢矢量），其余走画布转码保持原格式 */
         function downloadImage(src, name) {
             var ext = (name.split(".").pop() || "").toLowerCase();
-            if (ext === "gif") {
-                // 画布只能取到首帧，会把动图变成静态图，所以动图必须直连下载
+            if (ext === "gif" || ext === "svg") {
                 triggerDownload(src, name);
                 return;
             }
