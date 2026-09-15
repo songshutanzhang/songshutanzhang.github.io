@@ -59,6 +59,9 @@
                         svg.style.width = "100%";
                     }
                     svg.setAttribute("role", "img");
+                    // 加专属类名：正文里的线稿图要按块级居中显示，
+                    // 而 MathJax 公式的 SVG 也带 role="img"，不能一起被改成块级（会把行内公式挤断行）
+                    svg.classList.add("md-inline-svg");
                     if (svgEl.getAttribute("alt")) {
                         svg.setAttribute("aria-label", svgEl.getAttribute("alt"));
                     }

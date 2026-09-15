@@ -93,10 +93,10 @@
  *   Fancybox 用它的固有尺寸 + border-box 计算 wrapper 可用宽高。
  * ====================================================================== */
 
-/* 正文 · 线稿类图（SVG 内联后）：无衬底，线条跟随主题 */
-.markdown-body > p > svg,
-.markdown-body > p > a > svg,
-.markdown-body svg[role="img"] {
+/* 正文 · 线稿类图（SVG 内联后）：无衬底，线条跟随主题。
+   只认专属类名 .md-inline-svg —— MathJax 公式的 SVG 也带 role="img"，
+   若按 role 选会把行内公式也改成块级，导致公式被挤到单独一行。 */
+.markdown-body svg.md-inline-svg {
     display: block;
     margin: 16px auto 5px;
     max-width: 100%;
@@ -104,6 +104,12 @@
     color: var(--mathjax-color, #24292f);
     fill: currentColor;
     stroke: currentColor;
+}
+
+/* 行内公式里的 SVG 必须保持行内，否则会把整行文字断开 */
+.markdown-body mjx-container svg {
+    display: inline;
+    margin: 0;
 }
 
 /* ---- 灯箱 ---- */
