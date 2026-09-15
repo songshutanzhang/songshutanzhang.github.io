@@ -2,23 +2,382 @@
 <script>
     $(document).ready(function () {
         var baseurl = $("meta[property='og:baseurl']").attr('content');
-        $("p img").each(function () {
-            $(this).attr('data-src', $(this).attr('src')).removeAttr('src').addClass("lazyload").attr('src', baseurl + '/assets/img/loading.gif');
-            var strA = "<a data-fancybox='gallery' ref='gallery' href='" + $(this).attr('data-src') + "' data-caption='" + $(this).attr('alt') + "'></a>";
-            $(this).wrapAll(strA);
-            var caption = $(this)[0].alt;
-            $(this).parent().after('<span class="caption">' + caption + '</span>');
+        var IS_SVG = /\.svgz?(\?|#|$)/i;
+
+        /* ------------------------------------------------------------------ *
+         * 正文图片
+         * 加载策略：正文只加载 -sm.webp 小图加快浏览；
+         *          灯箱查看加载 -lg.webp 大图；「保存原图」下载站内原始文件。
+         * ------------------------------------------------------------------ */
+        var SMALL_SUFFIX = '-sm.webp';
+        var LARGE_SUFFIX = '-lg.webp';
+
+        /** 原始路径 → 正文小图（有配套小图才替换，否则保持原样） */
+        function smallVersionOf(src) {
+            if (/\.(png|jpe?g|gif)$/i.test(src || '')) {
+                return src.replace(/\.[^.]+$/, '-sm.webp');
+            }
+            return src;
+        }
+
+        /** 原始路径 → 灯箱大图 */
+        function largeVersionOf(src) {
+            if (/\.(png|jpe?g)$/i.test(src || '')) {
+                return src.replace(/\.[^.]+$/, '-lg.webp');
+            }
+            return src;
+        }
+
+        var links = document.querySelectorAll("p img");
+        Array.prototype.forEach.call(links, function (img) {
+            var original = img.getAttribute("src");
+            if (!original) return;
+
+            var largeSrc = largeVersionOf(original);
+            img.setAttribute("data-original", original);
+            img.setAttribute("data-large", largeSrc);
+
+            if (IS_SVG.test(original)) {
+                img.setAttribute("data-svg-image", "");
+            }
+            // 原生懒加载 + 异步解码，省掉 lazysizes 依赖
+            img.setAttribute("loading", "lazy");
+            img.setAttribute("decoding", "async");
+
+            // 正文显示小图，灯箱打开大图
+            img.setAttribute("data-src", smallVersionOf(original));
+            img.setAttribute("src", baseurl + '/assets/img/loading.gif');
+            img.classList.add("lazyload");
+
+            var link = document.createElement("a");
+            link.setAttribute("data-fancybox", "gallery");
+            link.setAttribute("ref", "gallery");
+            link.setAttribute("href", largeSrc);
+            link.setAttribute("data-original", original);
+            link.setAttribute("data-caption", img.getAttribute("alt") || "");
+            img.parentNode.insertBefore(link, img);
+            link.appendChild(img);
+
+            var caption = document.createElement("span");
+            caption.className = "caption";
+            caption.textContent = img.getAttribute("alt") || "";
+            link.parentNode.insertBefore(caption, link.nextSibling);
         });
-        Fancybox.bind('[data-fancybox]', {
+
+        // 万一 -sm/-lg 版本不存在，回退到原始文件，避免出现裂图
+        document.addEventListener("error", function (e) {
+            var el = e.target;
+            if (!el || el.tagName !== "IMG") return;
+            var original = el.getAttribute("data-original");
+            if (original && (el.getAttribute("src") || "") !== original && !el.hasAttribute("data-fallback-done")) {
+                el.setAttribute("data-fallback-done", "");
+                el.setAttribute("src", original);
+            }
+        }, true);
+
+        /* ------------------------------------------------------------------ *
+         * 工具函数
+         * ------------------------------------------------------------------ */
+
+        function fileNameOf(src) {
+            var path = String(src || "").split("?")[0].split("#")[0];
+            var name = path.substring(path.lastIndexOf("/") + 1);
+            return name || "image";
+        }
+
+        function currentSlide() {
+            try {
+                if (typeof Fancybox.getInstance !== "function") return null;
+                var instance = Fancybox.getInstance();
+                return instance && typeof instance.getSlide === "function" ? instance.getSlide() : null;
+            } catch (err) {
+                return null;
+            }
+        }
+
+        function toast(message) {
+            var el = document.querySelector(".mlb-toast");
+            if (!el) {
+                el = document.createElement("div");
+                el.className = "mlb-toast";
+                el.setAttribute("role", "status");
+                document.body.appendChild(el);
+            }
+            el.textContent = message;
+            el.classList.add("active");
+            clearTimeout(toast.timer);
+            toast.timer = setTimeout(function () { el.classList.remove("active"); }, 1800);
+        }
+        toast.timer = null;
+
+        function copyText(text) {
+            if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+            return new Promise(function (resolve, reject) {
+                var area = document.createElement("textarea");
+                area.value = text;
+                area.setAttribute("readonly", "");
+                area.style.cssText = "position:fixed;top:-1000px;left:0;opacity:0;";
+                document.body.appendChild(area);
+                area.select();
+                var ok = false;
+                try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
+                document.body.removeChild(area);
+                ok ? resolve() : reject(new Error("浏览器拒绝了复制操作"));
+            });
+        }
+
+        function triggerDownload(href, name) {
+            var a = document.createElement("a");
+            a.href = href;
+            a.download = name;
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        /* ------------------------------------------------------------------ *
+         * 统一灯箱：正文图片 + LaTeX 公式
+         * 公式被当作一张「能复制代码的图片」，完全交给 Fancybox 呈现，
+         * 因此过渡、全屏、缩略图、前后切换、计数器与图片完全一致。
+         * ------------------------------------------------------------------ */
+
+        function slideOfImage(link) {
+            var large = link.getAttribute("href");
+            var original = link.getAttribute("data-original") || large;
+            return {
+                src: large,                 // 灯箱里看的是大图
+                type: "image",
+                caption: link.getAttribute("data-caption") || undefined,
+                downloadName: fileNameOf(original),
+                originalSrc: original,      // 「保存原图」下载站内原始文件
+            };
+        }
+
+        function slideOfFormula(container, image) {
+            return {
+                src: image.src,
+                type: "image",
+                // 说明区单独一行居中显示 LaTeX 源码；复制按钮复制的是 slide.tex，不含任何说明文字
+                caption: '<span class="mlb-formula-tex">' + escapeHtml(image.tex) + "</span>",
+                downloadName: image.name,
+                isFormula: true,
+                tex: image.tex,
+                svgMarkup: image.markup,
+            };
+        }
+
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        /** 按文档顺序收集正文里的图片与公式，保证同一个画廊里可以前后翻 */
+        function collectSlides() {
+            var body = document.querySelector(".markdown-body");
+            if (!body) return [];
+            var nodes = body.querySelectorAll("a[data-fancybox][href], mjx-container");
+            var out = [];
+            for (var i = 0; i < nodes.length; i++) {
+                var node = nodes[i];
+                if (node.tagName === "A") {
+                    out.push(slideOfImage(node));
+                    continue;
+                }
+                var image = window.mathFormulaImage ? window.mathFormulaImage(node) : null;
+                if (image) out.push(slideOfFormula(node, image));
+            }
+            return out;
+        }
+
+        function indexOfSrc(slides, src) {
+            for (var i = 0; i < slides.length; i++) {
+                if (slides[i].src === src) return i;
+            }
+            return 0;
+        }
+
+        function openGallery(triggerEl, index) {
+            var slides = collectSlides();
+            if (!slides.length) return;
+            Fancybox.show(slides, {
+                startIndex: Math.max(0, Math.min(index, slides.length - 1)),
+                triggerEl: triggerEl,
+            });
+        }
+
+        /** 正文图片：接管点击，这样图片和公式才能组成同一个画廊 */
+        var links = document.querySelectorAll("a[data-fancybox]");
+        Array.prototype.forEach.call(links, function (link) {
+            link.addEventListener("click", function (e) {
+                e.preventDefault();
+                var slides = collectSlides();
+                Fancybox.show(slides, {
+                    startIndex: indexOfSrc(slides, link.getAttribute("href")),
+                    triggerEl: link,
+                });
+            });
+            link.addEventListener("keydown", function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    link.click();
+                }
+            });
+        });
+
+        /** 正文公式：点击打开（文本被选中时不拦截，方便直接复制正文内容） */
+        document.addEventListener("click", function (e) {
+            if (!e.target.closest) return;
+            var container = e.target.closest("mjx-container");
+            if (!container) return;
+            var body = document.querySelector(".markdown-body");
+            if (!body || !body.contains(container)) return;
+            if (e.target.closest("a, button")) return;
+
+            var sel = window.getSelection && window.getSelection();
+            if (sel && sel.toString().length > 0 && sel.containsNode && sel.containsNode(container, true)) return;
+
+            var image = window.mathFormulaImage ? window.mathFormulaImage(container) : null;
+            if (!image) return;
+
+            e.preventDefault();
+            var slides = collectSlides();
+            openGallery(container, indexOfSrc(slides, image.src));
+        });
+
+        /* ------------------------------------------------------------------ *
+         * 灯箱配置（工具栏按钮 + 状态同步）
+         * 说明：Fancybox.show() 不会继承 Fancybox.bind() 的配置，
+         * 因此这里同时写进全局默认值，保证两种打开方式行为一致。
+         * ------------------------------------------------------------------ */
+
+        var SAVE_ICON = '<svg tabindex="-1" width="24" height="24" viewBox="0 0 24 24">' +
+            '<path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';
+        var COPY_ICON = '<svg tabindex="-1" width="24" height="24" viewBox="0 0 24 24">' +
+            '<path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg>';
+
+        /** 同步灯箱状态：公式标记 + 透明背景 SVG 的白底标记 */
+        function syncToolbar() {
+            var box = document.querySelector(".fancybox__container");
+            if (!box) return;
+            var slide = currentSlide();
+            box.classList.toggle("is-formula-slide", !!(slide && slide.isFormula));
+
+            // 正文里的 SVG 示意图是黑线透明底，灯箱里需要白底才不会和暗色遮罩糊在一起
+            var src = (slide && slide.src) || "";
+            var isSvgImage = !(slide && slide.isFormula) && IS_SVG.test(src);
+            box.classList.toggle("is-svg-preview", isSvgImage);
+        }
+
+        /** 保存图片：GIF 直接存原文件以保留动画，其余走画布转码保持原格式 */
+        function downloadImage(src, name) {
+            var ext = (name.split(".").pop() || "").toLowerCase();
+            if (ext === "gif") {
+                // 画布只能取到首帧，会把动图变成静态图，所以动图必须直连下载
+                triggerDownload(src, name);
+                return;
+            }
+            var img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = function () {
+                try {
+                    var canvas = document.createElement("canvas");
+                    canvas.width = img.naturalWidth || img.width;
+                    canvas.height = img.naturalHeight || img.height;
+                    var ctx = canvas.getContext("2d");
+                    if (/^(jpe?g|bmp)$/.test(ext)) {
+                        ctx.fillStyle = "#ffffff";
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                    ctx.drawImage(img, 0, 0);
+                    var type = "image/" + (ext === "jpg" ? "jpeg" : ext);
+                    canvas.toBlob(function (blob) {
+                        if (!blob) { triggerDownload(src, name); return; }
+                        var url = URL.createObjectURL(blob);
+                        triggerDownload(url, name);
+                        setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+                    }, type, 0.95);
+                } catch (err) {
+                    triggerDownload(src, name);   // 跨域图片污染画布时退回直接下载原文件
+                }
+            };
+            img.onerror = function () { triggerDownload(src, name); };
+            img.src = src;
+        }
+
+        function downloadCurrent() {
+            var slide = currentSlide();
+            if (!slide) return;
+            if (slide.isFormula && slide.svgMarkup) {
+                var name = slide.downloadName || "formula.svg";
+                var url = URL.createObjectURL(new Blob([slide.svgMarkup], { type: "image/svg+xml;charset=utf-8" }));
+                triggerDownload(url, name);
+                setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+                toast("已保存 " + name);
+                return;
+            }
+            // 正文图片：「保存原图」下载站内原始文件，而不是正文用的压缩小图
+            var src = slide.originalSrc || slide.src || "";
+            if (!src) { toast("未找到图片"); return; }
+            var fileName = slide.downloadName || fileNameOf(src);
+            downloadImage(src, fileName);
+            toast("已保存原图 " + fileName);
+        }
+
+        var LIGHTBOX_OPTIONS = {
+            Carousel: {
+                Toolbar: {
+                    items: {
+                        mlbCopy: {
+                            tpl: '<button class="f-button" data-mlb-copy title="复制 LaTeX 源码" aria-label="复制 LaTeX 源码">' + COPY_ICON + "</button>",
+                            click: function () {
+                                var slide = currentSlide();
+                                var tex = slide && slide.tex;
+                                if (!tex) return;
+                                copyText(tex)
+                                    .then(function () { toast("LaTeX 源码已复制"); })
+                                    .catch(function () { toast("复制失败"); });
+                            },
+                        },
+                        mlbSave: {
+                            tpl: '<button class="f-button" title="保存原图" aria-label="保存原图">' + SAVE_ICON + "</button>",
+                            click: function () { downloadCurrent(); },
+                        },
+                    },
+                    display: {
+                        left: ["counter"],
+                        middle: [],
+                        right: ["mlbCopy", "mlbSave", "thumbs", "close"],
+                    },
+                },
+            },
             on: {
-                load: (fancybox, slide) => {
+                load: function (fancybox, slide) {
                     var gray = $("meta[property='og:gray']").attr('content');
                     if (gray == "true") {
                         $(".fancybox__content img").addClass("gray");
                         $(".carousel__track .fancybox__thumb").addClass("gray");
                     }
-                }
-            }
-        });
+                    syncToolbar();
+                },
+                reveal: function () { syncToolbar(); },
+                "Carousel.change": function () { syncToolbar(); },
+                close: function () {
+                    var box = document.querySelector(".fancybox__container");
+                    if (box) box.classList.remove("is-formula-slide", "is-svg-preview");
+                },
+            },
+        };
+
+        // 写入全局默认值：Fancybox.show() 与 Fancybox.bind() 都使用同一套配置
+        Object.assign(Fancybox.getDefaults(), LIGHTBOX_OPTIONS);
+        Fancybox.bind("[data-fancybox]", LIGHTBOX_OPTIONS);
+
+        // 灯箱切换/重绘后同步一次状态
+        new MutationObserver(function () {
+            if (document.querySelector(".fancybox__container")) syncToolbar();
+        }).observe(document.body, { childList: true, subtree: true });
     });
 </script>

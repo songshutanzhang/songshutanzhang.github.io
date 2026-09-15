@@ -1,0 +1,275 @@
+{%- comment -%}
+LaTeX 公式支持（配合主题的 Fancybox 图片灯箱）
+- 把公式渲染成一张「白底黑字、可下载」的图片，交给主题原有的 Fancybox 灯箱呈现
+- 因此过渡动画、全屏、缩略图、前后切换、计数器与正文图片完全一致
+- 额外能力只有一个：灯箱里可以复制 LaTeX 源码（按钮只在公式幻灯片上出现）
+仅在站点开启 mathjax 时由 plugins/markdown/markdown.html 载入
+{%- endcomment -%}
+<script>
+    (function () {
+        "use strict";
+
+        var SOURCE_ATTR = "data-tex-id";
+        var POLL_INTERVAL = 150;
+        var POLL_MAX = 120;      // 最多等待约 18 秒
+        var EXPORT_FONT = 30;    // 生成图片时的基准字号（1em = 30px），比正文略大，放大看更清楚
+
+        var texStore = Object.create(null);
+        var pendingTex = null;
+        var pollTimer = null;
+
+        function mjReady() { return !!(window.MathJax && MathJax.startup && MathJax.startup.promise); }
+
+        /* ------------------------------------------------------------------ *
+         * 1. 公式源码：MathJax 排版会替换掉原始文本，所以先扫一遍正文
+         * ------------------------------------------------------------------ */
+
+        function collectMathTextNodes(root) {
+            var out = [];
+            var skip = { SCRIPT: 1, NOSCRIPT: 1, STYLE: 1, TEXTAREA: 1, PRE: 1, CODE: 1 };
+            (function walk(node) {
+                if (node.nodeType === 3) {
+                    var v = node.nodeValue;
+                    if (v && (v.indexOf("$") >= 0 || v.indexOf("\\(") >= 0 || v.indexOf("\\[") >= 0)) out.push(node);
+                    return;
+                }
+                if (node.nodeType !== 1) return;
+                if (skip[node.tagName]) return;
+                if (node.classList && node.classList.contains("mathjax_ignore")) return;
+                for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+            })(root);
+            return out;
+        }
+
+        /** \[...\] / $$...$$ 为独立公式块，\(...\) / $...$ 为行内公式 */
+        function scanMath(text, from) {
+            var i = from;
+            while (i < text.length) {
+                var ch = text.charAt(i);
+                if (ch === "\\") {
+                    var next = text.charAt(i + 1);
+                    if (next !== "(" && next !== "[") { i++; continue; }
+                    var closer = next === "(" ? "\\)" : "\\]";
+                    var closeAt = text.indexOf(closer, i + 2);
+                    if (closeAt < 0) return null;
+                    return { tex: text.slice(i + 2, closeAt), end: closeAt + 2 };
+                }
+                if (ch !== "$") { i++; continue; }
+
+                if (text.charAt(i + 1) === "$") {
+                    var endDD = text.indexOf("$$", i + 2);
+                    if (endDD < 0) { i += 2; continue; }
+                    var bodyDD = text.slice(i + 2, endDD);
+                    if (bodyDD.indexOf("$") >= 0) { i += 2; continue; }
+                    return { tex: bodyDD, end: endDD + 2 };
+                }
+
+                var endS = i + 1;
+                while (true) {
+                    endS = text.indexOf("$", endS);
+                    if (endS < 0) return null;
+                    if (text.charAt(endS - 1) === "\\") { endS++; continue; }
+                    if (text.charAt(endS + 1) === "$") { endS += 2; continue; }
+                    break;
+                }
+                var bodyS = text.slice(i + 1, endS);
+                if (!bodyS.trim() || bodyS.indexOf("\n") >= 0) { i = endS + 1; continue; }
+                return { tex: bodyS, end: endS + 1 };
+            }
+            return null;
+        }
+
+        function scanSources() {
+            var body = document.querySelector(".markdown-body");
+            if (!body) return null;
+            var nodes = collectMathTextNodes(body);
+            if (!nodes.length) return null;
+            var out = [];
+            for (var n = 0; n < nodes.length; n++) {
+                var text = nodes[n].nodeValue;
+                var pos = 0, hit;
+                while ((hit = scanMath(text, pos))) {
+                    out.push(hit.tex);
+                    pos = hit.end;
+                }
+            }
+            return out.length ? out : null;
+        }
+
+        function registeredSources() {
+            var list = window.mathSources || [];
+            if (!list.length) return null;
+            return list.map(function (item) { return typeof item === "string" ? item : item.tex; });
+        }
+
+        function currentSources() {
+            if (!pendingTex) pendingTex = scanSources() || registeredSources();
+            return pendingTex;
+        }
+
+        /** 按文档顺序把源码绑定到 MathJax 渲染出的公式容器上 */
+        function bindSources() {
+            var list = currentSources();
+            if (!list) return 0;
+            var containers = document.querySelectorAll(".markdown-body mjx-container");
+            if (containers.length !== list.length) return 0;
+            var count = 0;
+            for (var i = 0; i < containers.length; i++) {
+                if (containers[i].hasAttribute(SOURCE_ATTR)) continue;
+                var id = "mjx-src-" + (i + 1);
+                texStore[id] = list[i];
+                containers[i].setAttribute(SOURCE_ATTR, id);
+                count++;
+            }
+            return count;
+        }
+
+        function annotationTex(container) {
+            var node = container.querySelector('annotation[encoding="application/x-tex"]') ||
+                container.querySelector("annotation");
+            return node ? node.textContent : "";
+        }
+
+        function texOf(container) {
+            var id = container.getAttribute(SOURCE_ATTR);
+            if (id && texStore[id]) return texStore[id];
+            return annotationTex(container);
+        }
+
+        /* ------------------------------------------------------------------ *
+         * 2. 把公式变成一张图片（白底黑字、尺寸按 px 固定）
+         * ------------------------------------------------------------------ */
+
+        /**
+         * 生成自包含的 SVG：**透明底** + 黑字 + 固定 px 尺寸。
+         * 下载到的公式是透明背景，方便直接贴进文档；灯箱里由 CSS 铺一层白底显示。
+         *
+         * 注意：MathJax 输出的 viewBox（如 "0 -1008.2 3975.9 1090.2"）用的是它内部的
+         * 1000 units/em 坐标系，y 轴向上、基线在 0，**不能**用公式的 ex 宽度去重算 viewBox，
+         * 否则公式会被推出画布只剩下一个角。这里保留原始 viewBox，只用 width/height 缩放。
+         */
+        function buildImage(tex) {
+            return MathJax.tex2svgPromise(tex, { display: false, em: 16, ex: 8, containerWidth: 80 * 16 })
+                .then(function (node) {
+                    if (!node) throw new Error("公式渲染失败");
+                    var svg = node.tagName && node.tagName.toLowerCase() === "svg" ? node : node.querySelector("svg");
+                    if (!svg) throw new Error("未能取得公式 SVG");
+
+                    var box = (svg.getAttribute("viewBox") || "").split(/[\s,]+/).map(parseFloat);
+                    if (box.length !== 4 || !isFinite(box[2]) || box[2] <= 0) {
+                        throw new Error("公式 SVG 缺少有效的 viewBox");
+                    }
+                    // 按 1000 units/em 换算到目标字号
+                    var k = EXPORT_FONT / 1000;
+                    var pad = 28;                       // 四周留白（像素）
+                    var w = Math.max(1, Math.ceil(box[2] * k) + pad * 2);
+                    var h = Math.max(1, Math.ceil(box[3] * k) + pad * 2);
+
+                    var clone = svg.cloneNode(true);
+                    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+                    clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+                    clone.setAttribute("fill", "#111111");
+                    clone.setAttribute("stroke", "#111111");
+                    clone.setAttribute("color", "#111111");
+                    clone.removeAttribute("style");
+                    clone.setAttribute("width", w + "px");
+                    clone.setAttribute("height", h + "px");
+                    // viewBox 向外扩出留白，公式本体坐标保持不变；不加背景矩形即为透明底
+                    clone.setAttribute("viewBox",
+                        (box[0] - pad / k) + " " + (box[1] - pad / k) + " " +
+                        (box[2] + (pad * 2) / k) + " " + (box[3] + (pad * 2) / k));
+
+                    var title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+                    title.textContent = tex;
+                    clone.insertBefore(title, clone.firstChild);
+
+                    var markup = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n' + clone.outerHTML + "\n";
+                    return {
+                        tex: tex,
+                        markup: markup,
+                        src: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(markup),
+                        name: fileNameFor(tex),
+                    };
+                });
+        }
+
+        function fileNameFor(tex) {
+            var d = new Date();
+            function pad(n) { return (n < 10 ? "0" : "") + n; }
+            var stamp = d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + "-" +
+                pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+            var plain = String(tex).replace(/\\[a-zA-Z]+/g, "").replace(/[{}\s^_&$]/g, "").slice(0, 10);
+            return (plain ? "formula-" + plain + "-" : "formula-") + stamp + ".svg";
+        }
+
+        /**
+         * 供 fancybox_js.html 调用：拿到公式对应的「图片」。
+         * 同步返回；首次调用时才渲染，渲染完成后缓存复用。
+         */
+        function formulaImage(container) {
+            if (!mjReady() || !container) return null;
+            var cached = container.__mlbImage;
+            if (cached) return cached;
+            if (container.__mlbPending || container.__mlbFailed) return null;
+
+            var tex = texOf(container);
+            if (!tex) return null;
+            container.__mlbPending = true;
+            buildImage(tex).then(function (image) {
+                container.__mlbImage = image;
+                container.__mlbPending = false;
+            }).catch(function (err) {
+                console.error("[math] 生成公式图片失败：", err);
+                container.__mlbPending = false;
+                container.__mlbFailed = true;
+            });
+            return null;   // 本次点击先不打开，渲染完成后下次点击即可
+        }
+
+        /** 预热：页面加载后分批把所有公式先生成好图片，点击时零等待 */
+        function preload(limit) {
+            var containers = document.querySelectorAll(".markdown-body mjx-container");
+            var batch = [];
+            for (var i = 0; i < containers.length; i++) {
+                var c = containers[i];
+                if (c.__mlbImage || c.__mlbPending || c.__mlbFailed) continue;
+                batch.push(c);
+                if (batch.length >= (limit || 4)) break;
+            }
+            batch.forEach(function (c) {
+                var tex = texOf(c);
+                if (!tex) return;
+                c.__mlbPending = true;
+                buildImage(tex).then(function (image) {
+                    c.__mlbImage = image;
+                    c.__mlbPending = false;
+                }).catch(function () {
+                    c.__mlbPending = false;
+                    c.__mlbFailed = true;
+                });
+            });
+            return batch.length;
+        }
+
+        function allReady() {
+            var containers = document.querySelectorAll(".markdown-body mjx-container");
+            if (!containers.length) return false;
+            for (var i = 0; i < containers.length; i++) {
+                if (!containers[i].__mlbImage && !containers[i].__mlbFailed) return false;
+            }
+            return true;
+        }
+
+        function tick(attempt) {
+            attempt = attempt || 0;
+            bindSources();
+            if (mjReady()) preload(4);
+            if (mjReady() && allReady() && attempt > 3) return;
+            if (attempt >= POLL_MAX) return;
+            pollTimer = setTimeout(function () { tick(attempt + 1); }, POLL_INTERVAL);
+        }
+
+        window.mathFormulaImage = formulaImage;
+        tick(0);
+    })();
+</script>

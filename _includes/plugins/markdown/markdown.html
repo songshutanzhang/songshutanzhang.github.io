@@ -1,6 +1,12 @@
+{% if site.mathjax %}
 {% include plugins/markdown/mathjax.html %}
+<link rel="stylesheet" href="{{ "/assets/css/math.css" | prepend: site.baseurl }}">
+{% endif %}
 {% if layout.type == "post" %}
 {% include plugins/markdown/fancybox_js.html %}
+{% endif %}
+{% if site.mathjax and site.mathjax_lightbox %}
+{% include plugins/markdown/math_lightbox.html %}
 {% endif %}
 {% include plugins/markdown/hotkeys.html %}
 {% include plugins/markdown/mermaid_js.html %}

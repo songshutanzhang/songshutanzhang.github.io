@@ -1,13 +1,49 @@
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<!-- MathJax 配置：必须在加载 MathJax 主脚本之前定义 -->
 <script>
-  MathJax = {
-    tex: {
-      inlineMath: [['$', '$'], ['\\(', '\\)']],
-      displayMath: [['$$', '$$'], ['\\[', '\\]']],
-      processEscapes: true
-    },
-    options: {
-      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-  };
+    /**
+     * 公式源码登记处（可选接口）
+     * 主题里的公式灯箱默认会在 MathJax 排版前自行扫描正文，保存 $...$ / \[...\] 原文；
+     * 这里预留一个全局数组，供自定义 Jekyll 插件或其它脚本提前写入公式源码。
+     */
+    window.mathSources = window.mathSources || [];
+
+    window.MathJax = {
+        // 采用 SVG 输出：矢量清晰、颜色随主题（fill: currentColor）、
+        // 并且可以直接复制成独立 SVG / 转成 PNG 导出
+        loader: {
+            load: ['[tex]/ams', '[tex]/newcommand', '[tex]/textmacros']
+        },
+        tex: {
+            // 行内公式
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            // 独立公式块
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            processEnvironments: true,
+            // autoload：遇到 \color、\bbox、\cancel、\require 等命令时按需加载扩展
+            packages: { '[+]': ['ams', 'newcommand', 'textmacros', 'autoload'] },
+            tags: 'none'
+        },
+        svg: {
+            // 每个容器内联自己的字体路径，保证单独导出的 SVG 文件能独立显示
+            fontCache: 'none',
+            scale: 1,
+            displayAlign: 'center',
+            displayIndent: '0',
+            linebreaks: { automatic: true, width: '100% container' },
+            mtextInheritFont: false
+        },
+        options: {
+            enableMenu: true,
+            // 保留辅助 MathML，便于无障碍阅读
+            enableAssistiveMml: true,
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'mjx-container'],
+            ignoreHtmlClass: 'tex2jax_ignore|mathjax_ignore',
+            processHtmlClass: 'tex2jax_process|mathjax_process'
+        },
+        startup: {
+            typeset: true
+        }
+    };
 </script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>

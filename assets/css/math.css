@@ -1,0 +1,153 @@
+/**
+ * LaTeX / MathJax 增强样式
+ *
+ * 设计原则：公式就是一张「能复制代码的图片」，灯箱行为与正文图片完全一致
+ * （统一走主题的 Fancybox，不做任何自定义灯箱样式）。
+ * 这里只做三件事：
+ * 1. 修正主题遗留的 mjx-math{width:100%}、放大公式字号、把光标改成与图片一致的手型
+ * 2. 暗色模式下给透明背景的 SVG 图片（含公式图）加一层白底，避免和深色背景糊在一起
+ * 3. 灯箱里「复制 LaTeX」按钮的显隐控制
+ *
+ * 本文件在 assets/css/app.min.css 之后加载，可直接覆盖主题样式。
+ */
+
+/* ====================================================================== *
+ * 1. 正文公式
+ * ====================================================================== */
+
+.markdown-body {
+    --mathjax-color: #24292f;
+}
+
+/* 覆盖 app.min.css 里遗留的 .markdown-body mjx-math{width:100%}（会把行内公式撑满整段） */
+.markdown-body mjx-container mjx-math,
+.markdown-body mjx-math {
+    width: auto !important;
+    overflow: visible;
+}
+
+.markdown-body mjx-container {
+    color: var(--mathjax-color);
+    /* 与正文图片一样是「可点击打开」的手型光标 */
+    cursor: pointer;
+}
+
+.markdown-body mjx-container:not([display="true"]) {
+    font-size: 1.5em !important;
+    margin: 0 3px;
+    vertical-align: baseline;
+}
+
+.markdown-body mjx-container[display="true"] {
+    display: block;
+    font-size: 1.65em !important;
+    margin: 1.3em 0;
+    padding: .85em .6em;
+    text-align: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* 长公式自动换行时不要撑破容器 */
+.markdown-body mjx-container svg {
+    max-width: 100%;
+}
+
+@media (max-width: 640px) {
+    .markdown-body mjx-container:not([display="true"]) {
+        font-size: 1.32em !important;
+    }
+
+    .markdown-body mjx-container[display="true"] {
+        font-size: 1.4em !important;
+        padding: .6em .4em;
+    }
+}
+
+.night-mode .markdown-body {
+    --mathjax-color: #e6e8eb;
+}
+
+/* ====================================================================== *
+ * 2. 灯箱里透明背景 SVG 的白底
+ *    只上背景色，绝不加 padding / border / border-radius：
+ *    Fancybox 用图片固有尺寸 + border-box 计算 wrapper 的可用宽高，
+ *    额外的 padding 会吃掉这部分空间，导致图片被压得极小、缩放锚点也偏移。
+ *    公式图片导出时为透明底，同样靠这里的背景色在灯箱里显示成白底。
+ * ====================================================================== */
+
+.fancybox__container .f-panzoom__content[src^="data:image/svg+xml"],
+.fancybox__container .f-panzoom__content[data-svg-image],
+.fancybox__container.is-svg-preview .f-panzoom__content,
+.fancybox__container.is-formula-slide .f-panzoom__content,
+.fancybox__container .f-carousel__slide img[data-svg-image] {
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+/* 缩略图保持透明底：Fancybox 会给缩略图自带半透明衬底，
+   这里只清掉从正文图片继承来的白底，避免缩略图变成一个个白块。 */
+.fancybox__container .fancybox__thumbs img,
+.fancybox__container .f-thumbs__slide,
+.fancybox__container .f-thumbs__slide img,
+.fancybox__container .f-thumbs__slide button,
+.fancybox__container .f-thumbs__slide .f-html {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+/* 暗色模式下，正文里的 SVG 示意图（黑线透明底）也给一层白底，避免与深色背景糊在一起。
+   同样只用背景色，不加 padding，免得改变图片的显示尺寸。 */
+.night-mode .markdown-body img[data-svg-image] {
+    background-color: #ffffff;
+}
+
+/* ====================================================================== *
+ * 3. 公式幻灯片底部的 LaTeX 源码
+ *    单独一行、居中、等宽字体，不干扰 Fancybox 原有的说明文字
+ * ====================================================================== */
+
+.fancybox__container .mlb-formula-tex {
+    display: block;
+    margin-top: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: #c9d1d9;
+    text-align: center;
+    word-break: break-all;
+}
+
+/* ====================================================================== *
+ * 4. 「复制 LaTeX」按钮：非公式幻灯片上隐藏
+ * ====================================================================== */
+
+.fancybox__container .f-button[data-mlb-copy] {
+    display: none;
+}
+
+.fancybox__container.is-formula-slide .f-button[data-mlb-copy] {
+    display: inline-flex;
+}
+
+/* 复制 / 保存结果的轻提示 */
+.mlb-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 26px;
+    z-index: 100001;
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: rgba(27, 31, 36, .92);
+    color: #fff;
+    font-size: 13px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 8px);
+    transition: opacity .2s ease, transform .2s ease;
+}
+
+.mlb-toast.active {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
