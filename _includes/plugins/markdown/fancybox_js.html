@@ -52,12 +52,25 @@
                     if (!svg.getAttribute("viewBox")) return null;
 
                     var box = svg.getAttribute("viewBox").split(/[\s,]+/).map(parseFloat);
-                    svg.style.maxWidth = "100%";
-                    svg.style.height = "auto";
-                    // 宽度超过正文列宽时按比例缩小
-                    if (box.length === 4 && box[2] > 0 && box[3] > 0 && box[2] > 695) {
-                        svg.style.width = "100%";
+                    var ratio = box.length === 4 && box[3] > 0 ? box[2] / box[3] : null;
+
+                    /**
+                     * 尺寸策略：不要一律撑满正文列宽。
+                     * 这些 dvisvgm 导出的图，viewBox 用的是 pt 量级的设计尺寸
+                     * （例如 733x112），一律拉到列宽会把它们放大约 2 倍，显得过大。
+                     * 所以：设计宽度本身就比列宽还大的，才铺满列宽；其余按原始比例来。
+                     */
+                    var COL_WIDTH = 695;
+                    if (ratio && box.length === 4) {
+                        if (box[2] > COL_WIDTH) {
+                            svg.style.width = "100%";
+                        } else {
+                            svg.style.width = Math.round(box[2]) + "px";
+                        }
+                    } else {
+                        svg.style.maxWidth = "100%";
                     }
+                    svg.style.height = "auto";
                     svg.setAttribute("role", "img");
                     // 加专属类名：正文里的线稿图要按块级居中显示，
                     // 而 MathJax 公式的 SVG 也带 role="img"，不能一起被改成块级（会把行内公式挤断行）

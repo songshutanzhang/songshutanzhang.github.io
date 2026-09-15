@@ -88,17 +88,18 @@
  *   2. 灯箱里的图片**一律给白底衬底** —— 它们压在暗色遮罩上，
  *      透明底会直接和遮罩糊在一起。白底上线条必须是深色。
  *
- *   注意：灯箱内的图片元素只能改 background-color / padding 这类不参与
- *   Fancybox 尺寸反推的属性；图片（.f-panzoom__content）本身绝不能加 padding，
+ *   注意：灯箱内的图片元素只能改 background-color 这类不参与 Fancybox
+ *   尺寸反推的属性；图片（.f-panzoom__content）本身绝不能加 padding，
  *   Fancybox 用它的固有尺寸 + border-box 计算 wrapper 可用宽高。
  * ====================================================================== */
 
 /* 正文 · 线稿类图（SVG 内联后）：无衬底，线条跟随主题。
    只认专属类名 .md-inline-svg —— MathJax 公式的 SVG 也带 role="img"，
-   若按 role 选会把行内公式也改成块级，导致公式被挤到单独一行。 */
+   若按 role 选会把行内公式也改成块级，导致公式被挤到单独一行。
+   具体宽度由 fancybox_js.html 按 SVG 的设计尺寸给出，这里只管居中与颜色。 */
 .markdown-body svg.md-inline-svg {
     display: block;
-    margin: 16px auto 5px;
+    margin: 16px auto 10px;
     max-width: 100%;
     height: auto;
     color: var(--mathjax-color, #24292f);
@@ -114,11 +115,14 @@
 
 /* ---- 灯箱 ---- */
 
-/* 灯箱里的一切图片都给白底衬底（压在暗色遮罩上，透明 = 看不见） */
 .fancybox__container {
-    --mlb-pad: 5px;
+    --mlb-radius: 10px;      /* 灯箱内图片的圆角 */
+    --mlb-thumb-radius: 8px; /* 缩略图圆角 */
+    --mlb-thumb-gap: 5px;    /* 缩略图间距 */
+    --mlb-svg-pad: 18px;     /* 线稿 / 公式幻灯片的衬底留白 */
 }
 
+/* 灯箱里的一切图片都给白底衬底（压在暗色遮罩上，透明 = 看不见） */
 .fancybox__container .f-panzoom__content[data-svg-image],
 .fancybox__container .is-svg-preview .f-panzoom__content,
 .fancybox__container .is-formula-slide .f-panzoom__content,
@@ -130,24 +134,24 @@
 .fancybox__container .f-panzoom__content[src$=".gif"] {
     background-color: #ffffff !important;
     background-image: none !important;
-    border-radius: var(--mlb-pad);
+    border-radius: var(--mlb-radius);
 }
 
-/* 只在幻灯片外框上加内边距，图片本身不能加（会影响 Fancybox 尺寸计算） */
+/* 照片幻灯片的圆角 */
 .fancybox__container .fancybox__slide {
-    padding: var(--mlb-pad);
-    box-sizing: border-box;
+    border-radius: var(--mlb-radius);
 }
 
-/* 灯箱内的 SVG 幻灯片：白底 + 深色线条（与缩略图一致的观感） */
+/* 灯箱内的 SVG 幻灯片：白底 + 深色线条，衬底留白比图片更大一些。
+   注意要覆盖 Fancybox 给 .f-html 幻灯片默认加的白底。 */
 .fancybox__container .mlb-svg-slide,
 .fancybox__container .mlb-svg-slide.f-html {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: var(--mlb-pad);
-    border-radius: var(--mlb-pad);
+    padding: var(--mlb-svg-pad);
+    border-radius: var(--mlb-radius);
     box-sizing: border-box;
     background-color: #ffffff !important;
     background-image: none !important;
@@ -181,20 +185,16 @@
 .fancybox__container .f-thumbs__slide {
     width: 96px !important;
     min-width: 96px !important;
+    border-radius: var(--mlb-thumb-radius);
+    overflow: hidden;
 }
 
 .fancybox__container .fancybox__thumbs img[src^="data:image/svg+xml"] {
     object-fit: contain !important;
 }
 
-/* 缩略图：5px 圆角 + 5px 间距 */
-.fancybox__container .f-thumbs__slide {
-    border-radius: 5px;
-    overflow: hidden;
-}
-
 .fancybox__container .fancybox__thumbs .f-thumbs__slide {
-    margin-inline: 5px;
+    margin-inline: var(--mlb-thumb-gap);
 }
 
 /* ====================================================================== *
