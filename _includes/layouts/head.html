@@ -54,7 +54,12 @@
     <link rel="icon" href="{{ site.favicon | prepend: site.baseurl }}" type="image/x-icon" />
     <link rel="bookmark" href="{{ site.favicon | prepend: site.baseurl }}" type="image/x-icon" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.min.css" async>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/style.css" />
+    <!--
+        正文字体「霞鹜文楷屏幕阅读版」：只加载简体那一套 @font-face。
+        官方的 style.css 会再 @import 四个变体（简/繁/GB 等），合计 400KB+ 的 CSS，
+        这里直接引用简体版，体积降到约 1/4，缺字自动回退到系统字体。
+    -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont/lxgwwenkaiscreen.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown-light.min.css">
     {% if layout.type == "post" %}
     {% include plugins/others/social_css.html%}
@@ -67,5 +72,8 @@
     {% include plugins/comments/artalk_css.html %}
     {% include plugins/search/docsearch_css.html %}
     <link rel="stylesheet" href="{{ "/assets/css/app.min.css" | prepend: site.baseurl }}">
+    {% if site.mathjax %}
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    {% endif %}
     <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
 </head>

@@ -18,23 +18,36 @@
 
         $(".post time span.create-at").html(local_post_date["date"]);
 
-        fetch("https://api.github.com/repos/{{ site.github.owner }}/{{ site.github.repository }}/commits?path={{ page.path }}").then((response) => {
-            return response.json();
-        }).then((commits) => {
-            if (commits.length != 0) {
+        /**
+         * 上次更新时间取自 GitHub 的提交记录。
+         * 仓库还没提交、请求失败或被限流时回退到文章日期，
+         * 避免控制台抛异常、更新时间一栏留空。
+         */
+        function fallbackUpdateTime() {
+            $('.post time span.update-at').html(local_post_date["date"]);
+        }
+
+        fetch("https://api.github.com/repos/{{ site.github.owner }}/{{ site.github.repository }}/commits?path={{ page.path }}")
+            .then(function (response) {
+                return response.ok ? response.json() : null;
+            })
+            .then(function (commits) {
+                if (!Array.isArray(commits) || !commits.length || !commits[0].commit) {
+                    fallbackUpdateTime();
+                    return;
+                }
                 var update_at = dayjs(commits[0]['commit']['committer']['date']);
-            } else {
-                var update_at = post_date
-            }
+                var local_update_at = dateFormat(update_at, post_date_format);
+                $('.post time span.update-at').html(local_update_at["date"]);
 
-            var local_update_at = dateFormat(update_at, post_date_format);
-            $('.post time span.update-at').html(local_update_at["date"]);
-
-            var relative_time = dayjs().diff(local_update_at["date_org"], 'day');
-            $(".post-copyright .tips span").append(relative_time);
-            if (relative_time > 365) {
-                $(".post-copyright .tips").addClass("active");
-            }
-        });
+                var relative_time = dayjs().diff(local_update_at["date_org"], 'day');
+                $(".post-copyright .tips span").append(relative_time);
+                if (relative_time > 365) {
+                    $(".post-copyright .tips").addClass("active");
+                }
+            })
+            .catch(function () {
+                fallbackUpdateTime();
+            });
     });
 </script>

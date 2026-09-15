@@ -24,7 +24,7 @@ default_lang: "zh-Hans"
 github:
   enabled: true
   owner: songshutanzhang
-  repository: songhshutanzhang.github.io
+  repository: songshutanzhang.github.io
 
 # PWA
 pwa:
@@ -93,8 +93,12 @@ comments:
   # twikoo_region: 'ap-shanghai'
   # twikoo_lang: 'zh-CN'
 
-# MathJax 公式支持 by Ray-Eldath
+# MathJax LaTeX 公式支持
+# 输出格式为 SVG：矢量清晰、随主题自动适配亮/暗色、可直接导出为 SVG / PNG
+# 行内公式 $...$ 或 \(...\)，独立公式块 $$...$$ 或 \[...\]
 mathjax: true
+# 公式灯箱：点击公式放大查看，并可复制 LaTeX 源码 / 保存 PNG、SVG
+mathjax_lightbox: true
 
 # Share
 social-share: true
