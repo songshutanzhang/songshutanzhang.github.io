@@ -1,4 +1,4 @@
-{% assign lang = page.lang | default: site.default_lang %}
+﻿{% assign lang = page.lang | default: site.default_lang %}
 {% assign locales = site.data.locales[lang] %}
 {% assign footer = locales.footer%}
 <footer class="g-footer">
@@ -71,7 +71,7 @@
       {% if site.supports.upyun %}
       <section>
         <a href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral" target="_blank" class="extlinks">{{
-          footer.upyun }} <img src="{{ "/assets/icons/upyun.png" | prepend: site.baseurl }}" class="upyun" alt="upyun" /></a>
+          footer.upyun }} <img src="{{ "/assets/icons/upyun.webp" | prepend: site.baseurl }}" class="upyun" alt="upyun" /></a>
       </section>
       {% endif %}
       {% if site.badges.netlify or site.badges.vercel or site.badges.cloudflare %}
@@ -83,7 +83,7 @@
         {% endif %}
         {% if site.badges.vercel %}
         <a href="https://vercel.com" target="_blank" class="vercel" aria-label="vercel">
-          <img src="{{ "/assets/icons/vercel-logotype-dark.png" | prepend: site.baseurl }}" alt="vercel">
+          <img src="{{ "/assets/icons/vercel-logotype-dark.webp" | prepend: site.baseurl }}" alt="vercel">
         </a>
         {% endif %}
         {% if site.badges.cloudflare %}
@@ -97,7 +97,7 @@
       <section class="badges">
         {% if site.badges.foreverblog %}
         <a href="https://www.foreverblog.cn/" target="_blank" class="foreverblog" aria-label="foreverblog">
-          <img src="{{ "/assets/icons/forever_en_default.png" | prepend: site.baseurl }}" alt="foreverblog">
+          <img src="{{ "/assets/icons/forever_en_default.webp" | prepend: site.baseurl }}" alt="foreverblog">
         </a>
         {% endif %}
         {% if site.badges.wormhole %}
