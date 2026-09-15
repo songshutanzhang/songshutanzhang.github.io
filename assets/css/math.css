@@ -76,20 +76,21 @@
  *   正文 · 照片/图表     原样（无底色）            原样（无底色）
  *   正文 · SVG 线稿      无底色，线条随主题变色    无底色，线条随主题变色
  *   正文 · LaTeX 公式    无底色，线条随主题变色    无底色，线条随主题变色
- *   灯箱 · 照片/图表     原样（无底色）            原样（无底色）
- *   灯箱 · SVG / 公式    无底色，线条随主题变色    无底色，线条随主题变色
+ *   灯箱 · 照片/图表     白底衬底                  白底衬底
+ *   灯箱 · SVG / 公式    白底衬底 + 深色线条       白底衬底 + 深色线条
  *   灯箱缩略图           白底                      白底
  *   原图（下载）         保持文件原样，不做任何加工
  *
  *   两条原则：
- *   1. 线稿类图（SVG / 公式）**不加任何衬底**，靠 fill: currentColor
+ *   1. 正文里的线稿图（SVG / 公式）**不加衬底**，靠 fill: currentColor
  *      跟随主题在深色/浅色线条之间切换。为此 SVG 以**内联 <svg>** 形式插入
  *      （<img> 是封闭文档，外部 CSS 改不了里面的颜色），见 fancybox_js.html。
- *   2. 缩略图是唯一例外：它落在暗色遮罩上，线条再变色也看不清，必须给白底。
+ *   2. 灯箱里的图片**一律给白底衬底** —— 它们压在暗色遮罩上，
+ *      透明底会直接和遮罩糊在一起。白底上线条必须是深色。
  *
- *   注意：灯箱内的图片元素只能改 background-color，
- *   绝不能加 padding / border —— Fancybox 用图片固有尺寸 + border-box
- *   计算 wrapper 的可用宽高，padding 会吃掉空间导致图片被压小、缩放锚点偏移。
+ *   注意：灯箱内的图片元素只能改 background-color / padding 这类不参与
+ *   Fancybox 尺寸反推的属性；图片（.f-panzoom__content）本身绝不能加 padding，
+ *   Fancybox 用它的固有尺寸 + border-box 计算 wrapper 可用宽高。
  * ====================================================================== */
 
 /* 正文 · 线稿类图（SVG 内联后）：无衬底，线条跟随主题 */
@@ -107,18 +108,44 @@
 
 /* ---- 灯箱 ---- */
 
-/* 灯箱内的 SVG 幻灯片：与正文一致，不加衬底，只跟随主题换色。
-   灯箱外壳在亮暗两种模式下都是深色的，所以线条固定用浅色。
-   注意要覆盖 Fancybox 给 HTML 幻灯片默认加的 .f-html 白底。 */
+/* 灯箱里的一切图片都给白底衬底（压在暗色遮罩上，透明 = 看不见） */
+.fancybox__container {
+    --mlb-pad: 5px;
+}
+
+.fancybox__container .f-panzoom__content[data-svg-image],
+.fancybox__container .is-svg-preview .f-panzoom__content,
+.fancybox__container .is-formula-slide .f-panzoom__content,
+.fancybox__container .f-panzoom__content[src^="data:image/svg+xml"],
+.fancybox__container .f-panzoom__content[src*="-lg.webp"],
+.fancybox__container .f-panzoom__content[src$=".png"],
+.fancybox__container .f-panzoom__content[src$=".jpg"],
+.fancybox__container .f-panzoom__content[src$=".jpeg"],
+.fancybox__container .f-panzoom__content[src$=".gif"] {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border-radius: var(--mlb-pad);
+}
+
+/* 只在幻灯片外框上加内边距，图片本身不能加（会影响 Fancybox 尺寸计算） */
+.fancybox__container .fancybox__slide {
+    padding: var(--mlb-pad);
+    box-sizing: border-box;
+}
+
+/* 灯箱内的 SVG 幻灯片：白底 + 深色线条（与缩略图一致的观感） */
 .fancybox__container .mlb-svg-slide,
 .fancybox__container .mlb-svg-slide.f-html {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    color: #f2f4f7;
-    background-color: transparent !important;
+    padding: var(--mlb-pad);
+    border-radius: var(--mlb-pad);
+    box-sizing: border-box;
+    background-color: #ffffff !important;
     background-image: none !important;
+    color: #1f2328;
 }
 
 .fancybox__container .mlb-svg-slide svg {
@@ -128,6 +155,11 @@
     max-height: 78vh;
     fill: currentColor;
     stroke: currentColor;
+}
+
+/* 公式幻灯片：白底 + 深色字形（公式图导出为透明底，靠这里补白） */
+.fancybox__container.is-formula-slide .f-panzoom__content {
+    padding: 0;
 }
 
 /* 灯箱缩略图：一律白底，否则在暗色遮罩上等于看不见 */
@@ -149,14 +181,14 @@
     object-fit: contain !important;
 }
 
-/* 缩略图之间留一点缝，避免连成一条白带 */
+/* 缩略图：5px 圆角 + 5px 间距 */
 .fancybox__container .f-thumbs__slide {
-    border-radius: 3px;
+    border-radius: 5px;
     overflow: hidden;
 }
 
 .fancybox__container .fancybox__thumbs .f-thumbs__slide {
-    margin-inline: 2px;
+    margin-inline: 5px;
 }
 
 /* ====================================================================== *
