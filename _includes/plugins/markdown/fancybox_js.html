@@ -12,10 +12,14 @@
         var SMALL_SUFFIX = '-sm.webp';
         var LARGE_SUFFIX = '-lg.webp';
 
-        /** 原始路径 → 正文小图（有配套小图才替换，否则保持原样） */
+        /**
+         * 原始路径 → 正文显示用的版本。
+         * 只把位图（png/jpg）换成 -sm.webp 小图；GIF 动图保持原文件，
+         * 否则正文里的动图会变成静态首帧。
+         */
         function smallVersionOf(src) {
-            if (/\.(png|jpe?g|gif)$/i.test(src || '')) {
-                return src.replace(/\.[^.]+$/, '-sm.webp');
+            if (/\.(png|jpe?g)$/i.test(src || '')) {
+                return src.replace(/\.[^.]+$/, SMALL_SUFFIX);
             }
             return src;
         }
@@ -44,9 +48,10 @@
                     var svg = doc.documentElement;
                     if (!svg || svg.nodeName.toLowerCase() !== "svg") return null;
 
-                    // 换成随主题变化的颜色；没有显式 fill 的路径默认黑色，正好靠 currentColor 接管
+                    // 换成随主题变化的颜色；没有显式 fill 的路径默认黑色，正好靠 currentColor 接管。
+                    // 只设 fill 不设 stroke：这些字形是填充路径，额外描边会让笔画变粗。
                     svg.setAttribute("fill", "currentColor");
-                    svg.setAttribute("stroke", "currentColor");
+                    svg.removeAttribute("stroke");
                     svg.removeAttribute("width");
                     svg.removeAttribute("height");
                     if (!svg.getAttribute("viewBox")) return null;

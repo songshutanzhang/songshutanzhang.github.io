@@ -33,16 +33,16 @@
 }
 
 .markdown-body mjx-container:not([display="true"]) {
-    font-size: 1.5em !important;
+    font-size: 1.65em !important;
     margin: 0 3px;
     vertical-align: baseline;
 }
 
 .markdown-body mjx-container[display="true"] {
     display: block;
-    font-size: 1.65em !important;
-    margin: 1.3em 0;
-    padding: .85em .6em;
+    font-size: 2em !important;
+    margin: 1.4em 0;
+    padding: .9em .6em;
     text-align: center;
     overflow-x: auto;
     overflow-y: hidden;
@@ -55,11 +55,11 @@
 
 @media (max-width: 640px) {
     .markdown-body mjx-container:not([display="true"]) {
-        font-size: 1.32em !important;
+        font-size: 1.42em !important;
     }
 
     .markdown-body mjx-container[display="true"] {
-        font-size: 1.4em !important;
+        font-size: 1.7em !important;
         padding: .6em .4em;
     }
 }
@@ -96,7 +96,8 @@
 /* 正文 · 线稿类图（SVG 内联后）：无衬底，线条跟随主题。
    只认专属类名 .md-inline-svg —— MathJax 公式的 SVG 也带 role="img"，
    若按 role 选会把行内公式也改成块级，导致公式被挤到单独一行。
-   具体宽度由 fancybox_js.html 按 SVG 的设计尺寸给出，这里只管居中与颜色。 */
+   具体宽度由 fancybox_js.html 按 SVG 的设计尺寸给出，这里只管居中与颜色。
+   只设 fill 不设 stroke：这些字形是填充路径，额外描边会让笔画变粗。 */
 .markdown-body svg.md-inline-svg {
     display: block;
     margin: 16px auto 10px;
@@ -104,7 +105,6 @@
     height: auto;
     color: var(--mathjax-color, #24292f);
     fill: currentColor;
-    stroke: currentColor;
 }
 
 /* 行内公式里的 SVG 必须保持行内，否则会把整行文字断开 */
@@ -164,7 +164,6 @@
     height: auto;
     max-height: 78vh;
     fill: currentColor;
-    stroke: currentColor;
 }
 
 /* 公式幻灯片：白底 + 深色字形（公式图导出为透明底，靠这里补白） */
