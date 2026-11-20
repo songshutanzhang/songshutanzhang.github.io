@@ -1,0 +1,7 @@
+# AutoCorrect 配置：https://github.com/huacnlee/autocorrect
+# 注意：本文件必须为 UTF-8 无 BOM，否则配置会被静默忽略。
+rules:
+  spellcheck: 0
+context:
+  # 关键：不格式化代码块内容，避免把示例代码里的中文注释/字符串改脏
+  codeblock: 0

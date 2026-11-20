@@ -47,8 +47,12 @@ type: post
                         <svg class="icon time" aria-hidden="true">
                             <use xlink:href="#icon-time"></use>
                         </svg>
+                        {%- comment -%}
+                        阅读时间估算：正文字数 / 700 字每分钟，再向上取整一分钟。
+                        除数由 350 调整为 700，使估算结果为原公式的 1/2。
+                        {%- endcomment -%}
                         {{ post.cover.time.info }} {{ page.content | strip_html | strip_newlines | remove: " " | size |
-                        divided_by: 350 | plus: 1 }} {{ post.cover.time.unit }}
+                        divided_by: 700 | plus: 1 }} {{ post.cover.time.unit }}
                     </span>
                     {% if site.busuanzi %}
                     <span class="post-meta-item">

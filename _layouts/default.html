@@ -49,6 +49,11 @@
             */
             function scrollToAdjust(id){
               var element = document.getElementById(id);
+              // 目录锚点取不到目标时直接返回，避免 element 为 null 抛异常、点击无任何反馈
+              if (!element) {
+                  console.warn('[toc] 未找到锚点目标: #' + id);
+                  return;
+              }
               var headerOffset = 90;
               var elementPosition = element.getBoundingClientRect().top;
               var offsetPosition = elementPosition + window.scrollY - headerOffset;

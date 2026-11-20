@@ -130,8 +130,13 @@
             {% if include.anchor_class %}
                 {% capture anchorAttributes %}{{ anchorAttributes }} class="{{ include.anchor_class | split: '.' | join: ' ' }}"{% endcapture %}
             {% endif %}
-            {% assign anchorBody2 = anchorBody | remove: "：" | replace: " ", "-" | downcase %}
-            {% capture listItem %}<a onclick="scrollToAdjust('{{ anchorBody2 }}')">{{ anchorBody }}</a>{% endcapture %}
+            {% comment %}
+                锚点必须用标题上真实存在的 id（htmlID，由 kramdown 的 generate_id 生成）。
+                以前这里按 "去掉全角冒号 -> 空格转 - -> 转小写" 自行拼一个近似 id，只有
+                纯中文且不含标点的标题才碰巧对得上；标题里一旦出现 、：，等标点或英文，
+                拼出来的字符串和真实 id 不一致，scrollToAdjust 取不到元素，点击就没反应。
+            {% endcomment %}
+            {% capture listItem %}<a href="#{{ htmlID }}" onclick="scrollToAdjust('{{ htmlID }}'); return false;">{{ anchorBody }}</a>{% endcapture %}
         {% elsif skipNoIDs == true %}
             {% continue %}
         {% else %}
