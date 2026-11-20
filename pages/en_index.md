@@ -25,6 +25,10 @@ Python, Machine Learing(ML), Mathematical Modeling, algorithm, etc.
 
 Traveling, Reading, Cartoons, films, Video Games...
 
+## My game
+
+[我家黄豆是魔丸]({{ '/games/huangdou/' | relative_url }}) · A local two-player game. Share one keyboard and score by reaching the other player's goal.
+
 ## Contact
 
 Email(China): dianlaoxinxi@163.com
