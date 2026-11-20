@@ -37,7 +37,7 @@ nav:
   blog: '/blog/index.html'
   archives: '/archives.html'
   tags: '/tags.html'
-  game: '/games/huangdou/'
+  FUN: '/fun/'
   about:   
     RSS: '/feed.xml'
 
