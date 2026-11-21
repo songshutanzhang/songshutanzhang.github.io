@@ -127,33 +127,21 @@
   .reset-btn:hover::after { transform: scaleX(0); }
   a.reset-btn { text-decoration: none; }
 
-  .home-control { position: relative; }
   #homeBtn { white-space: nowrap; }
   .home-choices {
-    position: absolute;
-    z-index: 10;
-    inset: calc(100% + 8px) 0 auto auto;
-    width: min(250px, calc(100vw - 44px));
-    padding: 13px;
+    width: min(340px, calc(100vw - 44px));
+    padding: 22px;
     border: 1px solid #c4bbaa;
     background: var(--paper-bright);
-    box-shadow: 0 10px 24px rgba(52, 40, 24, .12);
+    box-shadow: 0 18px 54px rgba(35, 30, 21, .23);
     color: var(--ink);
-    font-size: 13px;
-    letter-spacing: normal;
   }
-  .home-choices p { margin: 0 0 9px; line-height: 1.5; }
-  .home-choices .home-save-note { color: var(--muted); font-size: 12px; }
+  .home-choices::backdrop { background: rgba(28, 31, 27, .37); }
+  .home-choices h2 { margin: 0; font: 500 22px/1.45 var(--serif); }
+  .home-choices .home-save-note { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
   .home-choices .home-feedback { margin: 8px 0 0; }
-  .home-choices button {
-    display: block;
-    width: 100%;
-    min-height: 38px;
-    padding: 5px 9px;
-    text-align: left;
-    line-height: 1.4;
-  }
-  .home-choices .ghost-btn { margin-top: 3px; }
+  .home-choice-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; }
+  .home-choice-actions button { min-width: 0; min-height: 44px; padding: 5px 6px; }
 
   .layout {
     flex: 1;
@@ -935,16 +923,7 @@
     </div>
     <div class="topbar-meta" id="topbarMeta">
       <span id="remainingText" hidden></span>
-      <div class="home-control" id="homeControl" hidden>
-        <button class="reset-btn" id="homeBtn" type="button" aria-expanded="false" aria-controls="homeChoices">回到主页</button>
-        <div class="home-choices" id="homeChoices" role="group" aria-labelledby="homeTitle" hidden>
-          <p id="homeTitle">保留本轮进度？</p>
-          <p class="home-save-note" id="homeNote" hidden></p>
-          <button class="primary" id="homeSave" type="button">保留进度并返回</button>
-          <button class="ghost-btn" id="homeDiscard" type="button">不保存并返回</button>
-          <p class="home-feedback form-error" id="homeFeedback" role="status" hidden></p>
-        </div>
-      </div>
+      <button class="reset-btn" id="homeBtn" type="button" aria-haspopup="dialog" aria-controls="homeChoices" hidden>回到主页</button>
     </div>
   </header>
 
@@ -1092,18 +1071,11 @@
           <details class="filters" id="filters">
             <summary>更多设置</summary>
             <div class="filters-grid">
-              <label>聚会场景<select id="scene"><option value="all">全部在用题</option></select></label>
-              <label>熟悉程度<select id="familiarity"><option value="">跟随场景</option></select></label>
-              <label>参与者关系<select id="relationship"></select></label>
-              <label>人生阶段<select id="lifeStage"><option value="">不限</option></select></label>
-              <label>讨论氛围<select id="tone"><option value="">不限</option></select></label>
+              <label>聚会场景<select id="scene"><option value="all">默认</option></select></label>
               <label>抽题数量<input id="drawCount" type="number" min="1" step="1" placeholder="全部可用题"></label>
               <label>最低深度<select id="minDepth"><option value="1">1 · 轻松</option><option value="2">2 · 反思</option><option value="3">3 · 深入</option></select></label>
               <label>最高深度<select id="maxDepth"><option value="1">1 · 轻松</option><option value="2">2 · 反思</option><option value="3" selected>3 · 深入</option></select></label>
             </div>
-            <fieldset class="filter-checks">
-              <label><input type="checkbox" id="excludeRequired">排除必需经历</label>
-            </fieldset>
             <details class="filter-subsection">
               <summary>主题与排除项</summary>
               <fieldset>
@@ -1123,13 +1095,6 @@
                 <label>追加排除标签<input id="excludeTopics" list="topicOptions" autocomplete="off" placeholder="多个用逗号分开"></label>
               </div>
               <datalist id="topicOptions"></datalist>
-            </details>
-            <details class="filter-subsection">
-              <summary>全员具备的经历</summary>
-              <fieldset>
-                <legend>请只勾选每个人都具备的经历</legend>
-                <div class="filter-checks" id="experiences"></div>
-              </fieldset>
             </details>
           </details>
         </form>
@@ -1178,6 +1143,17 @@
 </div>
 
 <div class="sr-only" id="liveStatus" aria-live="polite" aria-atomic="true"></div>
+
+<dialog class="home-choices" id="homeChoices" aria-labelledby="homeTitle">
+  <h2 id="homeTitle">保存进度并退出？</h2>
+  <p class="home-save-note" id="homeNote" hidden></p>
+  <form method="dialog" class="home-choice-actions">
+    <button class="primary" id="homeSave" type="button">保存</button>
+    <button class="ghost-btn" id="homeDiscard" type="button">不保存</button>
+    <button class="ghost-btn" id="homeCancel" autofocus>取消</button>
+  </form>
+  <p class="home-feedback form-error" id="homeFeedback" role="status" hidden></p>
+</dialog>
 
 <dialog class="question-editor" id="roundHistory" aria-labelledby="roundHistoryTitle">
   <header class="editor-header">
@@ -1399,7 +1375,6 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     stepper: document.getElementById("stepper"),
     formError: document.getElementById("formError"),
     remainingText: document.getElementById("remainingText"),
-    homeControl: document.getElementById("homeControl"),
     homeBtn: document.getElementById("homeBtn"),
     homeChoices: document.getElementById("homeChoices"),
     homeNote: document.getElementById("homeNote"),
@@ -1462,21 +1437,11 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
 
   function initFilters() {
     const { taxonomy } = bank;
-    const selectOptions = {
-      scene: Object.fromEntries(Object.entries(taxonomy.scenes).map(([key, scene]) => [key, scene.label])),
-      familiarity: taxonomy.familiarity,
-      relationship: taxonomy.relationships,
-      lifeStage: taxonomy.stages,
-      tone: taxonomy.tones
-    };
-    for (const [id, choices] of Object.entries(selectOptions)) {
-      const select = document.getElementById(id);
-      for (const [value, label] of Object.entries(choices)) select.add(new Option(label, value));
-    }
+    const sceneSelect = document.getElementById("scene");
+    for (const [value, preset] of Object.entries(taxonomy.scenes)) sceneSelect.add(new Option(preset.label, value));
     const checkOptions = {
       includeDomains: taxonomy.domains,
       excludeDomains: taxonomy.domains,
-      experiences: taxonomy.experiences,
       excludePresets: Object.fromEntries(Object.entries(taxonomy.exclusions).map(([key, item]) => [key, item.label]))
     };
     for (const [id, choices] of Object.entries(checkOptions)) {
@@ -1492,7 +1457,7 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     }
     const list = document.getElementById("topicOptions");
     for (const [key, caption] of Object.entries(taxonomy.topics)) list.appendChild(new Option(key, caption));
-    document.getElementById("scene").value = "all";
+    sceneSelect.value = "all";
   }
 
   function readFilters() {
@@ -1503,22 +1468,14 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     const topics = (id) => value(id).split(/[,，、]/).map((item) => item.trim())
       .filter(Boolean).map((item) => topicByLabel.get(item) ?? item);
     const presets = checked("excludePresets").flatMap((key) => bank.taxonomy.exclusions[key].tags);
-    const enabledExperience = !input("excludeRequired").checked;
-    input("experiences").closest("fieldset").disabled = !enabledExperience;
     if (!input("drawCount").validity.valid) throw new Error("请输入正整数作为抽题数量。");
     return {
       scene: value("scene"),
-      familiarity: value("familiarity") || undefined,
-      relationship: value("relationship"),
-      lifeStages: [value("lifeStage")].filter(Boolean),
-      tones: [value("tone")].filter(Boolean),
       minDepth: Number(value("minDepth")),
       maxDepth: Number(value("maxDepth")),
       count: value("drawCount") ? Number(value("drawCount")) : undefined,
       gradual: value("drawOrder") === "gradual",
       playerOrder: value("playerOrder"),
-      excludeRequired: !enabledExperience,
-      confirmedExperiences: enabledExperience ? checked("experiences") : [],
       includeDomains: checked("includeDomains"),
       excludeDomains: checked("excludeDomains"),
       includeTopics: topics("includeTopics"),
@@ -1630,19 +1587,14 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
   function refreshHomeChoices(saved) {
     const replacing = saved && saved.roundId !== state.roundId;
     replaceRoundId = replacing ? saved.roundId : null;
-    el.homeSave.textContent = replacing ? "替换存档并返回" : "保留进度并返回";
     el.homeNote.hidden = !saved;
     el.homeNote.textContent = replacing ? "已有另一局存档，保留本轮会替换它。" : "不保存可继续使用上次存档。";
     showHomeFeedback("");
   }
 
-  function setHomeChoices(open) {
-    el.homeChoices.hidden = !open;
-    el.homeBtn.setAttribute("aria-expanded", String(open));
-    if (open) {
-      refreshHomeChoices(readSavedRound());
-      el.homeSave.focus();
-    }
+  function openHomeChoices() {
+    refreshHomeChoices(readSavedRound());
+    el.homeChoices.showModal();
   }
 
   function storeRound(existing) {
@@ -1927,18 +1879,18 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
           onBrake();
         }
         if (elapsed >= duration) {
-          // The 30:18 gear pair also comes home after three main-gear turns.
-          paintRewind(hand, gears, 0);
+          // Carry the hour advance into the next draw while the gears return to their starting angles.
+          paintRewind(hand + 360, gears, 0);
           frame = 0;
           onStop();
           return;
         }
         const turn = smoothstep(elapsed / duration);
-        const hourTurn = smoothstep((elapsed - 175) / (duration - 175));
+        const minute = hand + 360 * turn;
         const gearTurns = 3 * smoothstep((elapsed - 60) / (duration - 60));
         paint({
-          minute: hand + 360 * turn,
-          hour: hand / 12 + 360 * hourTurn,
+          minute,
+          hour: minute / 12,
           gear: gears * .32 + 360 * gearTurns,
           orbitAngle: gears / 10 + 360 * turn,
           ink: hand + duration * .64 * turn,
@@ -2020,8 +1972,8 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     el.primaryBtn.textContent = "抽人中";
     el.primaryBtn.disabled = true;
     el.rerollBtn.hidden = true;
-    el.homeControl.hidden = true;
-    setHomeChoices(false);
+    el.homeChoices.close();
+    el.homeBtn.hidden = true;
     el.remainingText.hidden = true;
     el.gameView.hidden = true;
     el.setupView.hidden = false;
@@ -2058,8 +2010,7 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     el.peopleTotal.textContent = `共 ${padNumber(state.playerCount)} 人`;
     el.gameView.hidden = false;
     el.setupView.hidden = true;
-    el.homeControl.hidden = false;
-    setHomeChoices(false);
+    el.homeBtn.hidden = false;
     el.actionRow.hidden = false;
     el.remainingText.hidden = false;
     el.body.dataset.view = "game";
@@ -2341,22 +2292,9 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
   el.wheelWrap.addEventListener("click", toggleRewind);
   el.primaryBtn.addEventListener("click", handlePrimary);
   el.rerollBtn.addEventListener("click", handleReroll);
-  el.homeBtn.addEventListener("click", () => setHomeChoices(el.homeChoices.hidden));
+  el.homeBtn.addEventListener("click", openHomeChoices);
   el.homeSave.addEventListener("click", saveAndReturn);
   document.getElementById("homeDiscard").addEventListener("click", returnToSetup);
-  document.addEventListener("click", (event) => {
-    if (!el.homeChoices.hidden && !el.homeControl.contains(event.target)) setHomeChoices(false);
-  });
-  el.homeControl.addEventListener("focusout", (event) => {
-    if (event.relatedTarget && !el.homeControl.contains(event.relatedTarget)) setHomeChoices(false);
-  });
-  el.homeControl.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !el.homeChoices.hidden) {
-      event.preventDefault();
-      setHomeChoices(false);
-      el.homeBtn.focus();
-    }
-  });
   el.resumeBtn.addEventListener("click", resumeGame);
   document.getElementById("roundHistoryBtn")?.addEventListener("click", () => openRoundHistory(state.history));
   document.getElementById("savedHistoryBtn")?.addEventListener("click", () => {
