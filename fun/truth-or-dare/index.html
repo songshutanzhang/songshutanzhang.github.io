@@ -563,6 +563,7 @@
   .round-history-list li { padding: 12px 0; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
   .round-history-list .history-row-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .round-history-list p { margin: 4px 0 0; }
+  .round-tools { display: flex; flex-wrap: wrap; gap: 8px 16px; }
   .question-editor .primary { min-height: 36px; padding: 0 14px; white-space: nowrap; }
   .question-editor textarea { min-height: 80px; resize: vertical; }
   .editor-before { margin: 10px 0; color: var(--muted); overflow-wrap: anywhere; }
@@ -978,7 +979,7 @@
           <details class="filters" id="filters">
             <summary>更多设置</summary>
             <div class="filters-grid">
-              <label>聚会场景<select id="scene"></select></label>
+              <label>聚会场景<select id="scene"><option value="all">全部在用题</option></select></label>
               <label>熟悉程度<select id="familiarity"><option value="">跟随场景</option></select></label>
               <label>参与者关系<select id="relationship"></select></label>
               <label>人生阶段<select id="lifeStage"><option value="">不限</option></select></label>
@@ -1045,7 +1046,10 @@
           <span class="spacer" aria-hidden="true"></span>
           <button class="primary" id="primaryBtn" type="button" disabled>抽人中</button>
         </div>
-        <button class="ghost-btn" id="roundHistoryBtn" type="button">查看过去的题</button>
+        <div class="round-tools">
+          <button class="ghost-btn" id="roundHistoryBtn" type="button">查看过去的题</button>
+          <button class="ghost-btn" id="roundSettingsBtn" type="button">返回设置</button>
+        </div>
         <p class="pool-summary" id="pauseFeedback" role="status" hidden></p>
       </div>
     </section>
@@ -1093,7 +1097,8 @@ const QuestionSelector = (() => {
         throw new Error(`无效的筛选值（${name}）：${list}`);
       }
     };
-    validate("scene", [scene], keys("scenes"));
+    const allScenes = scene === "all";
+    if (!allScenes) validate("scene", [scene], keys("scenes"));
     validate("relationship", [relationship], keys("relationships"));
     validate("lifeStages", lifeStages, keys("stages"));
     validate("confirmedExperiences", confirmedExperiences, keys("experiences"));
@@ -1113,7 +1118,9 @@ const QuestionSelector = (() => {
     }
     if (typeof excludeRequired !== "boolean") throw new Error("excludeRequired 须为布尔值。");
 
-    const preset = taxonomy.scenes[scene];
+    const preset = allScenes
+      ? { familiarity: "close_friend", sensitivity: 2, group_risk: "high" }
+      : taxonomy.scenes[scene];
     const familiarityOrder = keys("familiarity");
     const riskOrder = keys("group_risks");
     validate("familiarity", [familiarity ?? preset.familiarity], familiarityOrder);
@@ -1134,6 +1141,7 @@ const QuestionSelector = (() => {
       ["family", "romance", "group"].forEach((domain) => blockedDomains.add(domain));
     }
     const experiences = new Set(confirmedExperiences);
+    const requireConfirmedExperiences = !allScenes || hasRoleBoundary || experiences.size > 0;
     const targetTopics = new Set(includeTopics);
     const targetStages = new Set(lifeStages);
     const targetTones = new Set(tones);
@@ -1145,9 +1153,10 @@ const QuestionSelector = (() => {
       if (blockedDomains.has(question.primary_domain) || intersects(blockedTopics, question.topic_tags)) {
         counts.excluded++;
       } else if (question.experience_requirement === "required" &&
-          (excludeRequired || !question.experience_tags.every((tag) => experiences.has(tag)))) {
+          (excludeRequired || (requireConfirmedExperiences &&
+            !question.experience_tags.every((tag) => experiences.has(tag))))) {
         counts.experience++;
-      } else if (!question.scene_tags.includes(scene) ||
+      } else if ((!allScenes && !question.scene_tags.includes(scene)) ||
           familiarityOrder.indexOf(question.familiarity_min) > familiarityCap ||
           question.sensitivity > sensitivityCap ||
           riskOrder.indexOf(question.group_risk) > riskCap ||
@@ -1303,7 +1312,6 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     playerCount: 4,
     phase: "setup",
     roundId: "",
-    saveOnReveal: false,
     currentPlayer: null,
     previousPlayer: null,
     deck: [],
@@ -1378,7 +1386,7 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     }
     const list = document.getElementById("topicOptions");
     for (const [key, caption] of Object.entries(taxonomy.topics)) list.appendChild(new Option(key, caption));
-    document.getElementById("scene").value = "friends";
+    document.getElementById("scene").value = "all";
   }
 
   function readFilters() {
@@ -1548,7 +1556,7 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     if (existing?.remainingIds.length && existing.roundId !== state.roundId &&
         !window.confirm("已有一局暂存。用这一局替换上次进度？")) return;
     if (!storeRound(existing)) return;
-    handleReset();
+    returnToSetup();
     if (!el.resumeBtn.hidden) el.resumeBtn.focus();
   }
 
@@ -1577,7 +1585,6 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     }
 
     state.roundId = saved.roundId;
-    state.saveOnReveal = true;
     state.seenIds = seen;
     state.history = historyFromSave(saved);
     state.deck = deck;
@@ -1738,7 +1745,6 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     clearTimers();
     state.phase = "setup";
     state.roundId = "";
-    state.saveOnReveal = false;
     state.currentPlayer = null;
     state.previousPlayer = null;
     state.deck = [];
@@ -2095,11 +2101,6 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     if (state.history.length > HISTORY_LIMIT) state.history.shift();
     if (document.getElementById("roundHistory")?.open) renderRoundHistory(state.history);
     state.phase = remaining > 0 ? "question" : "end";
-    if (state.saveOnReveal) {
-      const existing = readSavedRound();
-      if (existing?.roundId === state.roundId) storeRound(existing);
-    }
-
     setQuestionHead(question);
     sectors[state.pendingSector]?.classList.add("is-active");
     state.pendingSector = null;
@@ -2148,14 +2149,13 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
       return;
     }
     if (state.phase === "end") {
-      startFreshRound();
+      restartGame();
     }
   }
 
   function startFreshRound() {
     buildWheel();
     state.roundId = `${Date.now().toString(36)}-${randomInt(0x1000000).toString(36)}`;
-    state.saveOnReveal = false;
     prepareDeck(state.selectionOptions);
     state.previousPlayer = null;
     showGame();
@@ -2166,7 +2166,17 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     if (state.phase === "question") beginSpin(true);
   }
 
-  function handleReset() {
+  function restartGame() {
+    const options = updateSetup();
+    if (!options) {
+      returnToSetup();
+      return;
+    }
+    state.selectionOptions = options;
+    startFreshRound();
+  }
+
+  function returnToSetup() {
     const previousCount = state.playerCount;
     showSetup();
     el.peopleInput.value = String(previousCount || 4);
@@ -2216,7 +2226,8 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
   el.wheelWrap.addEventListener("click", toggleWindmill);
   el.primaryBtn.addEventListener("click", handlePrimary);
   el.rerollBtn.addEventListener("click", handleReroll);
-  el.resetBtn.addEventListener("click", handleReset);
+  el.resetBtn.addEventListener("click", restartGame);
+  document.getElementById("roundSettingsBtn").addEventListener("click", returnToSetup);
   el.pauseBtn.addEventListener("click", pauseGame);
   el.resumeBtn.addEventListener("click", resumeGame);
   document.getElementById("roundHistoryBtn")?.addEventListener("click", () => openRoundHistory(state.history));
