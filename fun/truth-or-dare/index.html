@@ -127,6 +127,34 @@
   .reset-btn:hover::after { transform: scaleX(0); }
   a.reset-btn { text-decoration: none; }
 
+  .home-control { position: relative; }
+  #homeBtn { white-space: nowrap; }
+  .home-choices {
+    position: absolute;
+    z-index: 10;
+    inset: calc(100% + 8px) 0 auto auto;
+    width: min(250px, calc(100vw - 44px));
+    padding: 13px;
+    border: 1px solid #c4bbaa;
+    background: var(--paper-bright);
+    box-shadow: 0 10px 24px rgba(52, 40, 24, .12);
+    color: var(--ink);
+    font-size: 13px;
+    letter-spacing: normal;
+  }
+  .home-choices p { margin: 0 0 9px; line-height: 1.5; }
+  .home-choices .home-save-note { color: var(--muted); font-size: 12px; }
+  .home-choices .home-feedback { margin: 8px 0 0; }
+  .home-choices button {
+    display: block;
+    width: 100%;
+    min-height: 38px;
+    padding: 5px 9px;
+    text-align: left;
+    line-height: 1.4;
+  }
+  .home-choices .ghost-btn { margin-top: 3px; }
+
   .layout {
     flex: 1;
     display: grid;
@@ -171,25 +199,31 @@
   .tick.is-major { stroke-width: 3.2; }
   .hour-lozenge { fill: var(--clock-brass); }
   .clock-numerals {
-    fill: var(--ink);
-    font-family: Baskerville, "Times New Roman", var(--serif);
-    font-size: 49px;
-    font-variant-numeric: lining-nums;
+    fill: url(#dialInk);
+    stroke: #68604c;
+    stroke-width: .55;
+    paint-order: stroke fill;
+    font-family: Baskerville, "Palatino Linotype", "Times New Roman", var(--serif);
+    font-size: 43px;
+    letter-spacing: 1px;
     text-anchor: middle;
     dominant-baseline: central;
   }
+  .dial-engraving { fill: none; stroke: #9a8a70; stroke-width: 1; }
+  .dial-engraving-fine { fill: none; stroke: #b5a589; stroke-width: .8; }
+  .dial-engraving-mark { fill: #a79172; stroke: var(--paper-bright); stroke-width: 1; }
 
   .orbit-track { fill: none; stroke: var(--clock-brass); stroke-width: 1.2; }
-  .movement-plate { fill: #efece2; stroke: #b6ae9d; stroke-width: 1.2; }
-  .clock-bridge { fill: #e5dfd0; stroke: #a49b86; stroke-width: 1.3; }
-  .main-gear { --gear-metal: #bf9e6d; --gear-edge: #836b4c; }
-  .aux-gear { --gear-metal: #959384; --gear-edge: #696c5c; }
-  .gear-body { fill: var(--gear-metal); stroke: var(--gear-edge); stroke-width: 1; stroke-linejoin: round; }
-  .gear-engraving { fill: none; stroke: var(--gear-edge); stroke-width: .95; }
-  .bearing { fill: var(--paper-bright); stroke: var(--gear-edge); stroke-width: 1.3; }
+  .movement-plate { fill: url(#movementMetal); stroke: #b6ac96; stroke-width: 1.2; }
+  .clock-bridge { fill: url(#movementMetal); stroke: #9e9583; stroke-width: 1.3; }
+  .main-gear { --gear-metal: url(#agedBrass); --gear-edge: #695336; }
+  .aux-gear { --gear-metal: url(#agedPinion); --gear-edge: #6e6047; }
+  .gear-body { fill: var(--gear-metal); stroke: var(--gear-edge); stroke-width: 1.15; stroke-linejoin: round; }
+  .gear-engraving { fill: none; stroke: #e1c99e; stroke-width: 1; opacity: .78; }
+  .bearing { fill: url(#pinSteel); stroke: var(--gear-edge); stroke-width: 1.3; }
   .screw-slot { stroke: var(--gear-edge); stroke-width: 1.65; stroke-linecap: round; }
-  .minute-hand { fill: var(--ink); stroke: var(--paper-bright); stroke-width: .85; stroke-linejoin: round; }
-  .hour-hand { fill: #8d6943; stroke: #664f35; stroke-width: 1.1; stroke-linejoin: round; }
+  .minute-hand { fill: url(#bluedSteel); stroke: #1d251f; stroke-width: .75; stroke-linejoin: round; }
+  .hour-hand { fill: url(#agedBrass); stroke: #564533; stroke-width: 1.1; stroke-linejoin: round; }
 
   .panel {
     display: flex;
@@ -234,6 +268,7 @@
     font-weight: 500;
     letter-spacing: 0.24em;
   }
+  .setup-subline .fun-return { margin-inline-start: auto; white-space: nowrap; }
 
   .hairline {
     width: 30px;
@@ -801,6 +836,7 @@
     }
 
     .panel {
+      justify-content: center;
       border-left: 0;
       border-top: 1px solid var(--line);
       padding-left: 0;
@@ -816,14 +852,21 @@
     .setup-view, .game-view { max-width: 560px; padding: 0; }
     .setup-view { padding-bottom: 10px; }
     .setup-title { font-size: clamp(64px, 13vw, 92px); }
-    .person-line { min-height: 108px; }
-    .person-number { font-size: clamp(82px, 18vw, 112px); }
+    .person-line { display: grid; grid-template-columns: 1fr auto 1fr; min-height: 108px; }
+    .person-number {
+      grid-column: 2;
+      min-width: 0;
+      padding-inline-end: .065em;
+      font-size: clamp(82px, 18vw, 112px);
+      text-align: center;
+    }
+    .person-unit { grid-column: 3; }
     .question-area { min-height: 206px; }
     .question-text { font-size: clamp(21px, 4.8vw, 25px); }
   }
 
   @media (max-width: 620px) {
-    .page { padding: 12px 14px 20px; }
+    .page { padding: 16px clamp(22px, 6.2vw, 34px) 24px; }
     .brand-word { display: none; }
     .topbar { min-height: 32px; }
     .seal { width: 28px; height: 28px; font-size: 15px; }
@@ -833,7 +876,7 @@
 
     .wheel-wrap { width: min(100%, 285px); }
     body[data-view="game"] .wheel-wrap { width: min(100%, 240px); }
-    .clock-numerals { font-size: 53px; }
+    .clock-numerals { font-size: 47px; }
     .panel { padding-top: 24px; }
 
     .setup-view { padding-top: 6px; }
@@ -847,8 +890,8 @@
 
     .game-view { padding-top: 4px; }
     body[data-view="game"] .layout { align-content: start; gap: 10px; }
-    body[data-view="game"] .panel { padding-top: 8px; }
-    .person-line { min-height: 0; margin-top: 4px; }
+    body[data-view="game"] .panel { padding-top: 12px; }
+    .person-line { gap: 8px; min-height: 0; margin: 7px 0 6px; }
     .person-number { font-size: clamp(44px, 15vw, 66px); }
     .person-unit { margin-top: 6px; }
     .question-area { min-height: 105px; padding-top: 9px; }
@@ -892,9 +935,16 @@
     </div>
     <div class="topbar-meta" id="topbarMeta">
       <span id="remainingText" hidden></span>
-      <a class="reset-btn" href="/fun/">返回FUN</a>
-      <button class="reset-btn" id="pauseBtn" type="button" hidden>暂时退出</button>
-      <button class="reset-btn" id="resetBtn" type="button" hidden>重开</button>
+      <div class="home-control" id="homeControl" hidden>
+        <button class="reset-btn" id="homeBtn" type="button" aria-expanded="false" aria-controls="homeChoices">回到主页</button>
+        <div class="home-choices" id="homeChoices" role="group" aria-labelledby="homeTitle" hidden>
+          <p id="homeTitle">保留本轮进度？</p>
+          <p class="home-save-note" id="homeNote" hidden></p>
+          <button class="primary" id="homeSave" type="button">保留进度并返回</button>
+          <button class="ghost-btn" id="homeDiscard" type="button">不保存并返回</button>
+          <p class="home-feedback form-error" id="homeFeedback" role="status" hidden></p>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -902,6 +952,27 @@
     <section class="wheel-side" id="wheelSide" aria-label="真心话时钟">
       <button type="button" class="wheel-wrap" id="wheelWrap" aria-label="启动时间回溯" disabled>
         <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 640 640" width="640" height="640" aria-hidden="true">
+          <defs>
+            <linearGradient id="dialInk" x2="0" y2="1">
+              <stop stop-color="#413a2f"/><stop offset=".42" stop-color="#1a1c17"/><stop offset="1" stop-color="#292a23"/>
+            </linearGradient>
+            <radialGradient id="movementMetal" cx=".43" cy=".34" r=".74">
+              <stop stop-color="#f2ede2"/><stop offset=".7" stop-color="#eae5d8"/><stop offset="1" stop-color="#d6cfbd"/>
+            </radialGradient>
+            <linearGradient id="agedBrass" x2="1" y2=".92">
+              <stop stop-color="#a68652"/><stop offset=".27" stop-color="#d3b37b"/>
+              <stop offset=".58" stop-color="#ae8b57"/><stop offset=".81" stop-color="#917049"/><stop offset="1" stop-color="#ab8958"/>
+            </linearGradient>
+            <linearGradient id="agedPinion" x2=".8" y2="1">
+              <stop stop-color="#b2a081"/><stop offset=".5" stop-color="#93886e"/><stop offset="1" stop-color="#6f6855"/>
+            </linearGradient>
+            <linearGradient id="pinSteel" x2=".65" y2="1">
+              <stop stop-color="#fbf7ec"/><stop offset=".44" stop-color="#c2bba9"/><stop offset="1" stop-color="#857d6c"/>
+            </linearGradient>
+            <linearGradient id="bluedSteel" x2="1" y2="0">
+              <stop stop-color="#202820"/><stop offset=".42" stop-color="#4a554d"/><stop offset=".54" stop-color="#28332d"/><stop offset="1" stop-color="#161c19"/>
+            </linearGradient>
+          </defs>
           <circle class="clock-hairline" cx="320" cy="320" r="308"/>
           <circle class="clock-face" cx="320" cy="320" r="300"/>
           <circle class="minute-track" cx="320" cy="320" r="286" stroke="#fffdf7"/>
@@ -910,11 +981,18 @@
           <g id="ticks"></g>
           <g id="hourMarkers"></g>
           <g class="clock-numerals">
-            <text x="320" y="82">12</text><text x="557" y="320">3</text>
-            <text x="320" y="558">6</text><text x="83" y="320">9</text>
+            <text x="320" y="78">XII</text><text x="562" y="320">III</text>
+            <text x="320" y="562">VI</text><text x="78" y="320">IX</text>
           </g>
 
-          <circle class="clock-hairline" cx="320" cy="320" r="200"/>
+          <g id="dialEngraving">
+            <circle class="dial-engraving-fine" cx="320" cy="320" r="218"/>
+            <circle class="dial-engraving-fine" cx="320" cy="320" r="200"/>
+            <circle class="dial-engraving" cx="320" cy="320" r="213" pathLength="360"
+                    stroke-dasharray="21 2 3 4" stroke-dashoffset="-4" transform="rotate(-90 320 320)"/>
+            <circle class="dial-engraving-fine" cx="320" cy="320" r="207" pathLength="360"
+                    stroke-dasharray="18 3 1 2 1 5" stroke-dashoffset="-6" transform="rotate(-90 320 320)"/>
+          </g>
           <circle class="movement-plate" cx="320" cy="320" r="180"/>
           <g transform="translate(320 320)">
             <g id="orbitRing" class="orbit-track">
@@ -923,36 +1001,51 @@
             </g>
           </g>
 
-          <g transform="translate(320 185)">
-            <path d="M-32 9Q0 -13 32 9" fill="none" stroke="#b8ac97"/>
-            <circle r="13" cy="5" fill="#e3dece" stroke="#aa9d85"/>
-            <path d="M3 -6.4A11.6 11.6 0 1 0 10.8 10A10.5 10.5 0 0 1 3 -6.4Z" fill="var(--clock-brass)"/>
+          <g transform="translate(3 37)">
+            <path class="clock-bridge" d="M176 387Q211 380 259 342Q271 330 282 341L399 264Q410 257 429 255L444 251Q449 249 451 255Q453 261 448 263L418 271Q407 274 396 286L286 362Q275 372 263 363Q217 388 181 399Q173 401 171 395Q169 390 176 387Z"/>
+            <g fill="url(#pinSteel)" stroke="#9e9481" stroke-width="1.3">
+              <circle cx="179" cy="393" r="3.8"/><circle cx="445" cy="257" r="3.5"/>
+            </g>
           </g>
-          <path class="clock-bridge" d="M176 387Q211 380 259 342Q271 330 282 341L399 264Q410 257 429 255L444 251Q449 249 451 255Q453 261 448 263L418 271Q407 274 396 286L286 362Q275 372 263 363Q217 388 181 399Q173 401 171 395Q169 390 176 387Z"/>
-          <g fill="var(--paper-bright)" stroke="#9e9481" stroke-width="1.3">
-            <circle cx="179" cy="393" r="3.8"/><circle cx="445" cy="257" r="3.5"/>
-          </g>
-          <g class="main-gear" transform="translate(270 350)">
+          <g class="main-gear" transform="translate(273 387)">
             <g id="mainGear"></g>
             <circle class="bearing" r="7"/><path class="screw-slot" d="M-3 2l6-4"/>
           </g>
-          <g class="aux-gear" transform="translate(388 282)">
+          <g class="aux-gear" transform="translate(391 319)">
             <g id="auxGear" transform="rotate(10)"></g>
             <circle class="bearing" r="5"/><path class="screw-slot" d="M-2 -2l4 4"/>
+          </g>
+          <g transform="translate(409 224)">
+            <path class="clock-bridge" d="M-13 -7Q-8 -14 3 -12L18 -9Q23 -5 19 1L8 12Q-1 16 -11 9Z"/>
+            <g id="pressLever" transform="rotate(0)">
+              <path d="M-7 -5Q2 -12 9 -3Q13 3 9 10Q5 23 13 38L14 43 7 49 3 43Q4 36 0 29Q-5 18 -5 7Q-9 3 -7 -5Z"
+                    fill="url(#pinSteel)" stroke="#6d6654" stroke-width="1.3" stroke-linejoin="round"/>
+              <path d="M5 8Q1 21 8 36L11 42" fill="none" stroke="#f4ebd2" stroke-width="1.2"/>
+            </g>
+            <circle r="6.3" fill="url(#agedBrass)" stroke="#756044"/>
+            <path d="M-2.8 -2l5.6 4" fill="none" stroke="#5d4b34" stroke-width="1.3"/>
           </g>
 
           <g transform="translate(320 320)">
             <g id="hourHand" transform="rotate(-56)">
-              <path class="hour-hand" d="M0 -156L8 -126 6 -72 4 -14 5 17Q0 23 -5 17L-4 -14 -6 -72 -8 -126Z"/>
-              <path d="M0 -141V-27" fill="none" stroke="#e0c9a2" stroke-width="1.4"/>
+              <path class="hour-hand" d="M0 -157Q2 -145 7 -136Q14 -117 9 -88L6 -33Q6 -24 11 -20L10 14Q0 25 -10 14L-11 -20Q-6 -24 -6 -33L-9 -88Q-14 -117 -7 -136Q-2 -145 0 -157Z"/>
+              <path d="M0 -143Q-4 -128 -4 -117L-2 -33" fill="none" stroke="#ebd5ad" stroke-width="1.4"/>
+              <path d="M-7 -31H7M-9 -23H9" fill="none" stroke="#705736" stroke-width="1.2"/>
             </g>
             <g id="minuteHand" transform="rotate(48)">
-              <path class="minute-hand" fill-rule="evenodd" d="M0 -232L8.8 -203 3.1 -179 3.4 29 0 40 -3.4 29 -3.1 -179 -8.8 -203ZM0 -219L-3.8 -202 0 -189 3.8 -202Z"/>
-              <circle r="6.2" cy="30" fill="var(--paper-bright)" stroke="var(--ink)" stroke-width="3"/>
+              <path class="minute-hand" fill-rule="evenodd" d="M0 -237Q2 -220 4 -209Q6 -198 11 -192Q8 -187 4 -177L2.3 -41Q2.5 -28 7.5 -23L6.3 21Q6 30 0 40Q-6 30 -6.3 21L-7.5 -23Q-2.5 -28 -2.3 -41L-4 -177Q-8 -187 -11 -192Q-6 -198 -4 -209Q-2 -220 0 -237ZM0 -209Q-2 -200 -5.2 -192Q-2 -189 0 -181Q2 -189 5.2 -192Q2 -200 0 -209Z"/>
+              <path d="M-.8 -172V-37Q-1.2 -28 -4 -25M-4 20Q-3.3 29 0 34" fill="none" stroke="#aab4a5" stroke-width="1"/>
+              <path d="M-6 -24H6M-5.6 21H5.6" fill="none" stroke="#c2ae8d" stroke-width="1.2"/>
             </g>
-            <circle r="13" fill="var(--ink)" stroke="#f8f6ed" stroke-width="1.4"/>
-            <circle r="8.3" fill="#ae8a5e" stroke="#5d4b35"/>
-            <circle r="2.7" fill="var(--ink)"/>
+            <g id="handPivot">
+              <circle r="22" cy="1" fill="#6c573f" opacity=".29"/>
+              <circle r="20" fill="url(#agedBrass)" stroke="#66503a" stroke-width="1.25"/>
+              <circle r="17.2" fill="none" stroke="#f1dcb5" stroke-width="1.35"/>
+              <circle r="14.2" fill="url(#bluedSteel)" stroke="#6d573b" stroke-width="1.2"/>
+              <circle r="11.5" fill="none" stroke="#ddc39a" stroke-width="1.25" stroke-dasharray="1 2.3"/>
+              <circle r="7.8" fill="url(#pinSteel)" stroke="#181d19" stroke-width="1.25"/>
+              <path d="M-4.4 2.5l8.8-5" stroke="#574d3c" stroke-width="1.85" stroke-linecap="round"/>
+            </g>
           </g>
           <g id="noonMarker" fill="var(--ink)">
             <path d="M312 10h16l-8 20z"/><circle cx="320" cy="15" r="2" fill="#d5bc96"/>
@@ -968,6 +1061,7 @@
           <strong>大转盘</strong>
           <span class="hairline" aria-hidden="true"></span>
           <span id="bankTotal"></span>
+          <a class="reset-btn fun-return" href="/fun/">返回FUN</a>
         </p>
 
         <form class="setup-form" id="startForm" novalidate>
@@ -1070,16 +1164,14 @@
           <p class="question-empty" id="questionEmpty" aria-hidden="true"></p>
         </div>
 
-        <div class="action-row">
+        <div class="action-row" id="actionRow">
           <button class="ghost-btn" id="rerollBtn" type="button" hidden>换一道题</button>
           <span class="spacer" aria-hidden="true"></span>
           <button class="primary" id="primaryBtn" type="button" disabled>抽人中</button>
         </div>
         <div class="round-tools">
           <button class="ghost-btn" id="roundHistoryBtn" type="button">查看过去的经历</button>
-          <button class="ghost-btn" id="roundSettingsBtn" type="button">返回设置</button>
         </div>
-        <p class="pool-summary" id="pauseFeedback" role="status" hidden></p>
       </div>
     </section>
   </main>
@@ -1307,12 +1399,15 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     stepper: document.getElementById("stepper"),
     formError: document.getElementById("formError"),
     remainingText: document.getElementById("remainingText"),
-    pauseBtn: document.getElementById("pauseBtn"),
-    pauseFeedback: document.getElementById("pauseFeedback"),
+    homeControl: document.getElementById("homeControl"),
+    homeBtn: document.getElementById("homeBtn"),
+    homeChoices: document.getElementById("homeChoices"),
+    homeNote: document.getElementById("homeNote"),
+    homeSave: document.getElementById("homeSave"),
+    homeFeedback: document.getElementById("homeFeedback"),
     savedRound: document.getElementById("savedRound"),
     savedRoundText: document.getElementById("savedRoundText"),
     resumeBtn: document.getElementById("resumeBtn"),
-    resetBtn: document.getElementById("resetBtn"),
     questionArea: document.getElementById("questionArea"),
     memoryWindow: document.getElementById("memoryWindow"),
     personNumber: document.getElementById("personNumber"),
@@ -1321,12 +1416,14 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     questionText: document.getElementById("questionText"),
     questionEmpty: document.getElementById("questionEmpty"),
     questionIndex: document.getElementById("questionIndex"),
+    actionRow: document.getElementById("actionRow"),
     primaryBtn: document.getElementById("primaryBtn"),
     rerollBtn: document.getElementById("rerollBtn"),
     liveStatus: document.getElementById("liveStatus")
   };
 
   const clock = createClock(document.getElementById("wheelSvg"), document.getElementById("memoryTrack"));
+  let replaceRoundId = null;
   const state = {
     playerCount: 4,
     phase: "setup",
@@ -1525,15 +1622,33 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
       : `上次已抽完 · 共 ${saved.seenIds.length} 题`;
   }
 
-  function showPauseFeedback(text) {
-    el.pauseFeedback.hidden = !text;
-    el.pauseFeedback.textContent = text;
+  function showHomeFeedback(text) {
+    el.homeFeedback.hidden = !text;
+    el.homeFeedback.textContent = text;
+  }
+
+  function refreshHomeChoices(saved) {
+    const replacing = saved && saved.roundId !== state.roundId;
+    replaceRoundId = replacing ? saved.roundId : null;
+    el.homeSave.textContent = replacing ? "替换存档并返回" : "保留进度并返回";
+    el.homeNote.hidden = !saved;
+    el.homeNote.textContent = replacing ? "已有另一局存档，保留本轮会替换它。" : "不保存可继续使用上次存档。";
+    showHomeFeedback("");
+  }
+
+  function setHomeChoices(open) {
+    el.homeChoices.hidden = !open;
+    el.homeBtn.setAttribute("aria-expanded", String(open));
+    if (open) {
+      refreshHomeChoices(readSavedRound());
+      el.homeSave.focus();
+    }
   }
 
   function storeRound(existing) {
     const sameRound = existing?.roundId === state.roundId;
     if (sameRound && existing.seenIds.some((id) => !state.seenIds.has(id))) {
-      showPauseFeedback("上次进度已在另一个页面更新。");
+      showHomeFeedback("另一个页面已保存更晚的进度。");
       return false;
     }
     const remainingIds = state.deck.map((question) => question.id);
@@ -1551,19 +1666,20 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     };
     try {
       window.localStorage.setItem(SAVED_ROUND_KEY, JSON.stringify(saved));
-      showPauseFeedback("");
       return true;
     } catch {
-      showPauseFeedback("浏览器未能保存进度，请保持当前页面打开。");
+      showHomeFeedback("浏览器未能保存进度，请保持当前页面打开。");
       return false;
     }
   }
 
-  function pauseGame() {
+  function saveAndReturn() {
     if (state.phase === "setup") return;
     const existing = readSavedRound();
-    if (existing?.remainingIds.length && existing.roundId !== state.roundId &&
-        !window.confirm("已有一局暂存。用这一局替换上次进度？")) return;
+    if (existing && existing.roundId !== state.roundId && existing.roundId !== replaceRoundId) {
+      refreshHomeChoices(existing);
+      return;
+    }
     if (!storeRound(existing)) return;
     returnToSetup();
     if (!el.resumeBtn.hidden) el.resumeBtn.focus();
@@ -1637,6 +1753,8 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     const mainGear = svg.querySelector("#mainGear");
     const auxGear = svg.querySelector("#auxGear");
     const orbit = svg.querySelector("#orbitRing");
+    const pressLever = svg.querySelector("#pressLever");
+    const engraving = svg.querySelector("#dialEngraving");
 
     function add(parent, name, attributes) {
       const part = document.createElementNS(ns, name);
@@ -1649,7 +1767,9 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
       const transform = `rotate(${minute * 6} 320 320)`;
       add(ticks, "line", { class: major ? "tick is-major" : "tick", x1: 320, y1: 26,
         x2: 320, y2: major ? 49 : 37, transform });
-      if (major && minute % 15 !== 0) {
+      if (!major) continue;
+      add(engraving, "path", { class: "dial-engraving-mark", d: "M320 104l3.2 5-3.2 5-3.2-5z", transform });
+      if (minute % 15 !== 0) {
         add(markers, "path", { class: "hour-lozenge", d: "M320 73l2.8 6-2.8 6-2.8-6z", transform });
       }
     }
@@ -1658,8 +1778,10 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
       const inner = radius * .79;
       const hub = radius * .18;
       const outline = [];
+      const toothProfile = [[-.5, -4.5], [-.32, -4.5], [-.24, -1.6], [-.16, 3.5],
+        [.16, 3.5], [.24, -1.6], [.32, -4.5]];
       for (let tooth = 0; tooth < teeth; tooth++) {
-        for (const [offset, distance] of [[-.5, -3.5], [-.33, -3.5], [-.17, 3.6], [.17, 3.6], [.33, -3.5]]) {
+        for (const [offset, distance] of toothProfile) {
           const angle = (tooth + offset) * 2 * Math.PI / teeth;
           const r = radius + distance;
           outline.push(`${(r * Math.cos(angle)).toFixed(2)},${(r * Math.sin(angle)).toFixed(2)}`);
@@ -1668,6 +1790,7 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
       const bore = `M ${inner} 0 a ${inner} ${inner} 0 1 0 ${-2 * inner} 0 a ${inner} ${inner} 0 1 0 ${2 * inner} 0Z`;
       add(group, "path", { class: "gear-body", "fill-rule": "evenodd", d: "M" + outline.join(" L") + "Z " + bore });
       add(group, "circle", { class: "gear-engraving", r: radius - 6.5 });
+      add(group, "circle", { class: "gear-engraving", r: inner + 2.3 });
       const width = radius * .048;
       const spoke = `M ${-hub * .56} ${-hub * .58} Q ${-width * 2.2} ${-inner * .54} ${-width} ${-inner - 1}
         h ${2 * width} Q ${-width * .35} ${-inner * .54} ${hub * .56} ${-hub * .58} Z`;
@@ -1686,21 +1809,33 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
 
     const topSpeed = .78; // degrees per millisecond
     const accelerationMs = 290;
+    const releaseMs = 165;
     let frame = 0;
     let speed = 0;
     let handTravel = 0;
     let gearTravel = 0;
+    let leverLift = 0;
 
-    function paint(hand, gears) {
+    function smoothstep(progress) {
+      const t = Math.max(0, Math.min(1, progress));
+      return t * t * (3 - 2 * t);
+    }
+
+    function paint({ minute, hour, gear, orbitAngle, ink, lift }) {
+      minuteHand.setAttribute("transform", `rotate(${48 - minute})`);
+      hourHand.setAttribute("transform", `rotate(${-56 - hour})`);
+      mainGear.setAttribute("transform", `rotate(${-gear})`);
+      auxGear.setAttribute("transform", `rotate(${10 + gear * mainTeeth / auxTeeth})`);
+      orbit.setAttribute("transform", `rotate(${-orbitAngle})`);
+      pressLever.setAttribute("transform", `rotate(${-14 * lift})`);
+      memoryTrack.style.transform = `translateY(${-(ink % 210) * 50 / 210}%)`;
+    }
+
+    function paintRewind(hand, gears, lift) {
       handTravel = hand;
       gearTravel = gears;
-      const mainAngle = -gears * .32;
-      minuteHand.setAttribute("transform", `rotate(${48 - hand})`);
-      hourHand.setAttribute("transform", `rotate(${-56 - hand / 12})`);
-      mainGear.setAttribute("transform", `rotate(${mainAngle})`);
-      auxGear.setAttribute("transform", `rotate(${10 - mainAngle * mainTeeth / auxTeeth})`);
-      orbit.setAttribute("transform", `rotate(${-gears / 10})`);
-      memoryTrack.style.transform = `translateY(${-(hand % 210) * 50 / 210}%)`;
+      leverLift = lift;
+      paint({ minute: hand, hour: hand / 12, gear: gears * .32, orbitAngle: gears / 10, ink: hand, lift });
     }
 
     function cancel() {
@@ -1711,15 +1846,20 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     function rewind() {
       cancel();
       speed = 0;
-      if (REDUCED_MOTION.matches) return;
+      if (REDUCED_MOTION.matches) {
+        paintRewind(handTravel, gearTravel, 0);
+        return;
+      }
       const start = performance.now();
       const hand = handTravel, gears = gearTravel;
+      const travel = (elapsed) => {
+        const ramp = Math.min(elapsed, accelerationMs);
+        return topSpeed * (ramp * ramp / (2 * accelerationMs) + Math.max(0, elapsed - accelerationMs));
+      };
       function advance(now) {
         const elapsed = Math.max(0, now - start);
-        const ramp = Math.min(elapsed, accelerationMs);
-        speed = topSpeed * ramp / accelerationMs;
-        const distance = speed * ramp / 2 + topSpeed * Math.max(0, elapsed - accelerationMs);
-        paint(hand + distance, gears + distance);
+        speed = topSpeed * Math.min(1, elapsed / accelerationMs);
+        paintRewind(hand + travel(elapsed), gears + travel(Math.max(0, elapsed - 60)), smoothstep(elapsed / releaseMs));
         frame = window.requestAnimationFrame(advance);
       }
       frame = window.requestAnimationFrame(advance);
@@ -1731,14 +1871,17 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
         frame = window.requestAnimationFrame(() => {
           frame = 0;
           speed = 0;
+          paintRewind(handTravel, gearTravel, 0);
           onStop();
         });
         return;
       }
       const start = performance.now();
       const hand = handTravel, gears = gearTravel;
+      const lift = leverLift;
       const entrySpeed = Math.max(speed, .16);
       const handBrake = 440, rebound = 130, gearLag = 48, gearBrake = 590;
+      const duration = gearLag + gearBrake;
       // The hands pass a minute mark, then recoil while the wheels run out.
       const stop = Math.round((hand + entrySpeed * handBrake / 3) / 6) * 6;
       const overshoot = 2.2;
@@ -1751,8 +1894,8 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
           : stop + overshoot * (1 + Math.cos(Math.PI * recoil)) / 2;
         const runout = entrySpeed * Math.min(elapsed, gearLag) +
           entrySpeed * gearBrake / 3 * easeOut(Math.max(0, elapsed - gearLag) / gearBrake);
-        paint(hands, gears + runout);
-        if (elapsed < gearLag + gearBrake) {
+        paintRewind(hands, gears + runout, lift * smoothstep((duration - elapsed) / releaseMs));
+        if (elapsed < duration) {
           frame = window.requestAnimationFrame(advance);
         } else {
           frame = 0;
@@ -1763,13 +1906,56 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
       frame = window.requestAnimationFrame(advance);
     }
 
+    function turnOnce(duration, onBrake, onStop) {
+      cancel();
+      if (REDUCED_MOTION.matches) {
+        frame = window.requestAnimationFrame(() => {
+          frame = 0;
+          onBrake();
+          onStop();
+        });
+        return;
+      }
+
+      const start = performance.now();
+      const hand = handTravel, gears = gearTravel;
+      let braking = false;
+      function advance(now) {
+        const elapsed = Math.max(0, now - start);
+        if (!braking && elapsed >= duration - 570) {
+          braking = true;
+          onBrake();
+        }
+        if (elapsed >= duration) {
+          // The 30:18 gear pair also comes home after three main-gear turns.
+          paintRewind(hand, gears, 0);
+          frame = 0;
+          onStop();
+          return;
+        }
+        const turn = smoothstep(elapsed / duration);
+        const hourTurn = smoothstep((elapsed - 175) / (duration - 175));
+        const gearTurns = 3 * smoothstep((elapsed - 60) / (duration - 60));
+        paint({
+          minute: hand + 360 * turn,
+          hour: hand / 12 + 360 * hourTurn,
+          gear: gears * .32 + 360 * gearTurns,
+          orbitAngle: gears / 10 + 360 * turn,
+          ink: hand + duration * .64 * turn,
+          lift: smoothstep(Math.min(elapsed, duration - elapsed) / releaseMs)
+        });
+        frame = window.requestAnimationFrame(advance);
+      }
+      frame = window.requestAnimationFrame(advance);
+    }
+
     function reset() {
       cancel();
       speed = 0;
-      paint(0, 0);
+      paintRewind(0, 0, 0);
     }
 
-    return { rewind, settle, cancel, reset };
+    return { rewind, settle, turnOnce, cancel, reset };
   }
 
   function updateBankTotal() {
@@ -1834,9 +2020,8 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     el.primaryBtn.textContent = "抽人中";
     el.primaryBtn.disabled = true;
     el.rerollBtn.hidden = true;
-    el.pauseBtn.hidden = true;
-    showPauseFeedback("");
-    el.resetBtn.hidden = true;
+    el.homeControl.hidden = true;
+    setHomeChoices(false);
     el.remainingText.hidden = true;
     el.gameView.hidden = true;
     el.setupView.hidden = false;
@@ -1873,9 +2058,9 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     el.peopleTotal.textContent = `共 ${padNumber(state.playerCount)} 人`;
     el.gameView.hidden = false;
     el.setupView.hidden = true;
-    el.resetBtn.hidden = false;
-    el.pauseBtn.hidden = false;
-    showPauseFeedback("");
+    el.homeControl.hidden = false;
+    setHomeChoices(false);
+    el.actionRow.hidden = false;
     el.remainingText.hidden = false;
     el.body.dataset.view = "game";
     updateRemaining();
@@ -1983,6 +2168,7 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
   function startRewind(automatic) {
     if (!["ready", "question"].includes(state.phase) || state.currentPlayer === null) return;
     if (!state.deck.length) return endGameWithoutQuestions();
+    const duration = state.phase === "question" ? 2450 : 3650;
     // The ordinary draw follows the prepared deck. A two-tap draw is sampled on stop.
     state.pendingQuestion = automatic ? takeQuestion(false) : null;
     if (automatic && !state.pendingQuestion) return endGameWithoutQuestions();
@@ -1996,19 +2182,22 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     el.rerollBtn.hidden = true;
     el.liveStatus.textContent = automatic ? "正在回溯。" : "时间回溯中，再点表盘停下。";
     updateWheelControl();
-    clock.rewind();
-    if (automatic) setTimer(stopRewind, REDUCED_MOTION.matches ? 0 : 210);
+    if (automatic) clock.turnOnce(duration, beginSettling, finishSpin);
+    else clock.rewind();
   }
 
-  function stopRewind() {
-    if (state.phase === "rewinding") state.pendingQuestion = takeQuestion(true);
-    else if (state.phase !== "spinning") return;
-    if (!state.pendingQuestion) return endGameWithoutQuestions();
+  function beginSettling() {
     state.phase = "settling";
     updateWheelControl();
     showStream("settling");
     el.primaryBtn.textContent = "定格中...";
     el.liveStatus.textContent = "表盘正在减速。";
+  }
+
+  function stopRewind() {
+    state.pendingQuestion = takeQuestion(true);
+    if (!state.pendingQuestion) return endGameWithoutQuestions();
+    beginSettling();
     clock.settle(finishSpin);
   }
 
@@ -2047,10 +2236,10 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     el.questionHead.classList.add("is-revealed");
 
     el.rerollBtn.hidden = remaining === 0;
-    el.primaryBtn.disabled = false;
+    el.actionRow.hidden = remaining === 0;
+    el.primaryBtn.disabled = remaining === 0;
 
     if (remaining === 0) {
-      el.primaryBtn.textContent = "重新开始";
       el.liveStatus.textContent = `轮到 ${state.currentPlayer} 号。${question.id}。${question.question} 题目已全部抽完。`;
     } else {
       el.primaryBtn.textContent = "下一位";
@@ -2064,8 +2253,8 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     updateRemaining();
     state.phase = "end";
     updateWheelControl();
-    el.primaryBtn.textContent = "重新开始";
-    el.primaryBtn.disabled = false;
+    el.actionRow.hidden = true;
+    el.primaryBtn.disabled = true;
     el.rerollBtn.hidden = true;
     el.liveStatus.textContent = "题目已全部抽完。";
   }
@@ -2078,9 +2267,6 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     if (state.phase === "question") {
       drawPerson();
       return;
-    }
-    if (state.phase === "end") {
-      restartGame();
     }
   }
 
@@ -2097,21 +2283,12 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     if (state.phase === "question") startRewind(true);
   }
 
-  function restartGame() {
-    const options = updateSetup();
-    if (!options) {
-      returnToSetup();
-      return;
-    }
-    state.selectionOptions = options;
-    startFreshRound();
-  }
-
   function returnToSetup() {
     const previousCount = state.playerCount;
     showSetup();
     el.peopleInput.value = String(previousCount || 4);
     updateStepperButtons();
+    el.startBtn.focus();
   }
 
   updateBankTotal();
@@ -2155,15 +2332,31 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
   });
 
   REDUCED_MOTION.addEventListener("change", () => {
-    if (["rewinding", "spinning"].includes(state.phase)) clock.rewind();
-    else if (state.phase === "settling" && REDUCED_MOTION.matches) clock.settle(finishSpin);
+    if (state.phase === "rewinding") clock.rewind();
+    else if (REDUCED_MOTION.matches && ["spinning", "settling"].includes(state.phase)) {
+      beginSettling();
+      clock.settle(finishSpin);
+    }
   });
   el.wheelWrap.addEventListener("click", toggleRewind);
   el.primaryBtn.addEventListener("click", handlePrimary);
   el.rerollBtn.addEventListener("click", handleReroll);
-  el.resetBtn.addEventListener("click", restartGame);
-  document.getElementById("roundSettingsBtn").addEventListener("click", returnToSetup);
-  el.pauseBtn.addEventListener("click", pauseGame);
+  el.homeBtn.addEventListener("click", () => setHomeChoices(el.homeChoices.hidden));
+  el.homeSave.addEventListener("click", saveAndReturn);
+  document.getElementById("homeDiscard").addEventListener("click", returnToSetup);
+  document.addEventListener("click", (event) => {
+    if (!el.homeChoices.hidden && !el.homeControl.contains(event.target)) setHomeChoices(false);
+  });
+  el.homeControl.addEventListener("focusout", (event) => {
+    if (event.relatedTarget && !el.homeControl.contains(event.relatedTarget)) setHomeChoices(false);
+  });
+  el.homeControl.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !el.homeChoices.hidden) {
+      event.preventDefault();
+      setHomeChoices(false);
+      el.homeBtn.focus();
+    }
+  });
   el.resumeBtn.addEventListener("click", resumeGame);
   document.getElementById("roundHistoryBtn")?.addEventListener("click", () => openRoundHistory(state.history));
   document.getElementById("savedHistoryBtn")?.addEventListener("click", () => {
