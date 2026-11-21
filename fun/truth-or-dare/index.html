@@ -876,12 +876,14 @@
     .stepper input { width: 72px; font-size: 23px; }
     .start-btn { height: 54px; }
 
-    .game-view { padding-top: 4px; }
     body[data-view="game"] .layout { align-content: start; gap: 10px; }
-    body[data-view="game"] .panel { padding-top: 12px; }
-    .person-line { gap: 8px; min-height: 0; margin: 7px 0 6px; }
-    .person-number { font-size: clamp(44px, 15vw, 66px); }
-    .person-unit { margin-top: 6px; }
+    body[data-view="game"] .panel { padding-top: 0; }
+    .turn-band { position: relative; display: grid; align-items: center; min-height: clamp(88px, 26vw, 108px); }
+    .turn-head { position: absolute; inset: 12px 0 auto; }
+    .person-line { align-items: center; gap: 8px; min-height: 0; margin: 0; }
+    .person-number { padding-bottom: .12em; font-size: clamp(44px, 15vw, 66px); line-height: 1; }
+    .person-unit { margin-top: 0; transform: translateY(-.55em); }
+    .turn-band + .rule { margin-top: 0; }
     .question-area { min-height: 105px; padding-top: 9px; }
     .memory-window { inset-block-start: 9px; height: 76px; }
     .question-text { margin-top: 8px; line-height: 1.5; font-size: clamp(19px, 5.1vw, 23px); }
@@ -1101,13 +1103,15 @@
       </div>
 
       <div class="game-view view-in" id="gameView" hidden>
-        <div class="turn-head">
-          <span>轮到</span>
-          <span id="peopleTotal">共 4 人</span>
-        </div>
-        <div class="person-line">
-          <span class="person-number" id="personNumber" aria-hidden="true">00</span>
-          <span class="person-unit">号</span>
+        <div class="turn-band">
+          <div class="turn-head">
+            <span>轮到</span>
+            <span id="peopleTotal">共 4 人</span>
+          </div>
+          <div class="person-line">
+            <span class="person-number" id="personNumber" aria-hidden="true">00</span>
+            <span class="person-unit">号</span>
+          </div>
         </div>
         <div class="rule" aria-hidden="true"></div>
 
