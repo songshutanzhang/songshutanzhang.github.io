@@ -19,7 +19,8 @@
 
 ## 封面与作品名称
 
-- 本项目的构建产物**不包含**动画封面图片，只保存 Bangumi 提供的远端图片 URL，并在用户浏览时由浏览器请求。
+- 浏览器按需加载远端封面地址。年鉴相关视图使用 Bangumi 封面，兴趣画像及其 PNG 使用 `cover.portrait` 中的 MyAnimeList 封面地址。
+- `cover.portrait` 的地址取自 [anime-offline-database 2026-27](https://github.com/manami-project/anime-offline-database/releases/tag/2026-27)。该数据集按 [ODbL 1.0 和 DbCL 1.0](https://github.com/manami-project/anime-offline-database/blob/2026-27/LICENSE) 提供。
 - 封面图片、作品名称与相关角色形象的权利归各动画制作方、出版社、发行方或其他原权利人所有。使用这些图片或名称时，应遵守适用法律及各权利人的要求。
 - 本项目仅用于非商业的动画目录索引、记录与介绍，不隶属于 Bangumi、AniList 或任何动画制作/发行公司，也未获得其背书。
 
