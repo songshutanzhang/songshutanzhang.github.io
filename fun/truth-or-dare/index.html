@@ -14,6 +14,8 @@
     --accent: #2f49e0;
     --accent-dark: #2439b3;
     --paper-bright: #faf8f2;
+    --clock-brass: #9a784e;
+    --clock-wash: #ded7c8;
     --serif: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
     --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   }
@@ -162,101 +164,32 @@
     overflow: visible;
   }
 
-  .outer-hairline {
-    fill: none;
-    stroke: var(--ink);
-    stroke-width: 1;
-    opacity: 0.16;
-  }
-
-  .tick {
-    stroke: var(--ink);
-    stroke-width: 1;
-    opacity: 0.24;
-  }
-
-  .tick.is-major { opacity: 0.45; }
-
-  #rotor {
-    transform-box: view-box;
-    transform-origin: 50% 50%;
-    will-change: transform;
-  }
-
-  .slice {
-    fill: #fffdf7;
-    stroke: var(--paper);
-    stroke-width: 0.65;
-    transition: fill 180ms ease;
-  }
-
-  .slice:nth-child(even) { fill: #ded7c8; }
-
-  .slice.is-active {
-    fill: var(--accent);
-    opacity: 1;
-  }
-
-  .segment-label {
+  .clock-face { fill: var(--paper-bright); stroke: var(--ink); stroke-width: 1.4; }
+  .clock-hairline { fill: none; stroke: var(--ink); stroke-width: 1; opacity: 0.28; }
+  .minute-track { fill: none; stroke-width: 9; }
+  .tick { stroke: var(--ink); stroke-width: 1.35; }
+  .tick.is-major { stroke-width: 3.2; }
+  .hour-lozenge { fill: var(--clock-brass); }
+  .clock-numerals {
     fill: var(--ink);
-    stroke: var(--paper);
-    stroke-width: 2.8px;
-    paint-order: stroke;
-    stroke-linejoin: round;
-    font-family: var(--sans);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    pointer-events: none;
-    transform-box: view-box;
-    will-change: transform;
-  }
-
-  .rotor-rim {
-    fill: none;
-    stroke: var(--ink);
-    stroke-width: 1.4;
-    opacity: 0.6;
-    pointer-events: none;
-  }
-
-  .hub {
-    fill: var(--ink);
-    pointer-events: none;
-  }
-
-  .hub-ring {
-    fill: none;
-    stroke: var(--paper);
-    stroke-width: 1;
-    opacity: 0.22;
-    pointer-events: none;
-  }
-
-  .hub-char {
-    fill: var(--paper-bright);
-    font-family: var(--serif);
-    font-size: 45px;
-    font-weight: 500;
+    font-family: Baskerville, "Times New Roman", var(--serif);
+    font-size: 49px;
+    font-variant-numeric: lining-nums;
     text-anchor: middle;
     dominant-baseline: central;
-    pointer-events: none;
   }
 
-  .pointer {
-    transform-box: fill-box;
-    transform-origin: center top;
-    filter: drop-shadow(0 2px 0 rgba(243, 241, 234, 0.9));
-  }
-
-  .wheel-side.is-landed .pointer {
-    animation: pointer-tap 360ms cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
-
-  @keyframes pointer-tap {
-    0%, 100% { transform: translateY(0); }
-    42% { transform: translateY(4px); }
-  }
+  .orbit-track { fill: none; stroke: var(--clock-brass); stroke-width: 1.2; }
+  .movement-plate { fill: #efece2; stroke: #b6ae9d; stroke-width: 1.2; }
+  .clock-bridge { fill: #e5dfd0; stroke: #a49b86; stroke-width: 1.3; }
+  .main-gear { --gear-metal: #bf9e6d; --gear-edge: #836b4c; }
+  .aux-gear { --gear-metal: #959384; --gear-edge: #696c5c; }
+  .gear-body { fill: var(--gear-metal); stroke: var(--gear-edge); stroke-width: 1; stroke-linejoin: round; }
+  .gear-engraving { fill: none; stroke: var(--gear-edge); stroke-width: .95; }
+  .bearing { fill: var(--paper-bright); stroke: var(--gear-edge); stroke-width: 1.3; }
+  .screw-slot { stroke: var(--gear-edge); stroke-width: 1.65; stroke-linecap: round; }
+  .minute-hand { fill: var(--ink); stroke: var(--paper-bright); stroke-width: .85; stroke-linejoin: round; }
+  .hour-hand { fill: #8d6943; stroke: #664f35; stroke-width: 1.1; stroke-linejoin: round; }
 
   .panel {
     display: flex;
@@ -711,6 +644,7 @@
   }
 
   .question-area {
+    position: relative;
     min-height: 236px;
     padding-top: 23px;
   }
@@ -746,17 +680,53 @@
     overflow-wrap: anywhere;
   }
 
-  .question-text.is-revealed { animation: question-in 500ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-  .question-head.is-revealed { animation: meta-in 380ms 90ms ease both; }
+  .question-head.is-revealed { animation: meta-in 145ms ease-out both; }
+  .question-text.is-revealed { animation: question-in 265ms 85ms cubic-bezier(.18,.68,.27,1) both; }
 
-  @keyframes question-in {
-    from { opacity: 0; transform: translateY(9px); }
+  @keyframes meta-in {
+    from { opacity: 0; transform: translateY(2px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
-  @keyframes meta-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  @keyframes question-in {
+    from { opacity: 0; filter: blur(5px); transform: translateY(4px); text-shadow: 0 2px 1px #a9a396; }
+    to { opacity: 1; filter: blur(0); transform: translateY(0); text-shadow: 0 0 transparent; }
+  }
+
+  .question-area[data-motion] .question-head { visibility: hidden; }
+  .memory-window {
+    position: absolute;
+    inset: 21px 0 auto;
+    height: clamp(78px, 11vh, 108px);
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    mask-image: linear-gradient(to bottom, transparent, black 27%, black 66%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 27%, black 66%, transparent);
+  }
+  .memory-ink {
+    color: #6c6559;
+    opacity: .56;
+    filter: blur(1.5px);
+    text-shadow: .5px 3px 1px #a29b8d;
+    transition: opacity 180ms ease;
+  }
+  .memory-track { will-change: transform; }
+  .memory-lines {
+    font-family: var(--serif);
+    font-size: clamp(18px, 1.8vw, 25px);
+    line-height: 1.42;
+    letter-spacing: .12em;
+    white-space: nowrap;
+  }
+  .memory-lines span { display: block; }
+  .memory-lines span:nth-child(even) { padding-left: .85em; }
+  .question-area[data-motion="settling"] .memory-ink {
+    opacity: 0;
+    filter: blur(.65px);
+    transform: translateY(2px) scaleY(.94);
+    transform-origin: left top;
+    transition: opacity 480ms 110ms ease-in, filter 570ms ease-out, transform 570ms ease-out;
   }
 
   .question-empty {
@@ -777,6 +747,11 @@
   }
 
   .action-row .primary { min-width: 162px; }
+  .question-area[data-motion] ~ .action-row .primary:disabled {
+    background: #ebe6da;
+    border-color: #b8a88e;
+    color: #594b38;
+  }
 
   .ghost-btn {
     border: 0;
@@ -858,7 +833,7 @@
 
     .wheel-wrap { width: min(100%, 285px); }
     body[data-view="game"] .wheel-wrap { width: min(100%, 240px); }
-    .segment-label { font-size: 17px; stroke-width: 3.4px; }
+    .clock-numerals { font-size: 53px; }
     .panel { padding-top: 24px; }
 
     .setup-view { padding-top: 6px; }
@@ -877,6 +852,7 @@
     .person-number { font-size: clamp(44px, 15vw, 66px); }
     .person-unit { margin-top: 6px; }
     .question-area { min-height: 105px; padding-top: 9px; }
+    .memory-window { inset-block-start: 9px; height: 76px; }
     .question-text { margin-top: 8px; line-height: 1.5; font-size: clamp(19px, 5.1vw, 23px); }
     .action-row { margin-top: 10px; }
     .action-row .primary { flex: 1; min-width: 0; }
@@ -896,6 +872,8 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .question-head.is-revealed, .question-text.is-revealed { animation: none; }
+    .memory-ink { opacity: .35; text-shadow: none; }
     *, *::before, *::after {
       animation-duration: 0.001ms !important;
       animation-iteration-count: 1 !important;
@@ -921,22 +899,63 @@
   </header>
 
   <main class="layout">
-    <section class="wheel-side" id="wheelSide" aria-label="真心话转盘">
-      <button type="button" class="wheel-wrap" id="wheelWrap" aria-label="启动风车" disabled>
+    <section class="wheel-side" id="wheelSide" aria-label="真心话时钟">
+      <button type="button" class="wheel-wrap" id="wheelWrap" aria-label="启动时间回溯" disabled>
         <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 640 640" width="640" height="640" aria-hidden="true">
-          <circle class="outer-hairline" cx="320" cy="320" r="304"></circle>
-          <g id="ticks" aria-hidden="true"></g>
-          <g id="rotor" aria-hidden="true">
-            <g id="slices"></g>
-            <g id="labels"></g>
-            <circle class="rotor-rim" cx="320" cy="320" r="272"></circle>
+          <circle class="clock-hairline" cx="320" cy="320" r="308"/>
+          <circle class="clock-face" cx="320" cy="320" r="300"/>
+          <circle class="minute-track" cx="320" cy="320" r="286" stroke="#fffdf7"/>
+          <circle class="minute-track" cx="320" cy="320" r="286" stroke="var(--clock-wash)" pathLength="60"
+                  stroke-dasharray="1 1" transform="rotate(-90 320 320)"/>
+          <g id="ticks"></g>
+          <g id="hourMarkers"></g>
+          <g class="clock-numerals">
+            <text x="320" y="82">12</text><text x="557" y="320">3</text>
+            <text x="320" y="558">6</text><text x="83" y="320">9</text>
           </g>
-          <circle class="hub" cx="320" cy="320" r="94"></circle>
-          <circle class="hub-ring" cx="320" cy="320" r="75"></circle>
-          <text class="hub-char" x="320" y="322">问</text>
-          <g class="pointer" aria-hidden="true">
-            <path d="M310 17 H330 L320 54 Z" fill="#1c1f1b" stroke="#f3f1ea" stroke-width="2.5" stroke-linejoin="round"></path>
-            <circle cx="320" cy="22" r="3.5" fill="#2f49e0"></circle>
+
+          <circle class="clock-hairline" cx="320" cy="320" r="200"/>
+          <circle class="movement-plate" cx="320" cy="320" r="180"/>
+          <g transform="translate(320 320)">
+            <g id="orbitRing" class="orbit-track">
+              <circle r="187" stroke-dasharray="202 31 62 56 5 29" opacity=".6"/>
+              <path d="M0 -192l3 5-3 5-3-5z" fill="var(--clock-brass)" stroke="none"/>
+            </g>
+          </g>
+
+          <g transform="translate(320 185)">
+            <path d="M-32 9Q0 -13 32 9" fill="none" stroke="#b8ac97"/>
+            <circle r="13" cy="5" fill="#e3dece" stroke="#aa9d85"/>
+            <path d="M3 -6.4A11.6 11.6 0 1 0 10.8 10A10.5 10.5 0 0 1 3 -6.4Z" fill="var(--clock-brass)"/>
+          </g>
+          <path class="clock-bridge" d="M176 387Q211 380 259 342Q271 330 282 341L399 264Q410 257 429 255L444 251Q449 249 451 255Q453 261 448 263L418 271Q407 274 396 286L286 362Q275 372 263 363Q217 388 181 399Q173 401 171 395Q169 390 176 387Z"/>
+          <g fill="var(--paper-bright)" stroke="#9e9481" stroke-width="1.3">
+            <circle cx="179" cy="393" r="3.8"/><circle cx="445" cy="257" r="3.5"/>
+          </g>
+          <g class="main-gear" transform="translate(270 350)">
+            <g id="mainGear"></g>
+            <circle class="bearing" r="7"/><path class="screw-slot" d="M-3 2l6-4"/>
+          </g>
+          <g class="aux-gear" transform="translate(388 282)">
+            <g id="auxGear" transform="rotate(10)"></g>
+            <circle class="bearing" r="5"/><path class="screw-slot" d="M-2 -2l4 4"/>
+          </g>
+
+          <g transform="translate(320 320)">
+            <g id="hourHand" transform="rotate(-56)">
+              <path class="hour-hand" d="M0 -156L8 -126 6 -72 4 -14 5 17Q0 23 -5 17L-4 -14 -6 -72 -8 -126Z"/>
+              <path d="M0 -141V-27" fill="none" stroke="#e0c9a2" stroke-width="1.4"/>
+            </g>
+            <g id="minuteHand" transform="rotate(48)">
+              <path class="minute-hand" fill-rule="evenodd" d="M0 -232L8.8 -203 3.1 -179 3.4 29 0 40 -3.4 29 -3.1 -179 -8.8 -203ZM0 -219L-3.8 -202 0 -189 3.8 -202Z"/>
+              <circle r="6.2" cy="30" fill="var(--paper-bright)" stroke="var(--ink)" stroke-width="3"/>
+            </g>
+            <circle r="13" fill="var(--ink)" stroke="#f8f6ed" stroke-width="1.4"/>
+            <circle r="8.3" fill="#ae8a5e" stroke="#5d4b35"/>
+            <circle r="2.7" fill="var(--ink)"/>
+          </g>
+          <g id="noonMarker" fill="var(--ink)">
+            <path d="M312 10h16l-8 20z"/><circle cx="320" cy="15" r="2" fill="#d5bc96"/>
           </g>
         </svg>
       </button>
@@ -973,7 +992,7 @@
           </div>
           <div class="saved-round" id="savedRound" hidden>
             <span class="field-hint" id="savedRoundText" role="status"></span>
-            <button class="ghost-btn" id="savedHistoryBtn" type="button" hidden>查看过去的题</button>
+            <button class="ghost-btn" id="savedHistoryBtn" type="button" hidden>查看过去的经历</button>
             <button class="ghost-btn" id="resumeBtn" type="button">继续上次</button>
           </div>
           <details class="filters" id="filters">
@@ -1033,9 +1052,19 @@
         </div>
         <div class="rule" aria-hidden="true"></div>
 
-        <div class="question-area">
+        <div class="question-area" id="questionArea">
           <div class="question-head" id="questionHead">
             <span class="question-index" id="questionIndex">问题</span>
+          </div>
+          <div class="memory-window" id="memoryWindow" hidden aria-hidden="true">
+            <div class="memory-ink"><div class="memory-track" id="memoryTrack">
+              <div class="memory-lines">
+                <span>片刻　·　潮声　　　纸上　　余温</span>
+                <span>　半句　　某日　·　　留白　　回声</span>
+                <span>此间　　　印痕　　微光　·　迟来</span>
+                <span>　时分　·　窗影　　　远处　　昨日</span>
+              </div>
+            </div></div>
           </div>
           <p class="question-text" id="questionText"></p>
           <p class="question-empty" id="questionEmpty" aria-hidden="true"></p>
@@ -1047,7 +1076,7 @@
           <button class="primary" id="primaryBtn" type="button" disabled>抽人中</button>
         </div>
         <div class="round-tools">
-          <button class="ghost-btn" id="roundHistoryBtn" type="button">查看过去的题</button>
+          <button class="ghost-btn" id="roundHistoryBtn" type="button">查看过去的经历</button>
           <button class="ghost-btn" id="roundSettingsBtn" type="button">返回设置</button>
         </div>
         <p class="pool-summary" id="pauseFeedback" role="status" hidden></p>
@@ -1060,7 +1089,7 @@
 
 <dialog class="question-editor" id="roundHistory" aria-labelledby="roundHistoryTitle">
   <header class="editor-header">
-    <h2 id="roundHistoryTitle">本局题目</h2>
+    <h2 id="roundHistoryTitle">过去的经历</h2>
     <form method="dialog"><button class="ghost-btn">关闭</button></form>
   </header>
   <p class="pool-summary" id="roundHistoryEmpty">本局还没有亮过题。</p>
@@ -1259,17 +1288,9 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
   "use strict";
 
   const bank = JSON.parse(document.getElementById("questionBank").textContent);
-  const WHEEL_SECTORS = 100;
-  const SECTOR_ANGLE = 360 / WHEEL_SECTORS;
   const HISTORY_LIMIT = 10;
-  const SVG_NS = "http://www.w3.org/2000/svg";
-  const CENTER = 320;
-  const WHEEL_RADIUS = 272;
-  const LABEL_RADIUS = 228;
   const SAVED_ROUND_KEY = "truth-wheel/paused-round/v1";
   const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const sectors = [];
-  const segmentLabels = [];
 
   const el = {
     body: document.body,
@@ -1292,11 +1313,8 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     savedRoundText: document.getElementById("savedRoundText"),
     resumeBtn: document.getElementById("resumeBtn"),
     resetBtn: document.getElementById("resetBtn"),
-    ticks: document.getElementById("ticks"),
-    rotor: document.getElementById("rotor"),
-    slices: document.getElementById("slices"),
-    labels: document.getElementById("labels"),
-    wheelSide: document.getElementById("wheelSide"),
+    questionArea: document.getElementById("questionArea"),
+    memoryWindow: document.getElementById("memoryWindow"),
     personNumber: document.getElementById("personNumber"),
     peopleTotal: document.getElementById("peopleTotal"),
     questionHead: document.getElementById("questionHead"),
@@ -1308,6 +1326,7 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     liveStatus: document.getElementById("liveStatus")
   };
 
+  const clock = createClock(document.getElementById("wheelSvg"), document.getElementById("memoryTrack"));
   const state = {
     playerCount: 4,
     phase: "setup",
@@ -1320,14 +1339,8 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     selectionOptions: {},
     currentQuestion: null,
     pendingQuestion: null,
-    pendingSector: null,
-    windFrame: 0,
-    windQuestion: null,
-    rotation: 0,
-    spinToken: 0,
     personToken: 0,
     personInterval: null,
-    cancelSpinListener: null,
     timers: new Set()
   };
 
@@ -1341,13 +1354,9 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
   }
 
   function clearTimers() {
-    stopWindPreview();
+    clock.cancel();
     state.timers.forEach((timer) => window.clearTimeout(timer));
     state.timers.clear();
-    if (state.cancelSpinListener) {
-      state.cancelSpinListener();
-      state.cancelSpinListener = null;
-    }
     if (state.personInterval !== null) {
       window.clearInterval(state.personInterval);
       state.personInterval = null;
@@ -1529,7 +1538,7 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     }
     const remainingIds = state.deck.map((question) => question.id);
     if (state.pendingQuestion) remainingIds.unshift(state.pendingQuestion.id);
-    const readyPlayer = ["ready", "spinning", "drawing-person", "windmill"].includes(state.phase) ? state.currentPlayer : null;
+    const readyPlayer = ["ready", "drawing-person", "rewinding", "spinning", "settling"].includes(state.phase) ? state.currentPlayer : null;
     const saved = {
       roundId: state.roundId,
       options: state.selectionOptions,
@@ -1619,91 +1628,153 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     return Math.floor(Math.random() * maxExclusive);
   }
 
-  function polarPoint(angle, radius) {
-    const radians = (angle * Math.PI) / 180;
-    return {
-      x: CENTER + radius * Math.cos(radians),
-      y: CENTER + radius * Math.sin(radians)
-    };
-  }
+  function createClock(svg, memoryTrack) {
+    const ns = "http://www.w3.org/2000/svg";
+    const ticks = svg.querySelector("#ticks");
+    const markers = svg.querySelector("#hourMarkers");
+    const minuteHand = svg.querySelector("#minuteHand");
+    const hourHand = svg.querySelector("#hourHand");
+    const mainGear = svg.querySelector("#mainGear");
+    const auxGear = svg.querySelector("#auxGear");
+    const orbit = svg.querySelector("#orbitRing");
 
-  function buildWheel() {
-    const activeCount = bank.questions.filter((question) => question.status === "active").length;
-    document.getElementById("bankTotal").textContent = `${activeCount} 道问题`;
-    if (sectors.length) return;
-    const fragment = document.createDocumentFragment();
-    const labelFragment = document.createDocumentFragment();
+    function add(parent, name, attributes) {
+      const part = document.createElementNS(ns, name);
+      for (const [key, value] of Object.entries(attributes)) part.setAttribute(key, value);
+      parent.appendChild(part);
+    }
 
-    for (let index = 0; index < WHEEL_SECTORS; index++) {
-      const number = index + 1;
-      const centerAngle = -90 + index * SECTOR_ANGLE;
-      const startAngle = centerAngle - SECTOR_ANGLE / 2;
-      const endAngle = centerAngle + SECTOR_ANGLE / 2;
-      const start = polarPoint(startAngle, WHEEL_RADIUS);
-      const end = polarPoint(endAngle, WHEEL_RADIUS);
-
-      const path = document.createElementNS(SVG_NS, "path");
-      path.setAttribute("class", "slice");
-      path.setAttribute("d", [
-        `M ${CENTER} ${CENTER}`,
-        `L ${start.x.toFixed(3)} ${start.y.toFixed(3)}`,
-        `A ${WHEEL_RADIUS} ${WHEEL_RADIUS} 0 0 1 ${end.x.toFixed(3)} ${end.y.toFixed(3)}`,
-        "Z"
-      ].join(" "));
-      sectors.push(path);
-      fragment.appendChild(path);
-
-      if (number % 10 === 0) {
-        const labelPosition = polarPoint(centerAngle, LABEL_RADIUS);
-        const label = document.createElementNS(SVG_NS, "text");
-        label.setAttribute("class", "segment-label");
-        label.setAttribute("x", labelPosition.x.toFixed(2));
-        label.setAttribute("y", labelPosition.y.toFixed(2));
-        label.setAttribute("text-anchor", "middle");
-        label.setAttribute("dominant-baseline", "central");
-        label.style.transformOrigin = `${labelPosition.x.toFixed(2)}px ${labelPosition.y.toFixed(2)}px`;
-        label.textContent = String(number);
-        segmentLabels.push(label);
-        labelFragment.appendChild(label);
+    for (let minute = 0; minute < 60; minute++) {
+      const major = minute % 5 === 0;
+      const transform = `rotate(${minute * 6} 320 320)`;
+      add(ticks, "line", { class: major ? "tick is-major" : "tick", x1: 320, y1: 26,
+        x2: 320, y2: major ? 49 : 37, transform });
+      if (major && minute % 15 !== 0) {
+        add(markers, "path", { class: "hour-lozenge", d: "M320 73l2.8 6-2.8 6-2.8-6z", transform });
       }
     }
 
-    el.slices.appendChild(fragment);
-    el.labels.appendChild(labelFragment);
-
-    const ticksFragment = document.createDocumentFragment();
-    for (let i = 0; i < WHEEL_SECTORS; i++) {
-      const angle = -90 + i * SECTOR_ANGLE;
-      const outer = polarPoint(angle, 299);
-      const major = (i + 1) % 10 === 0;
-      const inner = polarPoint(angle, major ? 284 : 291);
-      const line = document.createElementNS(SVG_NS, "line");
-      line.setAttribute("class", major ? "tick is-major" : "tick");
-      line.setAttribute("x1", inner.x.toFixed(2));
-      line.setAttribute("y1", inner.y.toFixed(2));
-      line.setAttribute("x2", outer.x.toFixed(2));
-      line.setAttribute("y2", outer.y.toFixed(2));
-      ticksFragment.appendChild(line);
+    function buildGear(group, radius, teeth, spokes) {
+      const inner = radius * .79;
+      const hub = radius * .18;
+      const outline = [];
+      for (let tooth = 0; tooth < teeth; tooth++) {
+        for (const [offset, distance] of [[-.5, -3.5], [-.33, -3.5], [-.17, 3.6], [.17, 3.6], [.33, -3.5]]) {
+          const angle = (tooth + offset) * 2 * Math.PI / teeth;
+          const r = radius + distance;
+          outline.push(`${(r * Math.cos(angle)).toFixed(2)},${(r * Math.sin(angle)).toFixed(2)}`);
+        }
+      }
+      const bore = `M ${inner} 0 a ${inner} ${inner} 0 1 0 ${-2 * inner} 0 a ${inner} ${inner} 0 1 0 ${2 * inner} 0Z`;
+      add(group, "path", { class: "gear-body", "fill-rule": "evenodd", d: "M" + outline.join(" L") + "Z " + bore });
+      add(group, "circle", { class: "gear-engraving", r: radius - 6.5 });
+      const width = radius * .048;
+      const spoke = `M ${-hub * .56} ${-hub * .58} Q ${-width * 2.2} ${-inner * .54} ${-width} ${-inner - 1}
+        h ${2 * width} Q ${-width * .35} ${-inner * .54} ${hub * .56} ${-hub * .58} Z`;
+      for (let i = 0; i < spokes; i++) {
+        add(group, "path", { class: "gear-body", d: spoke, transform: `rotate(${i * 360 / spokes})` });
+      }
+      add(group, "circle", { class: "gear-body", r: hub });
+      add(group, "circle", { class: "gear-engraving", r: hub * .7 });
     }
-    el.ticks.appendChild(ticksFragment);
+
+    const mainTeeth = 30, auxTeeth = 18;
+    buildGear(mainGear, 85, mainTeeth, 6);
+    buildGear(auxGear, 51, auxTeeth, 5);
+    // Two identical lengths of type keep the scrolling strip seamless.
+    memoryTrack.append(memoryTrack.firstElementChild.cloneNode(true));
+
+    const topSpeed = .78; // degrees per millisecond
+    const accelerationMs = 290;
+    let frame = 0;
+    let speed = 0;
+    let handTravel = 0;
+    let gearTravel = 0;
+
+    function paint(hand, gears) {
+      handTravel = hand;
+      gearTravel = gears;
+      const mainAngle = -gears * .32;
+      minuteHand.setAttribute("transform", `rotate(${48 - hand})`);
+      hourHand.setAttribute("transform", `rotate(${-56 - hand / 12})`);
+      mainGear.setAttribute("transform", `rotate(${mainAngle})`);
+      auxGear.setAttribute("transform", `rotate(${10 - mainAngle * mainTeeth / auxTeeth})`);
+      orbit.setAttribute("transform", `rotate(${-gears / 10})`);
+      memoryTrack.style.transform = `translateY(${-(hand % 210) * 50 / 210}%)`;
+    }
+
+    function cancel() {
+      window.cancelAnimationFrame(frame);
+      frame = 0;
+    }
+
+    function rewind() {
+      cancel();
+      speed = 0;
+      if (REDUCED_MOTION.matches) return;
+      const start = performance.now();
+      const hand = handTravel, gears = gearTravel;
+      function advance(now) {
+        const elapsed = Math.max(0, now - start);
+        const ramp = Math.min(elapsed, accelerationMs);
+        speed = topSpeed * ramp / accelerationMs;
+        const distance = speed * ramp / 2 + topSpeed * Math.max(0, elapsed - accelerationMs);
+        paint(hand + distance, gears + distance);
+        frame = window.requestAnimationFrame(advance);
+      }
+      frame = window.requestAnimationFrame(advance);
+    }
+
+    function settle(onStop) {
+      cancel();
+      if (REDUCED_MOTION.matches) {
+        frame = window.requestAnimationFrame(() => {
+          frame = 0;
+          speed = 0;
+          onStop();
+        });
+        return;
+      }
+      const start = performance.now();
+      const hand = handTravel, gears = gearTravel;
+      const entrySpeed = Math.max(speed, .16);
+      const handBrake = 440, rebound = 130, gearLag = 48, gearBrake = 590;
+      // The hands pass a minute mark, then recoil while the wheels run out.
+      const stop = Math.round((hand + entrySpeed * handBrake / 3) / 6) * 6;
+      const overshoot = 2.2;
+      const easeOut = (p) => 1 - (1 - Math.min(1, p)) ** 3;
+      function advance(now) {
+        const elapsed = Math.max(0, now - start);
+        const recoil = Math.min(1, Math.max(0, elapsed - handBrake) / rebound);
+        const hands = elapsed < handBrake
+          ? hand + (stop + overshoot - hand) * easeOut(elapsed / handBrake)
+          : stop + overshoot * (1 + Math.cos(Math.PI * recoil)) / 2;
+        const runout = entrySpeed * Math.min(elapsed, gearLag) +
+          entrySpeed * gearBrake / 3 * easeOut(Math.max(0, elapsed - gearLag) / gearBrake);
+        paint(hands, gears + runout);
+        if (elapsed < gearLag + gearBrake) {
+          frame = window.requestAnimationFrame(advance);
+        } else {
+          frame = 0;
+          speed = 0;
+          onStop();
+        }
+      }
+      frame = window.requestAnimationFrame(advance);
+    }
+
+    function reset() {
+      cancel();
+      speed = 0;
+      paint(0, 0);
+    }
+
+    return { rewind, settle, cancel, reset };
   }
 
-  function resetWheelMarks() {
-    clearActiveSlice();
-    segmentLabels.forEach((label) => {
-      label.style.transition = "none";
-      label.style.transform = "rotate(0deg)";
-    });
-  }
-
-  function clearActiveSlice() {
-    el.slices.querySelectorAll(".slice.is-active").forEach((slice) => {
-      slice.classList.remove("is-active");
-    });
-  }
-
-  function normaliseModulo(value) {
-    return ((value % 360) + 360) % 360;
+  function updateBankTotal() {
+    const count = bank.questions.filter((question) => question.status === "active").length;
+    document.getElementById("bankTotal").textContent = `${count} 道问题`;
   }
 
   function updateStepperButtons() {
@@ -1734,13 +1805,12 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
   }
 
   function updateRemaining() {
-    const remaining = state.deck.length;
+    const remaining = state.deck.length + (state.pendingQuestion ? 1 : 0);
     el.remainingText.textContent = remaining > 0 ? `剩余 ${remaining} 题` : "题目已抽完";
     return remaining;
   }
 
   function showSetup() {
-    state.spinToken += 1;
     state.personToken += 1;
     clearTimers();
     state.phase = "setup";
@@ -1752,25 +1822,15 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     state.history = [];
     state.currentQuestion = null;
     state.pendingQuestion = null;
-    state.pendingSector = null;
     updateWheelControl();
     state.playerCount = 4;
 
-    el.rotor.style.transition = "none";
-    state.rotation = 0;
-    el.rotor.style.transform = "rotate(0deg)";
-    buildWheel();
+    clock.reset();
+    updateBankTotal();
     updateSetup();
-    resetWheelMarks();
     el.personNumber.textContent = "00";
     el.personNumber.classList.remove("is-rolling", "is-settled");
-    el.questionText.textContent = "";
-    el.questionText.style.opacity = "";
-    el.questionText.style.transition = "";
-    el.questionText.classList.remove("is-revealed");
-    el.questionHead.classList.remove("is-revealed");
-    resetQuestionHead();
-    el.questionEmpty.hidden = false;
+    clearQuestion();
     el.primaryBtn.textContent = "抽人中";
     el.primaryBtn.disabled = true;
     el.rerollBtn.hidden = true;
@@ -1778,7 +1838,6 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     showPauseFeedback("");
     el.resetBtn.hidden = true;
     el.remainingText.hidden = true;
-    el.wheelSide.classList.remove("is-landed");
     el.gameView.hidden = true;
     el.setupView.hidden = false;
     el.body.dataset.view = "setup";
@@ -1799,7 +1858,6 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
   }
 
   function showGame() {
-    state.spinToken += 1;
     state.personToken += 1;
     clearTimers();
     state.currentPlayer = null;
@@ -1808,9 +1866,7 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     state.phase = "drawing-person";
     updateWheelControl();
 
-    state.rotation = 0;
-    el.rotor.style.transition = "none";
-    el.rotor.style.transform = "rotate(0deg)";
+    clock.reset();
     el.peopleInput.classList.remove("has-error");
     el.stepper.classList.remove("has-error");
     el.formError.textContent = "";
@@ -1823,17 +1879,9 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     el.remainingText.hidden = false;
     el.body.dataset.view = "game";
     updateRemaining();
-    resetWheelMarks();
 
-    el.questionText.textContent = "";
-    el.questionText.style.opacity = "";
-    el.questionText.style.transition = "";
-    el.questionText.classList.remove("is-revealed");
-    el.questionHead.classList.remove("is-revealed");
-    resetQuestionHead();
-    el.questionEmpty.hidden = false;
+    clearQuestion();
     el.rerollBtn.hidden = true;
-    el.wheelSide.classList.remove("is-landed");
     el.primaryBtn.disabled = true;
     el.primaryBtn.textContent = "抽人中";
 
@@ -1859,16 +1907,10 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     el.primaryBtn.disabled = true;
     el.primaryBtn.textContent = "抽人中";
     el.rerollBtn.hidden = true;
-    clearActiveSlice();
     el.personNumber.classList.remove("is-settled");
     el.personNumber.classList.add("is-rolling");
-    el.questionText.textContent = "";
-    el.questionText.classList.remove("is-revealed");
-    el.questionHead.classList.remove("is-revealed");
-    resetQuestionHead();
-    el.questionEmpty.hidden = false;
-    el.currentQuestion = null;
-    el.wheelSide.classList.remove("is-landed");
+    clearQuestion();
+    state.currentQuestion = null;
 
     const rollDuration = REDUCED_MOTION.matches ? 40 : 760;
 
@@ -1900,94 +1942,79 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     el.personNumber.classList.remove("is-rolling", "is-settled");
     void el.personNumber.offsetWidth;
     el.personNumber.classList.add("is-settled");
+    if (!state.deck.length) return endGameWithoutQuestions();
     el.primaryBtn.textContent = "转动转盘";
     el.primaryBtn.disabled = false;
     el.liveStatus.textContent = `轮到 ${player} 号，共 ${state.playerCount} 人。`;
   }
 
-  function pickQuestion() {
-    while (state.deck.length && state.deck[0].status !== "active") state.deck.shift();
-    const question = state.deck.shift();
-    updateRemaining();
-    return question;
+  function takeQuestion(random) {
+    while (state.deck.length) {
+      const index = random ? randomInt(state.deck.length) : 0;
+      const [question] = state.deck.splice(index, 1);
+      if (question.status === "active") return question;
+    }
+    return null;
   }
 
   function updateWheelControl() {
-    const rolling = state.phase === "windmill";
-    const canStart = ["ready", "question"].includes(state.phase) && state.deck.length > 0;
-    el.wheelWrap.disabled = !rolling && !canStart;
-    el.wheelWrap.setAttribute("aria-label", rolling ? "停下风车并抽题" : "启动风车");
-    el.wheelWrap.setAttribute("aria-pressed", String(rolling));
+    const running = state.phase === "rewinding";
+    const ready = ["ready", "question"].includes(state.phase) && state.deck.length > 0;
+    el.wheelWrap.disabled = !running && !ready;
+    el.wheelWrap.setAttribute("aria-label", running ? "停止时间回溯并抽题" : "启动时间回溯");
+    el.wheelWrap.setAttribute("aria-pressed", String(running));
   }
 
-  function stopWindPreview() {
-    window.cancelAnimationFrame(state.windFrame);
-    state.windFrame = 0;
-    state.windQuestion = null;
+  function showStream(motion) {
+    el.memoryWindow.hidden = !motion;
+    if (motion) el.questionArea.dataset.motion = motion;
+    else delete el.questionArea.dataset.motion;
   }
 
-  function startWindmill() {
-    if (el.wheelWrap.disabled) return;
-    state.phase = "windmill";
-    state.currentQuestion = null;
-    clearActiveSlice();
-    updateWheelControl();
-    el.wheelSide.classList.remove("is-landed");
-    el.primaryBtn.disabled = true;
-    el.primaryBtn.textContent = "风车转动中";
-    el.rerollBtn.hidden = true;
-    el.liveStatus.textContent = "风车转动中，再点转盘停下。";
-    el.questionEmpty.hidden = true;
-    el.questionHead.classList.remove("is-revealed");
+  function clearQuestion() {
+    showStream(null);
+    el.questionText.textContent = "";
     el.questionText.classList.remove("is-revealed");
+    el.questionHead.classList.remove("is-revealed");
     resetQuestionHead();
-    el.questionIndex.textContent = "随机预览";
-    el.rotor.style.transition = "none";
-    resetWheelMarks();
-
-    let lastFrame = performance.now();
-    let lastPreview = -Infinity;
-    const frame = (now) => {
-      if (state.phase !== "windmill") return;
-      if (now - lastPreview >= (REDUCED_MOTION.matches ? 320 : 115)) {
-        const available = state.deck.filter((question) => question.status === "active");
-        state.windQuestion = available[randomInt(available.length)];
-        el.questionText.textContent = state.windQuestion?.question ?? "";
-        lastPreview = now;
-      }
-      if (!REDUCED_MOTION.matches) {
-        state.rotation = normaliseModulo(state.rotation + Math.max(0, now - lastFrame) * 1.08);
-        el.rotor.style.transform = `rotate(${state.rotation.toFixed(3)}deg)`;
-      }
-      lastFrame = now;
-      state.windFrame = window.requestAnimationFrame(frame);
-    };
-    frame(lastFrame);
+    el.questionEmpty.hidden = false;
   }
 
-  function toggleWindmill() {
-    if (state.phase !== "windmill") {
-      startWindmill();
-      return;
-    }
-    const shown = state.windQuestion;
-    stopWindPreview();
-    const index = state.deck.indexOf(shown);
-    const question = index >= 0 && shown.status === "active" ? state.deck.splice(index, 1)[0] : pickQuestion();
-    if (!question) {
-      hideQuestionContent(false);
-      endGameWithoutQuestions();
-      return;
-    }
-    updateRemaining();
-    state.phase = "spinning";
-    state.pendingSector = Math.round(normaliseModulo(-state.rotation) / SECTOR_ANGLE) % WHEEL_SECTORS;
-    state.rotation = normaliseModulo(-state.pendingSector * SECTOR_ANGLE);
-    el.rotor.style.transform = `rotate(${state.rotation.toFixed(3)}deg)`;
-    segmentLabels.forEach((label) => {
-      label.style.transform = `rotate(${(-state.rotation).toFixed(3)}deg)`;
-    });
-    finishSpin(question);
+  function startRewind(automatic) {
+    if (!["ready", "question"].includes(state.phase) || state.currentPlayer === null) return;
+    if (!state.deck.length) return endGameWithoutQuestions();
+    // The ordinary draw follows the prepared deck. A two-tap draw is sampled on stop.
+    state.pendingQuestion = automatic ? takeQuestion(false) : null;
+    if (automatic && !state.pendingQuestion) return endGameWithoutQuestions();
+    state.phase = automatic ? "spinning" : "rewinding";
+    state.currentQuestion = null;
+    clearQuestion();
+    showStream("running");
+    el.questionEmpty.hidden = true;
+    el.primaryBtn.disabled = true;
+    el.primaryBtn.textContent = "时间回溯中...";
+    el.rerollBtn.hidden = true;
+    el.liveStatus.textContent = automatic ? "正在回溯。" : "时间回溯中，再点表盘停下。";
+    updateWheelControl();
+    clock.rewind();
+    if (automatic) setTimer(stopRewind, REDUCED_MOTION.matches ? 0 : 210);
+  }
+
+  function stopRewind() {
+    if (state.phase === "rewinding") state.pendingQuestion = takeQuestion(true);
+    else if (state.phase !== "spinning") return;
+    if (!state.pendingQuestion) return endGameWithoutQuestions();
+    state.phase = "settling";
+    updateWheelControl();
+    showStream("settling");
+    el.primaryBtn.textContent = "定格中...";
+    el.liveStatus.textContent = "表盘正在减速。";
+    clock.settle(finishSpin);
+  }
+
+  function toggleRewind() {
+    if (state.phase === "rewinding") stopRewind();
+    else startRewind(false);
   }
 
   function resetQuestionHead() {
@@ -2000,123 +2027,24 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     el.questionIndex.classList.add("has-number");
   }
 
-  function hideQuestionContent(animate) {
-    const finish = () => {
-      el.questionText.textContent = "";
-      el.questionHead.classList.remove("is-revealed");
-      resetQuestionHead();
-      el.questionEmpty.hidden = false;
-    };
-
-    el.questionText.classList.remove("is-revealed");
-    el.questionHead.classList.remove("is-revealed");
-    if (animate && !REDUCED_MOTION.matches) {
-      el.questionText.style.opacity = "0";
-      el.questionText.style.transition = "opacity 150ms ease";
-      setTimer(() => {
-        el.questionText.style.opacity = "";
-        el.questionText.style.transition = "";
-        finish();
-      }, 150);
-    } else {
-      el.questionText.style.opacity = "";
-      el.questionText.style.transition = "";
-      finish();
-    }
-  }
-
-  function beginSpin(isReroll) {
-    if (!["ready", "question"].includes(state.phase)) return;
-    if (state.currentPlayer === null) return;
-
-    const question = pickQuestion();
-    if (!question) {
-      endGameWithoutQuestions();
-      return;
-    }
-
-    const spinToken = ++state.spinToken;
-    state.pendingQuestion = question;
-    state.currentQuestion = null;
-    state.phase = "spinning";
-    state.pendingSector = randomInt(WHEEL_SECTORS);
-    updateWheelControl();
-
-    el.wheelSide.classList.remove("is-landed");
-    clearActiveSlice();
-    el.primaryBtn.disabled = true;
-    el.primaryBtn.textContent = "转动中";
-    el.rerollBtn.hidden = true;
-    el.liveStatus.textContent = "正在抽题。";
-
-    hideQuestionContent(isReroll);
-
-    const jitter = (randomInt(101) - 50) * SECTOR_ANGLE / 200;
-    const desiredModulo = normaliseModulo(-state.pendingSector * SECTOR_ANGLE + jitter);
-    const currentModulo = normaliseModulo(state.rotation);
-    let delta = normaliseModulo(desiredModulo - currentModulo);
-    if (delta < 0.2) delta += 360;
-
-    const turns = (isReroll ? 4 : 6) + randomInt(3);
-    const startRotation = state.rotation;
-    const targetRotation = startRotation + turns * 360 + delta;
-    const duration = REDUCED_MOTION.matches ? 1 : (isReroll ? 2800 : 4300);
-    const easing = "cubic-bezier(0.1, 0.72, 0.12, 1)";
-
-    state.rotation = targetRotation;
-    el.rotor.style.transition = "none";
-    el.rotor.style.transform = `rotate(${startRotation.toFixed(3)}deg)`;
-    void el.rotor.getBoundingClientRect();
-
-    el.rotor.style.transition = `transform ${duration}ms ${easing}`;
-    segmentLabels.forEach((label) => {
-      label.style.transition = `transform ${duration}ms ${easing}`;
-      label.style.transform = `rotate(${(-targetRotation).toFixed(3)}deg)`;
-    });
-    el.rotor.style.transform = `rotate(${targetRotation.toFixed(3)}deg)`;
-
-    let settled = false;
-    const settle = (event) => {
-      if (event && (event.target !== el.rotor || event.propertyName !== "transform")) return;
-      if (settled || spinToken !== state.spinToken) return;
-      settled = true;
-      el.rotor.removeEventListener("transitionend", settle);
-      state.cancelSpinListener = null;
-      finishSpin(question);
-    };
-
-    el.rotor.addEventListener("transitionend", settle);
-    state.cancelSpinListener = () => el.rotor.removeEventListener("transitionend", settle);
-    setTimer(() => settle(), duration + 160);
-  }
-
-  function finishSpin(question) {
-    if (state.phase !== "spinning") return;
-    const remaining = state.deck.length;
-
-    state.currentQuestion = question;
+  function finishSpin() {
+    const question = state.pendingQuestion;
+    if (state.phase !== "settling" || !question) return;
     state.pendingQuestion = null;
+    state.currentQuestion = question;
+    const remaining = updateRemaining();
+    showStream(null);
     state.seenIds.add(question.id);
     state.history.push({ id: question.id, question: question.question });
     if (state.history.length > HISTORY_LIMIT) state.history.shift();
     if (document.getElementById("roundHistory")?.open) renderRoundHistory(state.history);
     state.phase = remaining > 0 ? "question" : "end";
     setQuestionHead(question);
-    sectors[state.pendingSector]?.classList.add("is-active");
-    state.pendingSector = null;
     updateWheelControl();
     el.questionEmpty.hidden = true;
     el.questionText.textContent = question.question;
-    el.questionText.style.opacity = "";
-    el.questionText.style.transition = "";
-    el.questionHead.classList.remove("is-revealed");
-    el.questionText.classList.remove("is-revealed");
-    void el.questionText.offsetWidth;
     el.questionText.classList.add("is-revealed");
     el.questionHead.classList.add("is-revealed");
-    el.wheelSide.classList.remove("is-landed");
-    void el.wheelSide.offsetWidth;
-    el.wheelSide.classList.add("is-landed");
 
     el.rerollBtn.hidden = remaining === 0;
     el.primaryBtn.disabled = false;
@@ -2131,6 +2059,9 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
   }
 
   function endGameWithoutQuestions() {
+    clock.cancel();
+    if (!state.currentQuestion) clearQuestion();
+    updateRemaining();
     state.phase = "end";
     updateWheelControl();
     el.primaryBtn.textContent = "重新开始";
@@ -2141,7 +2072,7 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
 
   function handlePrimary() {
     if (state.phase === "ready") {
-      beginSpin(false);
+      startRewind(true);
       return;
     }
     if (state.phase === "question") {
@@ -2154,7 +2085,7 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
   }
 
   function startFreshRound() {
-    buildWheel();
+    updateBankTotal();
     state.roundId = `${Date.now().toString(36)}-${randomInt(0x1000000).toString(36)}`;
     prepareDeck(state.selectionOptions);
     state.previousPlayer = null;
@@ -2163,7 +2094,7 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
   }
 
   function handleReroll() {
-    if (state.phase === "question") beginSpin(true);
+    if (state.phase === "question") startRewind(true);
   }
 
   function restartGame() {
@@ -2183,7 +2114,7 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     updateStepperButtons();
   }
 
-  buildWheel();
+  updateBankTotal();
   initFilters();
   updateSetup();
   updateStepperButtons();
@@ -2223,7 +2154,11 @@ if (typeof module === "object" && module.exports) module.exports = QuestionSelec
     }
   });
 
-  el.wheelWrap.addEventListener("click", toggleWindmill);
+  REDUCED_MOTION.addEventListener("change", () => {
+    if (["rewinding", "spinning"].includes(state.phase)) clock.rewind();
+    else if (state.phase === "settling" && REDUCED_MOTION.matches) clock.settle(finishSpin);
+  });
+  el.wheelWrap.addEventListener("click", toggleRewind);
   el.primaryBtn.addEventListener("click", handlePrimary);
   el.rerollBtn.addEventListener("click", handleReroll);
   el.resetBtn.addEventListener("click", restartGame);
