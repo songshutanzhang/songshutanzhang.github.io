@@ -3968,7 +3968,6 @@ const JudgeInterface = (() => {
   "use strict";
 
   const bank = JSON.parse(document.getElementById("questionBank").textContent);
-  const HISTORY_LIMIT = 10;
   const SAVED_ROUND_KEY = "truth-wheel/paused-round/v1";
   const SAVED_ROUND_VERSION = 2;
   const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -4217,7 +4216,7 @@ const JudgeInterface = (() => {
     const byId = new Map((Array.isArray(saved.history) ? saved.history : [])
       .filter((entry) => typeof entry?.id === "string" && typeof entry.question === "string")
       .map((entry) => [entry.id, entry.question]));
-    return saved.seenIds.slice(-HISTORY_LIMIT).map((id) => ({
+    return saved.seenIds.map((id) => ({
       id,
       question: byId.get(id) ?? bank.questions.find((q) => q.id === id)?.question ?? "当前题库中已找不到这道题。"
     }));
@@ -5432,7 +5431,6 @@ const JudgeInterface = (() => {
     state.pendingQuestion = null;
     state.seenIds.add(question.id);
     state.history.push({ id: question.id, question: question.question });
-    if (state.history.length > HISTORY_LIMIT) state.history.shift();
     if (document.getElementById("roundHistory")?.open) renderRoundHistory(state.history);
     state.phase = "question";
     displayQuestion(question, true);
