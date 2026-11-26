@@ -1184,7 +1184,7 @@
     .stepper { --stepper-side: 37px; --stepper-text-size: 23px; flex: 0 0 148px; height: 54px; }
     .stepper input { width: 72px; }
     .start-btn { height: 54px; margin-inline: 0; }
-    .draw-order-row { grid-template-columns: 1fr max-content 1fr; }
+    .draw-order-row { grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr); }
     .draw-order-row > :first-child { justify-self: start; }
     .draw-order-row > :last-child { justify-self: end; }
     .draw-order-row label:has(select) { justify-items: center; }
