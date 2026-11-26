@@ -984,7 +984,7 @@
     font-size: clamp(21px, 1.75vw, 27px);
     font-weight: 500;
     line-height: 1.72;
-    letter-spacing: 0.005em;
+    letter-spacing: .035em;
     overflow-wrap: anywhere;
   }
 
@@ -1186,7 +1186,7 @@
     .start-btn { height: 54px; margin-inline: 0; }
     .draw-order-row { grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr); }
     .draw-order-row > :first-child { justify-self: start; }
-    .draw-order-row > :last-child { justify-self: end; }
+    .draw-order-row > .guide-choice { justify-self: end; margin-inline-end: clamp(12px, calc(25vw - 68px), 35px); }
     .draw-order-row label:has(select) { justify-items: center; }
 
     body[data-view="game"] .layout { align-content: start; gap: 10px; }
@@ -1615,8 +1615,7 @@
     .panel:has(.game-view[data-judge]) {
       border-image: linear-gradient(var(--line), var(--line)) 1 / 1px 0 0 / 7px 0 0;
     }
-    .game-view[data-judge] .judge-person { translate: 0 8px; }
-    .game-view[data-judge="adjust"] .judge-person {
+    .game-view[data-judge] .judge-person {
       inset: -7px 0 var(--topic-lift); translate: none; padding: 0;
     }
     .judge-opening-content-region { --judge-progress-width: 52px; }
