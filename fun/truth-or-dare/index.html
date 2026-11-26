@@ -183,6 +183,8 @@
   .reset-btn:is(:hover, :active) { color: var(--accent-dark); }
   .reset-btn:hover::after { transform: scaleX(0); }
   a.reset-btn { text-decoration: none; }
+  body[data-view="game"] .fun-return { display: none; }
+  #homeTitle { text-align: center; }
 
   #homeBtn, #openEditor, #remainingText { white-space: nowrap; }
   #remainingText { min-inline-size: 7.5em; text-align: end; }
@@ -198,6 +200,33 @@
   .home-choices .home-feedback { margin: 8px 0 0; }
   .home-choice-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; }
   .home-choice-actions button { min-width: 0; min-height: 44px; padding: 5px 6px; }
+  .mobile-options {
+    width: min(24rem, calc(100% - 28px)); max-height: min(72dvh, 32rem);
+    padding: 4px; border: 1px solid var(--line); border-radius: var(--radius-layer);
+    color: var(--ink); background: var(--paper-bright); overscroll-behavior: contain;
+  }
+  .mobile-options::backdrop { background: var(--backdrop); }
+  .mobile-options button {
+    display: block; position: relative; width: 100%; min-height: 48px;
+    padding: 9px 36px; border: 0; color: inherit; background: transparent;
+    text-align: center; font: inherit; overflow-wrap: anywhere;
+  }
+  .mobile-options button + button { border-top: 1px solid var(--line); }
+  .mobile-options button[aria-selected="true"] { background: var(--selected); }
+  .mobile-options button[aria-selected="true"]::after {
+    content: "✓"; position: absolute; inset-inline-end: 13px; color: var(--accent-dark);
+  }
+  .mobile-options button:focus-visible { outline-offset: -3px; }
+  .mobile-options[data-pointer] button:focus-visible { outline: none; }
+  .topic-suggestions {
+    grid-column: 1 / -1;
+    max-block-size: min(30dvh, 12rem);
+    overflow-y: auto; overscroll-behavior: contain;
+    border: 1px solid var(--line); border-radius: var(--radius-control);
+    background: var(--paper-bright);
+  }
+  .topic-suggestions [role="option"] { padding: 10px 8px; text-align: center; cursor: pointer; }
+  .topic-suggestions [aria-selected="true"] { background: var(--selected); }
 
   .layout {
     flex: 1;
@@ -339,6 +368,7 @@
   .setup-title-chinese { white-space: nowrap; letter-spacing: .065em; }
 
   .setup-form {
+    --stepper-width: 158px;
     container-type: inline-size;
     margin-top: clamp(58px, 9vh, 104px);
   }
@@ -352,7 +382,8 @@
   .field-head {
     display: flex;
     align-items: baseline;
-    justify-content: space-between;
+    justify-content: center;
+    width: var(--stepper-width);
     margin-bottom: 10px;
   }
   .field-head, .setup-row, .form-error {
@@ -386,7 +417,7 @@
     position: relative;
     display: flex;
     height: 58px;
-    flex: 0 0 158px;
+    flex: 0 0 var(--stepper-width);
     border: 1px solid var(--control-line);
     border-radius: var(--radius-control);
     background: var(--paper-bright);
@@ -800,7 +831,9 @@
     font-size: 12px;
   }
   .round-history-list { list-style: none; padding: 0; margin: 16px 0 0; }
-  #roundHistory .editor-header { position: sticky; top: 0; z-index: 1; background: var(--paper-bright); }
+  #roundHistory[open] { display: flex; flex-direction: column; overflow: hidden; }
+  #roundHistory .editor-header { flex: none; }
+  #roundHistoryList { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
   .round-history-list li { padding: 12px 0; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
   .round-history-list .history-row-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .round-history-list p { margin: 4px 0 0; }
@@ -947,13 +980,27 @@
     background: var(--line);
   }
 
-  .round-stage { --question-inset: 23px; position: relative; }
+  .round-stage { --question-inset: 23px; --question-height: 236px; position: relative; }
   .question-area {
     position: relative;
-    min-height: 236px;
+    height: var(--question-height);
     padding-top: var(--question-inset);
   }
   .round-pool-slot { display: flow-root; min-block-size: 42px; }
+  /* 把空提示行的空间借给题干，同时固定下方操作行。 */
+  .game-view:not([data-judge]) .round-stage:has(#roundPoolNotice[hidden]) .question-area {
+    height: calc(var(--question-height) + 34px);
+  }
+  .game-view:not([data-judge]) .round-pool-slot:has(#roundPoolNotice[hidden]) { min-block-size: 8px; }
+  #questionCopy { max-block-size: 100%; overflow-y: auto; }
+  #questionCopy:focus-visible { outline-offset: -2px; }
+  #questionText {
+    letter-spacing: .048em;
+    text-align: justify;
+    text-justify: inter-character;
+    text-align-last: start;
+  }
+  #primaryBtn, #judgeNext { font-size: clamp(16px, 1.3vw, 20px); }
 
   .question-head {
     display: flex;
@@ -1155,7 +1202,7 @@
     }
     .person-number { inline-size: 1.09em; white-space: nowrap; }
     .person-unit { grid-column: 3; }
-    .question-area { min-height: 206px; }
+    .round-stage { --question-height: 206px; }
     .question-text { font-size: clamp(21px, 4.8vw, 25px); }
   }
 
@@ -1174,14 +1221,14 @@
 
     .wheel-wrap { width: min(100%, 285px); }
     body[data-view="setup"] .wheel-wrap { left: 0; width: min(100%, 265px); }
-    body[data-view="game"] .wheel-wrap { width: min(100%, 240px); }
+    body[data-view="game"] .wheel-wrap { top: -6px; width: min(100%, 240px); }
     .clock-numerals { font-size: 47px; }
     .panel { padding-top: 24px; }
 
     .setup-view { padding-top: 6px; }
     .setup-title { font-size: clamp(45px, 15vw, 70px); }
-    .setup-form { margin-top: 42px; --stack-order: 1; }
-    .stepper { --stepper-side: 37px; --stepper-text-size: 23px; flex: 0 0 148px; height: 54px; }
+    .setup-form { margin-top: 42px; --stack-order: 1; --stepper-width: 148px; }
+    .stepper { --stepper-side: 37px; --stepper-text-size: 23px; height: 54px; }
     .stepper input { width: 72px; }
     .start-btn { height: 54px; margin-inline: 0; }
     .draw-order-row { grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr); }
@@ -1197,8 +1244,7 @@
     .person-number { padding-bottom: .12em; font-size: clamp(46px, calc(15vw + 2px), 68px); line-height: 1; }
     .person-unit { margin-top: 0; transform: translateY(-8.8px); }
     .turn-band + .rule { margin-top: 0; }
-    .round-stage { --question-inset: 9px; }
-    .question-area { min-height: 158px; }
+    .round-stage { --question-inset: 9px; --question-height: 158px; }
     .memory-window { inset-block-start: 9px; height: 76px; }
     .question-text { margin-top: 8px; line-height: 1.5; font-size: clamp(19px, 5.1vw, 23px); }
     .action-row { margin-top: 10px; }
@@ -1219,7 +1265,8 @@
 
   @media (max-width: 390px) {
     .setup-row { gap: 8px; }
-    .stepper { --stepper-side: 34px; flex-basis: 138px; }
+    .setup-form { --stepper-width: 138px; }
+    .stepper { --stepper-side: 34px; }
     .stepper input { width: 68px; }
     .start-btn { min-width: 110px; padding: 0 16px; }
   }
@@ -1537,6 +1584,8 @@
   .judge-check-card:has(:checked) { background: var(--selected); border-color: var(--brass); color: var(--ink); }
   .judge-check-card:has(:focus-visible) { outline: 2px solid var(--accent); outline-offset: -2px; }
   .judge-check-card:has(:disabled) { color: var(--muted); background: var(--disabled); cursor: default; }
+  .judge-check-card input:disabled { pointer-events: none; }
+  .judge-check-card:focus-visible { outline-offset: -2px; }
   @media (hover: hover) {
     .judge-check-card:has(:enabled):hover { color: var(--ink); border-color: var(--control-line); }
   }
@@ -1605,6 +1654,30 @@
     :is(.home-choices, .question-editor, .judge-opening)[open]:not([data-closing])::backdrop { opacity: 0; }
   }
   .round-pool-notice { margin: 6px 0 0; }
+
+  @media (min-width: 981px) {
+    .game-view[data-judge="adjust"] { --topic-lift: clamp(96px, 15vh, 117px); }
+    .game-view[data-judge="adjust"] .judge-person {
+      inset: auto 0 calc(var(--topic-lift) + 12px);
+      justify-content: center;
+      text-align: center;
+    }
+    #judgeAdjustment .judge-actions { position: relative; }
+    #judgeAdjustment .judge-actions::before {
+      content: ""; position: absolute; inset: -4px 0 auto; border-top: 1px solid var(--line);
+    }
+    #judgeAdjustmentStage:has(.judge-slider:not([hidden])) {
+      padding-block: 0 calc(var(--question-inset) + 44px);
+      scrollbar-gutter: stable both-edges;
+    }
+  }
+  @media (max-width: 620px) {
+    .judge-welcome-copy span { display: block; }
+    .judge-welcome-copy .clause-break { display: none; }
+    .filters-menu-title, .filters-grid > label, .filters-grid select { text-align: center; }
+    .filters summary, .filters legend { margin-inline: auto; }
+    .filter-checks label { justify-content: center; }
+  }
 
   @media (max-width: 980px) {
     .judge-person { display: flex; justify-content: center; }
@@ -2024,6 +2097,9 @@
     --popover-shift-y: var(--popover-travel);
   }
   .judge-slider .judge-water-explanation .judge-water-popover:popover-open { display: block; }
+  @media (max-width: 980px) {
+    .judge-slider .judge-water-explanation .judge-water-popover { text-align: center; }
+  }
   .judge-slider .judge-water-explanation .judge-water-popover:popover-open[data-entered] {
     opacity: 1;
     clip-path: inset(0);
@@ -2052,7 +2128,7 @@
       <button class="ghost-btn judge-entry" id="judgeEntry" type="button" aria-controls="judgeInline" aria-expanded="false" hidden>
         <span class="judge-avatar" data-judge-avatar aria-hidden="true"></span><span>设置</span>
       </button>
-      <a class="reset-btn" href="/fun/">返回FUN</a>
+      <a class="reset-btn fun-return" href="/fun/">返回FUN</a>
       <button class="reset-btn" id="homeBtn" type="button" aria-haspopup="dialog" aria-controls="homeChoices" hidden>回到主页</button>
     </div>
   </header>
@@ -2259,7 +2335,7 @@
 
         <div class="round-stage">
           <div class="question-area" id="questionArea">
-            <div id="questionCopy">
+            <div id="questionCopy" role="region" aria-label="本题内容">
               <div class="question-head" id="questionHead">
                 <span class="question-index" id="questionIndex">问题</span>
               </div>
@@ -2334,7 +2410,7 @@
           <span class="judge-question-label" id="judgeQuestionLabel" aria-hidden="true" hidden></span>
           <span id="judgeOpeningQuestion">欢迎来到Time真心话</span>
         </h2>
-        <p class="judge-welcome-copy" id="judgeWelcomeCopy">开始之前，想先问大家两个小问题，以便拥有更好的互动体验~</p>
+        <p class="judge-welcome-copy" id="judgeWelcomeCopy"><span>开始之前，想先问大家两个小问题</span><span class="clause-break">，</span><span>以便拥有更好的互动体验~</span></p>
         <div id="judgeOpeningContent" hidden>
           <div class="judge-controls" id="judgeControls">
             <div class="judge-slider" id="judgeSlider" hidden></div>
@@ -2760,7 +2836,7 @@ const createFluidSlider = (() => {
 
   const waterLevels = [
     { title: "低", description: "随便聊聊", detail: "更多轻松、较少涉及个人隐私的话题" },
-    { title: "默认", description: "默认随机", detail: "无偏向随机抽取所有题目" },
+    { title: "适中", description: "默认随机", detail: "无偏向随机抽取所有题目" },
     { title: "高", description: "加大力度", detail: "更多个人经历与内心感受的话题" },
     { title: "最高", description: "火力全开", detail: "更多敏感私密、需要仔细斟酌的话题", hot: true },
   ];
@@ -3835,8 +3911,8 @@ const JudgeInterface = (() => {
       noticeTimer = setTimeout(clearNotice, 1500);
     }
 
-    function closeInline(restoreFocus = false, message = "") {
-      if (!message) clearNotice();
+    function closeInline(restoreFocus = false) {
+      clearNotice();
       if (!mode) return;
       if (inlineExit) {
         for (const fade of inlineExit) fade.cancel();
@@ -3855,7 +3931,6 @@ const JudgeInterface = (() => {
       inline.hidden = true;
       onInlineChange();
       if (restoreFocus) entry.focus({ preventScroll: true });
-      if (message) showNotice(message);
     }
 
     function exitSettings(applied) {
@@ -3863,7 +3938,7 @@ const JudgeInterface = (() => {
       const { afterClose, draft, commit } = editing;
       if (applied) commit(draft);
       function finish() {
-        closeInline(!afterClose, applied ? "已完成调整" : "");
+        closeInline(!afterClose);
         if (afterClose) {
           afterClose();
         } else if (!reducedMotion.matches) {
@@ -3915,6 +3990,14 @@ const JudgeInterface = (() => {
       for (const choice of choices) {
         const nextIndex = index + Number(choice.value);
         choice.disabled = nextIndex < 0 || nextIndex >= temperatures.length;
+        const card = choice.closest("label");
+        if (choice.disabled) {
+          card.tabIndex = 0;
+          card.setAttribute("aria-description", nextIndex < 0 ? "已经是最低水温了" : "已经是最高水温了");
+        } else {
+          card.removeAttribute("tabindex");
+          card.removeAttribute("aria-description");
+        }
       }
       const choice = choices.find(input => !input.disabled && Number(input.value) === selected)
         ?? choices.find(input => input.value === "0");
@@ -3950,6 +4033,16 @@ const JudgeInterface = (() => {
       if (reducedMotion.matches && inlineExit) inlineExit[1].finish();
     });
     for (const choice of choices) {
+      const card = choice.closest("label");
+      function explainLimit(event) {
+        if (mode !== "check-in" || !choice.disabled) return;
+        event.preventDefault();
+        showNotice(card.getAttribute("aria-description"));
+      }
+      card.addEventListener("click", explainLimit);
+      card.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") explainLimit(event);
+      });
       choice.addEventListener("change", () => {
         if (mode === "check-in" && choice.checked) selectCheckIn(Number(choice.value));
       });
@@ -4102,6 +4195,190 @@ const JudgeInterface = (() => {
     const list = document.getElementById("topicOptions");
     for (const [key, caption] of Object.entries(taxonomy.topics)) list.appendChild(new Option(key, caption));
     sceneSelect.value = "all";
+  }
+
+  function initMobileMenus() {
+    const narrow = matchMedia("(max-width: 980px)");
+    initTopicSuggestions(narrow);
+    let picker;
+    const isTrigger = target => narrow.matches && target instanceof HTMLSelectElement &&
+      !target.disabled && !target.multiple && target.size <= 1;
+
+    function open(select, fromPointer = false) {
+      if (picker?.open || !select.options.length) return;
+      const dialog = document.createElement("dialog");
+      const list = document.createElement("div");
+      const label = select.labels?.[0]?.cloneNode(true);
+      label?.querySelector("select")?.remove();
+      const name = select.getAttribute("aria-label") || label?.textContent.trim() || "选择选项";
+      dialog.className = "mobile-options";
+      dialog.toggleAttribute("data-pointer", fromPointer);
+      dialog.setAttribute("aria-label", name);
+      list.setAttribute("role", "listbox");
+      list.setAttribute("aria-label", name);
+      dialog.append(list);
+      for (const option of select.options) {
+        if (option.hidden || option.parentElement.hidden) continue;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = option.label;
+        button.setAttribute("role", "option");
+        button.setAttribute("aria-selected", String(option.selected));
+        button.disabled = option.disabled || option.parentElement.matches("optgroup:disabled");
+        button.tabIndex = -1;
+        button.addEventListener("click", () => {
+          const changed = select.selectedIndex !== option.index;
+          select.selectedIndex = option.index;
+          dialog.close();
+          if (changed) {
+            select.dispatchEvent(new Event("input", { bubbles: true }));
+            select.dispatchEvent(new Event("change", { bubbles: true }));
+          }
+        });
+        list.append(button);
+      }
+      const options = [...list.querySelectorAll("button:enabled")];
+      if (!options.length) return;
+      const selected = options.find(button => button.getAttribute("aria-selected") === "true") || options[0];
+      selected.tabIndex = 0;
+      dialog.addEventListener("keydown", event => {
+        dialog.removeAttribute("data-pointer");
+        const index = options.indexOf(document.activeElement);
+        if (index >= 0 && (event.key === "Enter" || event.key === " ")) {
+          event.preventDefault();
+          if (!event.repeat) options[index].click();
+          return;
+        }
+        const position = { ArrowDown: Math.min(index + 1, options.length - 1), ArrowUp: Math.max(index - 1, 0),
+          Home: 0, End: options.length - 1 }[event.key];
+        if (position === undefined) return;
+        event.preventDefault();
+        if (index >= 0) options[index].tabIndex = -1;
+        options[position].tabIndex = 0;
+        options[position].focus();
+      });
+      dialog.addEventListener("click", event => {
+        if (event.target === dialog) {
+          const r = dialog.getBoundingClientRect();
+          if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) dialog.close();
+        }
+      });
+      dialog.addEventListener("close", () => {
+        dialog.remove();
+        if (picker === dialog) picker = null;
+        if (select.isConnected) select.focus({ preventScroll: true });
+      }, { once: true });
+      (select.closest("[popover], dialog") || document.body).append(dialog);
+      picker = dialog;
+      dialog.showModal();
+      selected.focus();
+    }
+    // 原生移动端选择面板由系统排版，移动端用同一个居中菜单写回原 select。
+    document.addEventListener("mousedown", event => {
+      if (event.button === 0 && isTrigger(event.target)) event.preventDefault();
+    });
+    document.addEventListener("click", event => {
+      if (!isTrigger(event.target)) return;
+      event.preventDefault();
+      open(event.target, event.detail > 0);
+    });
+    document.addEventListener("keydown", event => {
+      if (!isTrigger(event.target) || ![" ", "Enter", "ArrowDown", "ArrowUp", "F4"].includes(event.key)) return;
+      event.preventDefault();
+      open(event.target);
+    });
+    narrow.addEventListener("change", () => { if (!narrow.matches && picker?.open) picker.close(); });
+  }
+
+  function initTopicSuggestions(narrow) {
+    const data = document.getElementById("topicOptions");
+    const fields = [...document.querySelectorAll('input[list="topicOptions"]')];
+    const list = document.createElement("div");
+    list.className = "topic-suggestions";
+    list.id = "mobileTopicSuggestions";
+    list.setAttribute("role", "listbox");
+    fields[0].closest(".filters-grid").append(list);
+    let field, active = -1;
+
+    function dismiss() {
+      list.hidden = true;
+      active = -1;
+      if (field) {
+        field.setAttribute("aria-expanded", "false");
+        field.removeAttribute("aria-activedescendant");
+      }
+    }
+    function render(input) {
+      if (!narrow.matches) return;
+      field = input;
+      dismiss();
+      const terms = input.value.split(/[,，、]/).map(term => term.trim().toLowerCase());
+      const query = terms.pop();
+      const options = [...data.options].filter(option => !terms.includes(option.value.toLowerCase()) &&
+        (option.value.toLowerCase().includes(query) || option.label.toLowerCase().includes(query)));
+      list.replaceChildren(...options.map((option, index) => {
+        const item = document.createElement("div");
+        item.setAttribute("role", "option");
+        item.id = "topicSuggestion-" + index;
+        item.dataset.value = item.textContent = option.value;
+        return item;
+      }));
+      list.scrollTop = 0;
+      list.hidden = !options.length;
+      field.setAttribute("aria-expanded", String(!list.hidden));
+    }
+    function choose(item) {
+      const prefix = field.value.match(/^.*[,，、]\s*/)?.[0] || "";
+      field.value = prefix + item.dataset.value;
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+      field.dispatchEvent(new Event("change", { bubbles: true }));
+      dismiss();
+    }
+    list.addEventListener("mousedown", event => event.preventDefault());
+    list.addEventListener("click", event => {
+      if (event.target.matches('[role="option"]')) choose(event.target);
+    });
+    for (const input of fields) {
+      input.addEventListener("focus", () => render(input));
+      input.addEventListener("input", () => render(input));
+      input.addEventListener("blur", dismiss);
+      input.addEventListener("keydown", event => {
+        if (!narrow.matches || event.isComposing) return;
+        if (list.hidden && event.key === "ArrowDown") render(input);
+        if (list.hidden) return;
+        if (event.key === "Escape") {
+          event.preventDefault(); event.stopPropagation(); dismiss();
+        } else if (event.key === "Enter" && active >= 0) {
+          event.preventDefault(); choose(list.children[active]);
+        } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          list.children[active]?.removeAttribute("aria-selected");
+          active = Math.max(0, Math.min(list.children.length - 1, active + (event.key === "ArrowDown" ? 1 : -1)));
+          const item = list.children[active];
+          item.setAttribute("aria-selected", "true");
+          input.setAttribute("aria-activedescendant", item.id);
+          item.scrollIntoView({ block: "nearest" });
+        }
+      });
+    }
+    function adapt() {
+      dismiss();
+      for (const input of fields) {
+        if (narrow.matches) {
+          input.removeAttribute("list");
+          input.setAttribute("role", "combobox");
+          input.setAttribute("aria-autocomplete", "list");
+          input.setAttribute("aria-controls", list.id);
+          input.setAttribute("aria-expanded", "false");
+        } else {
+          input.setAttribute("list", data.id);
+          for (const key of ["role", "aria-autocomplete", "aria-controls", "aria-expanded"]) input.removeAttribute(key);
+        }
+      }
+      field = null;
+    }
+    narrow.addEventListener("change", adapt);
+    adapt();
   }
 
   function initFilterMenu() {
@@ -4264,7 +4541,7 @@ const JudgeInterface = (() => {
     renderRoundHistory(items);
     const dialog = document.getElementById("roundHistory");
     dialog.showModal();
-    dialog.scrollTop = 0;
+    document.getElementById("roundHistoryList").scrollTop = 0;
   }
 
   function readSavedRound() {
@@ -5389,6 +5666,7 @@ const JudgeInterface = (() => {
   }
 
   function clearQuestion(motion = null) {
+    el.questionCopy.scrollTop = 0;
     showStream(motion);
     el.questionText.textContent = "";
     el.questionText.classList.remove("is-revealed");
@@ -5558,6 +5836,7 @@ const JudgeInterface = (() => {
     el.questionText.classList.remove("is-revealed");
     el.questionHead.classList.remove("is-revealed");
     const fromCheckIn = judgeUI.mode === "check-in";
+    if (state.judge.checkIn.status === "waiting") state.judge.checkIn.status = "done";
     judgeUI.openAdjustment(state.judge, (settings) => ({
       budget: remainingBudget(),
       available: availableQuestions(settings).length
@@ -5584,6 +5863,13 @@ const JudgeInterface = (() => {
   }
 
   initFilters();
+  initMobileMenus();
+  const questionOverflow = new ResizeObserver(() => {
+    if (el.questionCopy.scrollHeight > el.questionCopy.clientHeight) el.questionCopy.tabIndex = 0;
+    else el.questionCopy.removeAttribute("tabindex");
+  });
+  questionOverflow.observe(el.questionCopy);
+  questionOverflow.observe(el.questionText);
   initFilterMenu();
   homeAtmosphere.setHome();
   updateSetup();
