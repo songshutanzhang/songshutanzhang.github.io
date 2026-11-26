@@ -595,11 +595,11 @@
     }
     .draw-order-row label select { margin-inline-start: 3px; padding-inline: 4px; }
   }
-  @container (max-width: 450px) {
+  @container (max-width: 450px) or style(--stack-order: 1) {
     .draw-order-row { display: grid; grid-template-columns: repeat(3, max-content); block-size: auto; }
-    .draw-order-row label { display: grid; align-items: center; grid-template-rows: 20px 34px; line-height: 20px; }
+    .draw-order-row label { display: grid; align-items: center; grid-template-rows: 20px 34px; line-height: 20px; justify-items: start; }
     .draw-order-row label, .draw-order-row .guide-choice { gap: 3px; }
-    .draw-order-row label select { height: 34px; margin-inline-start: 0; }
+    .draw-order-row label select { height: 34px; margin-inline: 0; }
     .draw-order-row .guide-choice { justify-items: center; }
     .guide-choice input { grid-row: 2; }
   }
@@ -1164,6 +1164,7 @@
     .topbar { min-height: 36px; gap: 6px; }
     .brand-mark { width: 36px; }
     .topbar-meta { gap: 2px 10px; flex-wrap: wrap; justify-content: flex-end; line-height: 1.35; }
+    body[data-view="game"] .topbar > .brand { display: none; }
     body[data-view="game"] .topbar { flex-wrap: wrap; }
     body[data-view="game"] .topbar-meta { margin-inline-start: auto; }
 
@@ -1177,7 +1178,7 @@
 
     .setup-view { padding-top: 6px; }
     .setup-title { font-size: clamp(45px, 15vw, 70px); }
-    .setup-form { margin-top: 42px; }
+    .setup-form { margin-top: 42px; --stack-order: 1; }
     .stepper { --stepper-side: 37px; --stepper-text-size: 23px; flex: 0 0 148px; height: 54px; }
     .stepper input { width: 72px; }
     .start-btn { height: 54px; }
@@ -1602,6 +1603,10 @@
       border-image: linear-gradient(var(--line), var(--line)) 1 / 1px 0 0 / 7px 0 0;
     }
     .game-view[data-judge] .judge-person { translate: 0 8px; }
+    .game-view[data-judge="adjust"] .judge-person {
+      inset: auto 0 var(--topic-lift); translate: 0 50%; z-index: 1; padding: 0;
+    }
+    .game-view[data-judge="adjust"] #judgeTurnLabel { padding-inline: 10px; background: var(--paper); }
     .judge-opening-content-region { --judge-progress-width: 52px; }
     .judge-step { font-size: 15px; }
     .judge-question-label { font-size: 16px; }
@@ -3065,10 +3070,12 @@ const createFluidSlider = (() => {
     bindExplanation(explanation, button, signal) {
       const isOpen = () => explanation.hasAttribute("data-open");
       const setOpen = (open) => {
+        if (open) this.detail.textContent = this.levels[this.index].detail;
         explanation.toggleAttribute("data-open", open);
         button.setAttribute("aria-expanded", open);
         this.detail.setAttribute("aria-hidden", !open);
       };
+      this.closeExplanation = () => { if (isOpen()) setOpen(false); };
       button.addEventListener("click", () => setOpen(!isOpen()), { signal });
       document.addEventListener("pointerdown", (event) => {
         if (isOpen() && !button.contains(event.target) && !this.detail.contains(event.target)) setOpen(false);
@@ -3124,14 +3131,14 @@ const createFluidSlider = (() => {
 
     setIndex(index, emit = false) {
       if (index === this.index) return;
+      this.closeExplanation?.();
       this.index = index;
       this.input.value = index;
-      const { title, description, detail, hot } = this.levels[index];
+      const { title, description, hot } = this.levels[index];
       this.input.setAttribute("aria-valuetext", title);
       this.title.textContent = title;
       this.title.classList.toggle("fluid-slider__value--hot", hot === true);
       this.description.textContent = description;
-      if (this.detail) this.detail.textContent = detail;
       this.markers.forEach((tick, stop) => {
         tick.dataset.selected = stop === index;
       });
@@ -3737,11 +3744,11 @@ const JudgeInterface = (() => {
       onClosed?.();
     }
 
-    function retire(origin) {
+    function retire(origin, allowOffscreen = false) {
       if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const target = entry.querySelector(".judge-avatar");
       const destination = target.getBoundingClientRect();
-      if (!destination.width || destination.bottom > innerHeight || destination.top < 0) return;
+      if (!origin.width || !destination.width || (!allowOffscreen && (destination.bottom > innerHeight || destination.top < 0))) return;
       const mark = target.cloneNode(true);
       mark.classList.add("judge-flying");
       Object.assign(mark.style, { left: `${origin.left}px`, top: `${origin.top}px`, width: `${origin.width}px` });
@@ -3887,6 +3894,8 @@ const JudgeInterface = (() => {
 
     function leaveCheckIn(after) {
       if (mode !== "check-in" || inlineExit) return;
+      const origin = game.querySelector(".judge-person .judge-avatar").getBoundingClientRect();
+      retire(origin, true);
       fadeOutInline(() => { closeInline(); after(); });
     }
 
@@ -3969,6 +3978,7 @@ const JudgeInterface = (() => {
   const bank = JSON.parse(document.getElementById("questionBank").textContent);
   const SAVED_ROUND_KEY = "truth-wheel/paused-round/v1";
   const SAVED_ROUND_VERSION = 2;
+  const firstDrawMs = 1200, nextDrawMs = 960;
   const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   const el = {
@@ -4506,7 +4516,7 @@ const JudgeInterface = (() => {
     const dust = createHomeDust(canvas);
     const forcedColors = matchMedia("(forced-colors: active)");
     const preference = "truth-wheel/home-motion/v1";
-    const duration = 960, dustInterval = 1000 / 30, gearStep = 3;
+    const dustInterval = 1000 / 30, gearStep = 3;
     const calibrationMs = 336;
     let home = false, pageHidden = false, frame = 0, timer = 0;
     let flight = null, drag = null, offset = 0;
@@ -4630,7 +4640,7 @@ const JudgeInterface = (() => {
     }
     function drawFrame(stamp) {
       if (flight) {
-        const p = Math.min(1, Math.max(0, (stamp - flight.start) / duration));
+        const p = Math.min(1, Math.max(0, (stamp - flight.start) / flight.duration));
         if (p >= 1) { finishTransfer(); return; }
         paintTransfer(p, stamp);
       } else paintHome(stamp, false);
@@ -4810,6 +4820,7 @@ const JudgeInterface = (() => {
       release(); stopLoop();
       calibration = touchStart = lastTap = null;
       const from = clock.pose;
+      const duration = toHome ? 960 : firstDrawMs;
       const arrival = localTime(Date.now() + duration);
       const target = toHome ? { minute: arrival.degrees % 360, hour: arrival.degrees / 12 } : clock.rest;
       const minute = forwardArc(from.minute, target.minute);
@@ -4820,7 +4831,7 @@ const JudgeInterface = (() => {
       wheel.style.removeProperty("transform");
       document.body.dataset.clockTransfer = home ? "home" : "game";
       if (matchMedia("(max-width: 980px)").matches) window.scrollTo({top:0, behavior:"instant"});
-      flight = { start: performance.now(), from, light,
+      flight = { start: performance.now(), duration, from, light,
         travel: {minute, hour:forwardArc(from.hour,target.hour), gear, orbit:shortest(-from.orbit,360)},
         fromBox:{x:firstBox.left + scrollX,y:firstBox.top + scrollY,w:firstBox.width},
         dx:0,dy:0,scale:1,rebase:0,lastEase:0 };
@@ -5268,7 +5279,7 @@ const JudgeInterface = (() => {
     clearQuestion();
     state.currentQuestion = null;
 
-    const rollDuration = REDUCED_MOTION.matches ? 40 : 760;
+    const rollDuration = REDUCED_MOTION.matches ? 40 : state.previousPlayer === null && !state.seenIds.size ? firstDrawMs : nextDrawMs;
 
     if (REDUCED_MOTION.matches) {
       el.personNumber.textContent = padNumber(player);
@@ -5290,7 +5301,7 @@ const JudgeInterface = (() => {
           }
           const number = padNumber(display);
           if (el.personNumber.textContent !== number) el.personNumber.textContent = number;
-        }, delay);
+        }, delay / 760 * rollDuration);
       });
     }
 
