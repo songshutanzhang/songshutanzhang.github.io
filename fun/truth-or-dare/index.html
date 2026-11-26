@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Time真心话 · 大转盘</title>
+<title>TIME真心话 · 大转盘</title>
 <style>
   :root {
     --paper: #F2EFE6;
@@ -213,8 +213,18 @@
   }
   .mobile-options button + button { border-top: 1px solid var(--line); }
   .mobile-options button[aria-selected="true"] { background: var(--selected); }
-  .mobile-options button[aria-selected="true"]::after {
-    content: "✓"; position: absolute; inset-inline-end: 13px; color: var(--accent-dark);
+  .mobile-options button::after, .mobile-options button[aria-selected="true"]::before {
+    content: ""; position: absolute; top: 50%; translate: 0 -50%; border-radius: 50%;
+  }
+  .mobile-options button::after {
+    inset-inline-end: 13px; width: 16px; height: 16px; box-sizing: border-box; border: 1.5px solid var(--muted);
+  }
+  .mobile-options button[aria-selected="true"]::after { border-color: var(--accent-dark); }
+  .mobile-options button[aria-selected="true"]::before {
+    inset-inline-end: 17px; width: 8px; height: 8px; background: var(--accent-dark);
+  }
+  @media (forced-colors: active) {
+    .mobile-options button[aria-selected="true"]::before { background: Highlight; forced-color-adjust: none; }
   }
   .mobile-options button:focus-visible { outline-offset: -3px; }
   .mobile-options[data-pointer] button:focus-visible { outline: none; }
@@ -437,11 +447,22 @@
 
   #minusBtn { border-radius: calc(var(--radius-control) - 1px) 0 0 calc(var(--radius-control) - 1px); }
   #plusBtn { border-radius: 0 calc(var(--radius-control) - 1px) calc(var(--radius-control) - 1px) 0; }
-  .stepper button:hover:enabled { background: var(--selected); color: var(--accent-dark); }
-  .stepper button:active:enabled { background: color-mix(in srgb, var(--selected) 92%, var(--ink)); color: var(--accent-dark); }
+  @media (hover: hover) and (pointer: fine) {
+    .stepper button:hover:enabled:not([aria-disabled="true"]) { background: var(--selected); color: var(--accent-dark); }
+  }
+  .stepper button:active:enabled:not([aria-disabled="true"]) { background: color-mix(in srgb, var(--selected) 92%, var(--ink)); color: var(--accent-dark); }
   .stepper button:enabled { font-weight: 500; }
-  .stepper button:disabled { background: var(--selected); color: #a3a49b; cursor: default; }
-  @media (forced-colors: active) { .stepper button:disabled { color: GrayText; } }
+  .stepper button:is(:disabled, [aria-disabled="true"]) { background: var(--selected); color: #a3a49b; cursor: default; }
+  @media (forced-colors: active) { .stepper button:is(:disabled, [aria-disabled="true"]) { color: GrayText; } }
+  .stepper-limit {
+    position: absolute; top: calc(100% + 5px); inset-inline-start: 0; z-index: 2;
+    border: 1px solid var(--line); border-radius: var(--radius-control); padding: 5px 10px;
+    background: var(--paper-bright); color: var(--ink); font: 14px/1.4 var(--sans);
+    white-space: nowrap; pointer-events: none; opacity: 0; visibility: hidden;
+    transition: opacity var(--motion-micro), visibility 0s var(--motion-micro);
+  }
+  .stepper-limit[data-side="plus"] { inset-inline: auto 0; }
+  .stepper-limit[data-side] { opacity: 1; visibility: visible; transition-delay: 0s; }
 
   .stepper input {
     width: 74px;
@@ -831,7 +852,8 @@
     font-size: 12px;
   }
   .round-history-list { list-style: none; padding: 0; margin: 16px 0 0; }
-  #roundHistory[open] { display: flex; flex-direction: column; overflow: hidden; }
+  #roundHistory { flex-direction: column; overflow: hidden; }
+  #roundHistory[open] { display: flex; }
   #roundHistory .editor-header { flex: none; }
   #roundHistoryList { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
   .round-history-list li { padding: 12px 0; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
@@ -992,13 +1014,20 @@
     height: calc(var(--question-height) + 34px);
   }
   .game-view:not([data-judge]) .round-pool-slot:has(#roundPoolNotice[hidden]) { min-block-size: 8px; }
-  #questionCopy { max-block-size: 100%; overflow-y: auto; }
+  #questionCopy { max-block-size: 100%; overflow-y: auto; container-type: inline-size; }
   #questionCopy:focus-visible { outline-offset: -2px; }
   #questionText {
-    letter-spacing: .048em;
-    text-align: justify;
-    text-justify: inter-character;
-    text-align-last: start;
+    text-align: start;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  /* 以宋体原有字面为基准，全段共享字距。混排和标点允许自然留白。 */
+  @supports (letter-spacing: calc(1em / round(nearest, 10cqi / 1em, 1))) {
+    #questionText {
+      --measure: calc(100cqi - .5px);
+      --columns: min(round(down, var(--measure) / 1em, 1), round(nearest, var(--measure) / 1.035em, 1));
+      letter-spacing: clamp(0em, calc(var(--measure) / max(1, var(--columns)) - 1em), .06em);
+    }
   }
   #primaryBtn, #judgeNext { font-size: clamp(16px, 1.3vw, 20px); }
 
@@ -1036,7 +1065,7 @@
   }
 
   .question-head.is-revealed { animation: meta-in 145ms ease-out both; }
-  .question-text.is-revealed { animation: question-in 265ms 85ms cubic-bezier(.18,.68,.27,1) both; }
+  .question-text.is-revealed { animation: question-in 265ms 45ms var(--ease-enter) backwards; }
 
   @keyframes meta-in {
     from { opacity: 0; transform: translateY(2px); }
@@ -1044,11 +1073,13 @@
   }
 
   @keyframes question-in {
-    from { opacity: 0; filter: blur(5px); transform: translateY(4px); text-shadow: 0 2px 1px #a9a396; }
-    to { opacity: 1; filter: blur(0); transform: translateY(0); text-shadow: 0 0 transparent; }
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
-  .question-area[data-motion] .question-head { visibility: hidden; }
+  .question-head { transition: opacity var(--motion-micro) var(--ease-exit); }
+  .question-area[data-motion] .question-head { opacity: 0; }
+  .question-area[data-motion] #questionText { visibility: hidden; }
   .memory-window {
     position: absolute;
     inset: 21px 0 auto;
@@ -1089,14 +1120,6 @@
     transform: translateY(2px) scaleY(.94);
     transform-origin: left top;
     transition: opacity 480ms 110ms ease-in, filter 570ms ease-out, transform 570ms ease-out;
-  }
-
-  .question-empty {
-    margin: 20px 0 0;
-    height: 2px;
-    width: 34px;
-    background: var(--line);
-    transition: opacity 180ms ease;
   }
 
   .round-stage .round-actions {
@@ -1165,6 +1188,7 @@
   }
 
   @media (max-width: 980px) {
+    body[data-view="game"] .brand-mark { display: none; }
     .layout {
       grid-template-columns: 1fr;
       gap: 26px;
@@ -1213,9 +1237,10 @@
     .topbar { min-height: 36px; gap: 6px; }
     .brand-mark { width: 36px; }
     .topbar-meta { gap: 2px 10px; flex-wrap: wrap; justify-content: flex-end; line-height: 1.35; }
-    body[data-view="game"] .topbar > .brand { display: none; }
+    body[data-view="game"] .brand-word { font-size: clamp(12px, 3.45vw, 15px); letter-spacing: .025em; }
     body[data-view="game"] .topbar { flex-wrap: wrap; }
-    body[data-view="game"] .topbar-meta { margin-inline-start: auto; }
+    body[data-view="game"] .topbar-meta { margin-inline-start: auto; min-width: 0; flex: 1 1 0; }
+    body[data-view="game"] #remainingText { min-inline-size: auto; }
 
     .layout { gap: 20px; padding-top: 12px; }
 
@@ -1256,7 +1281,7 @@
     .setup-title { display: flex; flex-direction: column; align-items: center; }
     .setup-title wbr { display: none; }
     .setup-title .brand-latin { margin-inline-end: 0; text-indent: .028em; }
-    .setup-title-chinese { text-indent: .065em; }
+    .setup-title-chinese { text-indent: .065em; translate: 0 clamp(7px, 2.2vw, 10px); }
   }
 
   @media (max-width: 620px) and (max-height: 650px) {
@@ -1625,33 +1650,33 @@
     .judge-scope:has(:checked):hover { background: var(--selected); border-color: var(--brass); }
   }
 
-  :is(.home-choices, .question-editor, .judge-opening) {
+  :is(.home-choices, .question-editor, .judge-opening, .mobile-options) {
     border-radius: var(--radius-layer);
     opacity: 0;
     transform: translateY(var(--modal-travel));
     transition: opacity var(--motion-micro) var(--ease-exit), transform var(--motion-micro) var(--ease-exit),
       display var(--motion-micro) allow-discrete, overlay var(--motion-micro) allow-discrete;
   }
-  :is(.home-choices, .question-editor, .judge-opening)[open]:not([data-closing]) {
+  :is(.home-choices, .question-editor, .judge-opening, .mobile-options)[open]:not([data-closing]) {
     opacity: 1;
     transform: none;
     transition-duration: var(--motion-overlay);
     transition-timing-function: var(--ease-enter);
   }
-  :is(.home-choices, .question-editor, .judge-opening)::backdrop {
+  :is(.home-choices, .question-editor, .judge-opening, .mobile-options)::backdrop {
     background: var(--backdrop);
     opacity: 0;
     transition: opacity var(--motion-micro) var(--ease-exit), display var(--motion-micro) allow-discrete,
       overlay var(--motion-micro) allow-discrete;
   }
-  :is(.home-choices, .question-editor, .judge-opening)[open]:not([data-closing])::backdrop {
+  :is(.home-choices, .question-editor, .judge-opening, .mobile-options)[open]:not([data-closing])::backdrop {
     opacity: 1;
     transition-duration: var(--motion-overlay);
     transition-timing-function: var(--ease-enter);
   }
   @starting-style {
-    :is(.home-choices, .question-editor, .judge-opening)[open]:not([data-closing]) { opacity: 0; transform: translateY(var(--modal-travel)); }
-    :is(.home-choices, .question-editor, .judge-opening)[open]:not([data-closing])::backdrop { opacity: 0; }
+    :is(.home-choices, .question-editor, .judge-opening, .mobile-options)[open]:not([data-closing]) { opacity: 0; transform: translateY(var(--modal-travel)); }
+    :is(.home-choices, .question-editor, .judge-opening, .mobile-options)[open]:not([data-closing])::backdrop { opacity: 0; }
   }
   .round-pool-notice { margin: 6px 0 0; }
 
@@ -1674,9 +1699,10 @@
   @media (max-width: 620px) {
     .judge-welcome-copy span { display: block; }
     .judge-welcome-copy .clause-break { display: none; }
-    .filters-menu-title, .filters-grid > label, .filters-grid select { text-align: center; }
-    .filters summary, .filters legend { margin-inline: auto; }
-    .filter-checks label { justify-content: center; }
+    .filters-menu-title { text-align: center; }
+    .filters-grid > label, .filters-grid select, .filter-checks { text-align: start; }
+    .filter-checks label { display: grid; grid-template-columns: auto 1fr; align-items: start; }
+    .filter-checks input { margin: .18em 0 0; }
   }
 
   @media (max-width: 980px) {
@@ -2113,15 +2139,15 @@
 <canvas id="homeParticles" aria-hidden="true" hidden></canvas>
 <div class="page">
   <header class="topbar">
-    <div class="brand" aria-label="Time真心话">
+    <div class="brand" aria-label="TIME真心话">
       <span class="brand-mark" aria-hidden="true">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="-1041 -1041 2082 2082">
-          <title>Time真心话</title>
+          <title>TIME真心话</title>
           <circle r="1041" fill="#262420"/>
           <path fill="#F2EDE2" d="M573.00286 -818.332892 L30.603748 -43.706682 L756 -33 L756 33 L-30.603748 43.706682 L-573.00286 818.332892 A999 999 0 0 0 818.332892 573.00286 A999 999 0 0 0 573.00286 -818.332892 Z M30.603748 -43.706682 L-160.482273 -505.029148 L-243.631431 -470.587639 L-30.603748 43.706682 Z"/>
         </svg>
       </span>
-      <span class="brand-word"><span class="brand-latin" lang="en">Time</span>真心话</span>
+      <span class="brand-word"><span class="brand-latin" lang="en">TIME</span>真心话</span>
     </div>
     <div class="topbar-meta" id="topbarMeta">
       <span id="remainingText" hidden></span>
@@ -2245,7 +2271,7 @@
 
     <section class="panel">
       <div class="setup-view" id="setupView">
-        <h1 class="setup-title"><span class="brand-latin" lang="en">Time</span><wbr><span class="setup-title-chinese">真心话</span></h1>
+        <h1 class="setup-title"><span class="brand-latin" lang="en">TIME</span><wbr><span class="setup-title-chinese">真心话</span></h1>
 
         <form class="setup-form" id="startForm" novalidate>
           <div class="field-head">
@@ -2257,6 +2283,7 @@
               <input id="peopleInput" type="number" min="2" max="99" step="1" value="4" inputmode="numeric" autocomplete="off" aria-describedby="peopleHint formError">
               <button id="plusBtn" type="button" aria-label="增加人数">+</button>
               <span class="stepper-reel" id="peopleReel" aria-hidden="true" hidden></span>
+              <span class="stepper-limit" id="peopleLimit" role="status"></span>
             </div>
             <button class="primary start-btn" id="startBtn" type="submit">开始</button>
           </div>
@@ -2351,7 +2378,6 @@
                 </div>
               </div></div>
             </div>
-            <p class="question-empty" id="questionEmpty" aria-hidden="true"></p>
           </div>
 
           <section id="judgeInline" aria-labelledby="judgeInlineTitle" hidden>
@@ -2408,7 +2434,7 @@
       <div class="judge-opening-page" id="judgeOpeningPage">
         <h2 class="judge-opening-title" id="judgeOpeningTitle" tabindex="-1">
           <span class="judge-question-label" id="judgeQuestionLabel" aria-hidden="true" hidden></span>
-          <span id="judgeOpeningQuestion">欢迎来到Time真心话</span>
+          <span id="judgeOpeningQuestion">欢迎来到TIME真心话</span>
         </h2>
         <p class="judge-welcome-copy" id="judgeWelcomeCopy"><span>开始之前，想先问大家两个小问题</span><span class="clause-break">，</span><span>以便拥有更好的互动体验~</span></p>
         <div id="judgeOpeningContent" hidden>
@@ -2432,7 +2458,7 @@
 
 <template id="judgeBrand">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-1041 -1041 2082 2082">
-  <title>Time真心话</title>
+  <title>TIME真心话</title>
   <circle r="1041" fill="#262420"/>
   <path fill="#F2EDE2" d="M573.00286 -818.332892 L30.603748 -43.706682 L756 -33 L756 33 L-30.603748 43.706682 L-573.00286 818.332892 A999 999 0 0 0 818.332892 573.00286 A999 999 0 0 0 573.00286 -818.332892 Z M30.603748 -43.706682 L-160.482273 -505.029148 L-243.631431 -470.587639 L-30.603748 43.706682 Z"/>
 </svg>
@@ -4081,7 +4107,7 @@ const JudgeInterface = (() => {
   const bank = JSON.parse(document.getElementById("questionBank").textContent);
   const SAVED_ROUND_KEY = "truth-wheel/paused-round/v1";
   const SAVED_ROUND_VERSION = 2;
-  const firstDrawMs = 1200, nextDrawMs = 960;
+  const firstDrawMs = 1200, nextDrawMs = 1000;
   const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   const el = {
@@ -4120,7 +4146,6 @@ const JudgeInterface = (() => {
     peopleTotal: document.getElementById("peopleTotal"),
     questionHead: document.getElementById("questionHead"),
     questionText: document.getElementById("questionText"),
-    questionEmpty: document.getElementById("questionEmpty"),
     questionIndex: document.getElementById("questionIndex"),
     actionRow: document.getElementById("actionRow"),
     primaryBtn: document.getElementById("primaryBtn"),
@@ -4197,6 +4222,18 @@ const JudgeInterface = (() => {
     sceneSelect.value = "all";
   }
 
+  async function dismissDialog(dialog, afterClose) {
+    if (!dialog.open || dialog.hasAttribute("data-closing")) return;
+    dialog.dataset.closing = "";
+    if (!REDUCED_MOTION.matches) {
+      const fades = dialog.getAnimations().filter(animation => animation.transitionProperty === "opacity");
+      await Promise.allSettled(fades.map(animation => animation.finished));
+    }
+    dialog.close();
+    delete dialog.dataset.closing;
+    afterClose?.();
+  }
+
   function initMobileMenus() {
     const narrow = matchMedia("(max-width: 980px)");
     initTopicSuggestions(narrow);
@@ -4227,13 +4264,16 @@ const JudgeInterface = (() => {
         button.disabled = option.disabled || option.parentElement.matches("optgroup:disabled");
         button.tabIndex = -1;
         button.addEventListener("click", () => {
+          if (dialog.hasAttribute("data-closing")) return;
           const changed = select.selectedIndex !== option.index;
           select.selectedIndex = option.index;
-          dialog.close();
-          if (changed) {
-            select.dispatchEvent(new Event("input", { bubbles: true }));
-            select.dispatchEvent(new Event("change", { bubbles: true }));
-          }
+          for (const item of list.children) item.setAttribute("aria-selected", String(item === button));
+          void dismissDialog(dialog, () => {
+            if (changed) {
+              select.dispatchEvent(new Event("input", { bubbles: true }));
+              select.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+          });
         });
         list.append(button);
       }
@@ -4241,7 +4281,9 @@ const JudgeInterface = (() => {
       if (!options.length) return;
       const selected = options.find(button => button.getAttribute("aria-selected") === "true") || options[0];
       selected.tabIndex = 0;
+      dialog.addEventListener("pointerdown", () => { dialog.dataset.pointer = ""; });
       dialog.addEventListener("keydown", event => {
+        if (dialog.hasAttribute("data-closing")) { event.preventDefault(); return; }
         dialog.removeAttribute("data-pointer");
         const index = options.indexOf(document.activeElement);
         if (index >= 0 && (event.key === "Enter" || event.key === " ")) {
@@ -4260,13 +4302,15 @@ const JudgeInterface = (() => {
       dialog.addEventListener("click", event => {
         if (event.target === dialog) {
           const r = dialog.getBoundingClientRect();
-          if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) dialog.close();
+          if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) void dismissDialog(dialog);
         }
       });
+      dialog.addEventListener("cancel", event => { event.preventDefault(); void dismissDialog(dialog); });
       dialog.addEventListener("close", () => {
         dialog.remove();
         if (picker === dialog) picker = null;
-        if (select.isConnected) select.focus({ preventScroll: true });
+        if (dialog.hasAttribute("data-pointer")) select.blur();
+        else if (select.isConnected) select.focus({ preventScroll: true });
       }, { once: true });
       (select.closest("[popover], dialog") || document.body).append(dialog);
       picker = dialog;
@@ -4287,7 +4331,7 @@ const JudgeInterface = (() => {
       event.preventDefault();
       open(event.target);
     });
-    narrow.addEventListener("change", () => { if (!narrow.matches && picker?.open) picker.close(); });
+    narrow.addEventListener("change", () => { if (!narrow.matches && picker?.open) void dismissDialog(picker); });
   }
 
   function initTopicSuggestions(narrow) {
@@ -5374,8 +5418,22 @@ const JudgeInterface = (() => {
 
   function updateStepperButtons() {
     const value = Number.parseInt(el.peopleInput.value, 10);
-    el.minusBtn.disabled = !Number.isFinite(value) || value <= 2;
-    el.plusBtn.disabled = !Number.isFinite(value) || value >= 99;
+    el.minusBtn.disabled = el.plusBtn.disabled = !Number.isFinite(value);
+    el.minusBtn.setAttribute("aria-disabled", String(el.minusBtn.disabled || value <= 2));
+    el.plusBtn.setAttribute("aria-disabled", String(el.plusBtn.disabled || value >= 99));
+  }
+
+  const peopleLimit = document.getElementById("peopleLimit");
+  let limitTimer;
+  function clearPeopleLimit() {
+    clearTimeout(limitTimer);
+    peopleLimit.removeAttribute("data-side");
+  }
+  function showPeopleLimit(direction) {
+    clearPeopleLimit();
+    peopleLimit.dataset.side = direction < 0 ? "minus" : "plus";
+    peopleLimit.textContent = direction < 0 ? "最少2人" : "最多99人";
+    limitTimer = setTimeout(clearPeopleLimit, 1500);
   }
 
   let countAnimations = [];
@@ -5425,6 +5483,7 @@ const JudgeInterface = (() => {
   }
 
   function setCount(value, animate = false) {
+    clearPeopleLimit();
     const previous = el.peopleInput.value;
     const next = String(Math.min(99, Math.max(2, value)));
     stopCountMotion();
@@ -5519,6 +5578,7 @@ const JudgeInterface = (() => {
   }
 
   function showGame() {
+    clearPeopleLimit();
     const firstBox = el.wheelWrap.getBoundingClientRect();
     state.personToken += 1;
     clearTimers();
@@ -5574,8 +5634,8 @@ const JudgeInterface = (() => {
       let display = state.previousPlayer ?? 1 + randomInt(state.playerCount);
       el.personNumber.textContent = padNumber(display);
       let landed = false;
-      // 两端稍慢，中段密集。沿用五次随机预览，在它们之间插入相邻号码。
-      const beats = [75, 132, 177, 216, 252, 286, 320, 357, 401, 458, 534, 640];
+      // 时间点为整段时长的千分比。中段加密，最后留一拍定住目标号码。
+      const beats = [68, 124, 172, 215, 254, 291, 327, 362, 397, 433, 471, 514, 565, 627, 708, 838];
       beats.forEach((delay, index) => {
         setTimer(() => {
           if (landed || token !== state.personToken || state.phase !== "drawing-person") return;
@@ -5588,28 +5648,27 @@ const JudgeInterface = (() => {
           }
           const number = padNumber(display);
           if (el.personNumber.textContent !== number) el.personNumber.textContent = number;
-        }, delay / 760 * rollDuration);
+        }, delay / 1000 * rollDuration);
       });
     }
 
     setTimer(() => {
       if (token !== state.personToken || state.phase !== "drawing-person") return;
-      revealPlayer(player);
-      if (drawNextQuestion) startRewind(true);
+      revealPlayer(player, drawNextQuestion);
       if (focus && !el.primaryBtn.disabled && document.activeElement === document.body && !document.querySelector("dialog[open]")) {
         el.primaryBtn.focus({ preventScroll: true });
       }
     }, rollDuration);
   }
 
-  function revealPlayer(player) {
+  function revealPlayer(player, drawNextQuestion = false) {
     state.currentPlayer = player;
     state.previousPlayer = player;
     state.phase = "ready";
-    updateGameControls();
     el.personNumber.textContent = padNumber(player);
     el.personNumber.classList.remove("is-rolling");
     el.liveStatus.textContent = `轮到 ${player} 号，共 ${state.playerCount} 人。`;
+    if (!drawNextQuestion || !startRewind(true)) updateGameControls();
   }
 
   function takeQuestion() {
@@ -5641,15 +5700,16 @@ const JudgeInterface = (() => {
     if (homeAtmosphere.transferring && phase !== "setup") {
       el.primaryBtn.disabled = el.rerollBtn.disabled = el.judgeEntry.disabled = true;
     }
-    el.primaryBtn.textContent = checkIn ? "下一题" : {
+    const primaryLabel = checkIn ? "下一题" : {
       "drawing-person": "抽人中",
       ready: "转动转盘",
-      rewinding: "时间回溯中...",
-      spinning: "时间回溯中...",
-      settling: "定格中...",
+      rewinding: "时间回溯中…",
+      spinning: "时间回溯中…",
+      settling: "时间回溯中…",
       question: !budget ? "完成本局" : remaining ? "下一位" : "完成本题",
       between: "下一位"
     }[phase] ?? "抽人中";
+    if (el.primaryBtn.textContent !== primaryLabel) el.primaryBtn.textContent = primaryLabel;
     el.roundPoolNotice.hidden = checkIn || !stable || remaining >= budget;
     if (!el.roundPoolNotice.hidden) {
       const canExpand = state.candidates.some((question) => !state.seenIds.has(question.id));
@@ -5661,6 +5721,7 @@ const JudgeInterface = (() => {
 
   function showStream(motion) {
     el.memoryWindow.hidden = !motion;
+    el.questionCopy.inert = Boolean(motion);
     if (motion) el.questionArea.dataset.motion = motion;
     else delete el.questionArea.dataset.motion;
   }
@@ -5671,13 +5732,12 @@ const JudgeInterface = (() => {
     el.questionText.textContent = "";
     el.questionText.classList.remove("is-revealed");
     el.questionHead.classList.remove("is-revealed");
-    resetQuestionHead();
-    el.questionEmpty.hidden = Boolean(motion);
+    if (!motion) resetQuestionHead();
   }
 
   function startRewind(automatic) {
     if (homeAtmosphere.transferring || judgeUI.mode || !["ready", "question"].includes(state.phase) || state.currentPlayer === null ||
-        !remainingBudget() || !availableQuestions().length) return;
+        !remainingBudget() || !availableQuestions().length) return false;
     const duration = state.phase === "question" ? 2450 : 3650;
     state.pendingQuestion = automatic ? takeQuestion() : null;
     state.phase = automatic ? "spinning" : "rewinding";
@@ -5687,12 +5747,17 @@ const JudgeInterface = (() => {
     updateGameControls();
     if (automatic) clock.turnOnce(duration, beginSettling, finishSpin);
     else clock.rewind();
+    return true;
   }
 
   function beginSettling() {
     state.phase = "settling";
     updateGameControls();
     showStream("settling");
+    // 刹停期间完成题干的最终换行。揭晓只切换可见性与透明度。
+    if (state.pendingQuestion && el.questionText.textContent !== state.pendingQuestion.question) {
+      el.questionText.textContent = state.pendingQuestion.question;
+    }
     el.liveStatus.textContent = "表盘正在减速。";
   }
 
@@ -5738,8 +5803,7 @@ const JudgeInterface = (() => {
     state.currentQuestion = question;
     showStream(null);
     setQuestionHead(question);
-    el.questionEmpty.hidden = true;
-    el.questionText.textContent = question.question;
+    if (el.questionText.textContent !== question.question) el.questionText.textContent = question.question;
     el.questionText.classList.toggle("is-revealed", animate);
     el.questionHead.classList.toggle("is-revealed", animate);
     updateGameControls();
@@ -5872,7 +5936,6 @@ const JudgeInterface = (() => {
   questionOverflow.observe(el.questionText);
   initFilterMenu();
   homeAtmosphere.setHome();
-  updateSetup();
   updateStepperButtons();
   updateSavedRound();
 
@@ -5885,18 +5948,23 @@ const JudgeInterface = (() => {
     else el.sessionChoices.showModal();
   });
 
-  el.minusBtn.addEventListener("click", () => {
-    const value = Number.parseInt(el.peopleInput.value, 10) || 2;
-    setCount(value - 1, true);
-  });
-
-  el.plusBtn.addEventListener("click", () => {
-    const value = Number.parseInt(el.peopleInput.value, 10) || 2;
-    setCount(value + 1, true);
+  for (const [button, direction] of [[el.minusBtn, -1], [el.plusBtn, 1]]) {
+    button.addEventListener("click", () => {
+      if (button.getAttribute("aria-disabled") === "true") return showPeopleLimit(direction);
+      setCount(Number.parseInt(el.peopleInput.value, 10) + direction, true);
+    });
+  }
+  el.peopleInput.addEventListener("keydown", event => {
+    if ((event.key === "ArrowDown" && el.peopleInput.valueAsNumber <= 2) ||
+        (event.key === "ArrowUp" && el.peopleInput.valueAsNumber >= 99)) {
+      event.preventDefault();
+      showPeopleLimit(event.key === "ArrowDown" ? -1 : 1);
+    }
   });
 
   el.peopleInput.addEventListener("focus", stopCountMotion);
   el.peopleInput.addEventListener("input", () => {
+    clearPeopleLimit();
     stopCountMotion();
     el.formError.textContent = "";
     el.stepper.classList.remove("has-error");
@@ -5969,6 +6037,11 @@ const JudgeInterface = (() => {
     const previousSave = readSavedRound();
     el.sessionChoices.close();
     startGame(previousSave);
+  });
+  const historyDialog = document.getElementById("roundHistory");
+  for (const type of ["cancel", "submit"]) historyDialog.addEventListener(type, event => {
+    event.preventDefault();
+    void dismissDialog(historyDialog);
   });
   document.getElementById("roundHistoryBtn")?.addEventListener("click", () => openRoundHistory(state.history));
   document.getElementById("savedHistoryBtn")?.addEventListener("click", () => {
