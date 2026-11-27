@@ -2340,8 +2340,8 @@
     --tick-selected-bg: #42382f;
     --tick-selected-ring: #faf3e1ad;
     --focus: #50716c;
-    /* 默认档位于有效滑轨的 50% 中心处，高档位于 76%。 */
-    --default-stop: calc(var(--start-inset) + (100% - var(--start-inset) - var(--end-inset)) * 0.5);
+    /* 默认档对齐滑块与上方文字的视觉正中（容器 50%），高档位于有效滑轨 76%。 */
+    --default-stop: 50%;
     --high-stop: calc(var(--start-inset) + (100% - var(--start-inset) - var(--end-inset)) * 0.76);
     --water-sheen: linear-gradient(180deg, #ffffff29, #ffffff00 55%);
     --water: linear-gradient(90deg, #8bb9ed, #a0a5eb var(--default-stop), #9c5cf7);
@@ -2349,9 +2349,9 @@
     --thumb-bg: #fffaf0;
     --thumb-shadow: 0 3px 8px #47301c2a, 0 1px 2px #47301c18, inset 0 1px 0 #fff;
     --thumb-shadow-active: 0 2px 5px #47301c40, inset 0 1px 0 #fff;
-    --thumb-shadow-breath: 0 4px 11px #47301c38, 0 1px 3px #47301c1e, inset 0 1px 0 #fff;
-    --thumb-halo-border: color-mix(in srgb, var(--thumb-border) 46%, transparent);
-    --thumb-halo-glow: color-mix(in srgb, var(--thumb-border) 28%, transparent);
+    --thumb-shadow-breath: 0 5px 14px #47301c46, 0 1px 4px #47301c28, inset 0 1px 0 #fff;
+    --thumb-halo-border: color-mix(in srgb, var(--thumb-border) 68%, transparent);
+    --thumb-halo-glow: color-mix(in srgb, var(--thumb-border) 42%, transparent);
     --sans: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
     --serif: "Songti SC", "Noto Serif SC", "SimSun", serif;
     --start-inset: clamp(36px, 7vw, 42px);
@@ -2379,9 +2379,9 @@
     --thumb-bg: #EFE7D8;
     --thumb-shadow: 0 3px 10px rgba(8, 9, 11, 0.58), 0 1px 3px rgba(8, 9, 11, 0.38), inset 0 1px 0 rgba(255, 250, 240, 0.65);
     --thumb-shadow-active: 0 2px 6px rgba(8, 9, 11, 0.70), inset 0 1px 0 rgba(255, 250, 240, 0.55);
-    --thumb-shadow-breath: 0 4px 14px rgba(8, 9, 11, 0.66), 0 0 8px rgba(239, 231, 216, 0.13), inset 0 1px 0 rgba(255, 250, 240, 0.76);
-    --thumb-halo-border: color-mix(in srgb, var(--thumb-bg) 34%, transparent);
-    --thumb-halo-glow: color-mix(in srgb, var(--thumb-border) 26%, transparent);
+    --thumb-shadow-breath: 0 5px 16px rgba(8, 9, 11, 0.72), 0 0 11px rgba(239, 231, 216, 0.24), inset 0 1px 0 rgba(255, 250, 240, 0.85);
+    --thumb-halo-border: color-mix(in srgb, var(--thumb-bg) 56%, transparent);
+    --thumb-halo-glow: color-mix(in srgb, var(--thumb-bg) 28%, transparent);
   }
 
   .fluid-slider__readout {
@@ -2624,9 +2624,9 @@
     content: "";
     position: absolute;
     inset: -1px;
-    border: 1px solid var(--thumb-halo-border);
+    border: 1.5px solid var(--thumb-halo-border);
     border-radius: 50%;
-    box-shadow: 0 0 6px 2px var(--thumb-halo-glow);
+    box-shadow: 0 0 9px 3px var(--thumb-halo-glow);
     opacity: 0;
     pointer-events: none;
     transform: scale(1);
@@ -2652,8 +2652,8 @@
       opacity: 0;
     }
     50% {
-      transform: scale(1.09);
-      opacity: 0.66;
+      transform: scale(1.13);
+      opacity: 0.88;
     }
   }
 
@@ -2663,18 +2663,18 @@
       box-shadow: var(--thumb-shadow);
     }
     50% {
-      scale: 1.024;
+      scale: 1.032;
       box-shadow: var(--thumb-shadow-breath);
     }
   }
 
   @media (prefers-reduced-motion: no-preference) {
     .fluid-slider[data-off-default="true"][data-phase="idle"] .fluid-slider__thumb::before {
-      animation: fluid-slider-halo-breath 4s ease-in-out 240ms infinite;
+      animation: fluid-slider-halo-breath 3.8s ease-in-out 220ms infinite;
     }
 
     .fluid-slider[data-off-default="true"][data-phase="idle"] .fluid-slider__face {
-      animation: fluid-slider-face-breath 4s ease-in-out 240ms infinite;
+      animation: fluid-slider-face-breath 3.8s ease-in-out 220ms infinite;
     }
   }
 
@@ -3583,8 +3583,9 @@ const createFluidSlider = (() => {
     { title: "最高", description: "火力全开", detail: "更多敏感私密、需要仔细斟酌的话题", hot: true },
   ];
 
-  // 相对于有效滑轨（.fluid-slider__lane）的非等距四档锚点坐标。
-  const defaultStopPositions = [0.12, 0.50, 0.76, 1.00];
+  // 相对于有效滑轨（.fluid-slider__lane）的非等距四档锚点坐标；
+  // 默认档（index 1）在 measure() 中按容器中心精确对齐「适中」与描述文字正中。
+  const defaultStopPositions = [0.18, 0.47, 0.76, 1.00];
 
   // 像素与秒。漂流、剪切、起伏、涡流频率和亮度各有自己的变化幅度。
   const waterMotion = [
@@ -3901,7 +3902,9 @@ const createFluidSlider = (() => {
       this.motion = motion;
       this.maxIndex = levels.length - 1;
       this.defaultIndex = clamp(defaultIndex, 0, this.maxIndex);
-      this.stopPositions = Array.isArray(stopPositions) && stopPositions.length === levels.length
+      const customStops = Array.isArray(stopPositions) && stopPositions.length === levels.length;
+      this.alignDefaultToCenter = !customStops && levels.length === defaultStopPositions.length;
+      this.stopPositions = customStops
         ? stopPositions.slice()
         : levels.length === defaultStopPositions.length
           ? defaultStopPositions.slice()
@@ -3939,6 +3942,7 @@ const createFluidSlider = (() => {
       });
 
       this.measure();
+      this.position = this.stopAt(initialIndex);
       this.setIndex(initialIndex);
       this.draw(this.now());
       const canvas = root.querySelector(".fluid-slider__particles");
@@ -4017,6 +4021,14 @@ const createFluidSlider = (() => {
         minPosition: Math.min(0, (2 - inset) / travel),
         thumbRadius: this.thumb.offsetWidth / 2 + 3,
       };
+      if (this.alignDefaultToCenter && hit.width > 0 && lane.width > 0) {
+        const centerStop = clamp((hit.width / 2 - inset) / travel, 0.25, 0.75);
+        this.stopPositions[this.defaultIndex] = centerStop;
+        this.markers[this.defaultIndex]?.style.setProperty("--stop", `${centerStop * 100}%`);
+        if (!this.pointer && !this.spring && this.index === this.defaultIndex) {
+          this.position = centerStop;
+        }
+      }
     }
 
     stopAt(index) {
