@@ -585,18 +585,24 @@ window.__themeIconAssets = {
     align-items: center;
     gap: 22px;
     color: var(--muted-text);
+    font-family: var(--sans);
     font-size: 12px;
+    line-height: 16px;
     letter-spacing: 0.04em;
     font-variant-numeric: tabular-nums;
   }
 
   .reset-btn {
     position: relative;
+    display: inline-flex;
+    align-items: center;
     border: 0;
     padding: 6px 0;
     background: none;
     color: var(--ink);
+    font-family: var(--sans);
     font-size: 12px;
+    line-height: 16px;
     cursor: pointer;
   }
 
@@ -612,8 +618,11 @@ window.__themeIconAssets = {
     transition: transform var(--motion-standard) var(--ease-standard);
   }
 
-  .reset-btn:is(:hover, :active) { color: var(--accent-dark); }
-  .reset-btn:hover::after { transform: scaleX(0); }
+  .reset-btn:active { color: var(--accent-dark); }
+  @media (hover: hover) and (pointer: fine) {
+    .reset-btn:hover { color: var(--accent-dark); }
+    .reset-btn:hover::after { transform: scaleX(0); }
+  }
   a.reset-btn { text-decoration: none; }
   .share-btn { white-space: nowrap; }
   .share-btn[data-copied] { color: var(--accent-dark); }
@@ -621,7 +630,30 @@ window.__themeIconAssets = {
   #homeTitle { text-align: center; }
 
   #homeBtn, #openEditor, #remainingText { white-space: nowrap; }
-  #remainingText { min-inline-size: 7.5em; text-align: end; }
+  #remainingText {
+    display: inline-flex;
+    align-items: center;
+    min-inline-size: 7.5em;
+    justify-content: flex-end;
+    line-height: 16px;
+  }
+  .topbar-meta .reset-btn,
+  .topbar-meta .judge-entry {
+    min-height: 32px;
+    padding: 6px 0;
+    font-family: var(--sans);
+    font-size: 12px;
+    line-height: 16px;
+  }
+  .topbar-meta .reset-btn::after {
+    bottom: calc(50% - 10px);
+  }
+  @media (pointer: coarse) {
+    .topbar-meta .reset-btn,
+    .topbar-meta .judge-entry {
+      min-height: 44px;
+    }
+  }
   .home-choices {
     width: min(340px, calc(100vw - 44px));
     padding: 22px;
@@ -1003,7 +1035,9 @@ window.__themeIconAssets = {
       transform var(--motion-micro) var(--ease-standard), opacity var(--motion-micro) var(--ease-standard);
   }
 
-  .primary:hover:enabled { background: var(--primary-hover-bg); border-color: var(--primary-hover-bg); }
+  @media (hover: hover) and (pointer: fine) {
+    .primary:hover:enabled { background: var(--primary-hover-bg); border-color: var(--primary-hover-bg); }
+  }
   .primary:active:enabled {
     background: var(--primary-active);
     border-color: var(--primary-active);
@@ -1026,7 +1060,9 @@ window.__themeIconAssets = {
     cursor: pointer;
     transition: background-color var(--motion-micro) var(--ease-standard);
   }
-  .secondary:hover:enabled { background: var(--selected); border-color: var(--accent); color: var(--accent-dark); }
+  @media (hover: hover) and (pointer: fine) {
+    .secondary:hover:enabled { background: var(--selected); border-color: var(--accent); color: var(--accent-dark); }
+  }
   .secondary:active:enabled {
     background: var(--selected-active);
     border-color: var(--accent);
@@ -1197,7 +1233,10 @@ window.__themeIconAssets = {
   }
   .filters-toggle[aria-expanded="true"]::before { transform: translateY(-2px) rotate(45deg); }
   .filters-toggle[data-side="up"][aria-expanded="true"]::before { transform: translateY(2px) rotate(-135deg); }
-  .filters-toggle:is(:hover, :active) { color: var(--accent-dark); }
+  .filters-toggle:active { color: var(--accent-dark); }
+  @media (hover: hover) and (pointer: fine) {
+    .filters-toggle:hover { color: var(--accent-dark); }
+  }
   .filters-menu {
     --filters-enter-y: -6px;
     display: none;
@@ -1655,20 +1694,21 @@ window.__themeIconAssets = {
   .question-area[data-motion] #questionText { visibility: hidden; }
   .memory-window {
     position: absolute;
-    inset: 21px 0 auto;
-    height: clamp(78px, 11vh, 108px);
+    inset: 50% 0 auto;
+    height: clamp(114px, 16vh, 148px);
+    transform: translateY(-50%);
     overflow: hidden;
     pointer-events: none;
     user-select: none;
-    mask-image: linear-gradient(to bottom, transparent, black 27%, black 66%, transparent);
-    -webkit-mask-image: linear-gradient(to bottom, transparent, black 27%, black 66%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, black 22%, black 78%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 22%, black 78%, transparent);
   }
   .memory-window:not([hidden]) {
     animation: memory-in var(--motion-reveal) var(--ease-enter) both;
   }
   @keyframes memory-in {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(calc(-50% + 4px)); }
+    to { opacity: 1; transform: translateY(-50%); }
   }
   .memory-ink {
     color: var(--memory-ink);
@@ -1680,18 +1720,23 @@ window.__themeIconAssets = {
   .memory-track { will-change: transform; }
   .memory-lines {
     font-family: var(--serif);
-    font-size: clamp(18px, 1.8vw, 25px);
-    line-height: 1.42;
-    letter-spacing: .12em;
+    font-size: clamp(16px, 1.8vw, 24px);
+    line-height: 1.5;
+    letter-spacing: .08em;
     white-space: nowrap;
   }
-  .memory-lines span { display: block; }
-  .memory-lines span:nth-child(even) { padding-left: .85em; }
+  .memory-lines span {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    width: 100%;
+  }
+  .memory-lines em { font-style: normal; }
   .question-area[data-motion="settling"] .memory-ink {
     opacity: 0;
     filter: blur(.65px);
     transform: translateY(2px) scaleY(.94);
-    transform-origin: left top;
+    transform-origin: center center;
     transition: opacity 480ms 110ms ease-in, filter 570ms ease-out, transform 570ms ease-out;
   }
 
@@ -1728,10 +1773,17 @@ window.__themeIconAssets = {
     transition: color var(--motion-micro) var(--ease-standard);
   }
 
-  .ghost-btn:is(:hover, :active):enabled {
+  .ghost-btn:active:enabled {
     color: var(--accent-dark);
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .ghost-btn:hover:enabled {
+      color: var(--accent-dark);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
   }
   .ghost-btn:disabled { opacity: 0.36; cursor: default; }
 
@@ -1746,6 +1798,10 @@ window.__themeIconAssets = {
   :focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
+  }
+  :root[data-input-mode="touch"] :where(button, a, [role="button"], .wheel-wrap, .judge-scope, .judge-check-card, .theme-switch, .guide-choice input):not([aria-expanded="true"]):focus-visible,
+  :root[data-input-mode="touch"] :is(.judge-scope, .judge-check-card):has(:focus-visible) {
+    outline: none;
   }
 
   .sr-only {
@@ -1814,6 +1870,15 @@ window.__themeIconAssets = {
     body[data-view="game"] .topbar { flex-wrap: wrap; }
     body[data-view="game"] .topbar-meta { margin-inline-start: auto; min-width: 0; flex: 1 1 0; }
     body[data-view="game"] #remainingText { min-inline-size: auto; }
+  }
+  @media (max-width: 375px) {
+    body[data-view="game"] .page { padding-inline: 14px; }
+    body[data-view="game"] .topbar { gap: 4px; }
+    body[data-view="game"] .topbar-meta { gap: 2px 7px; }
+    body[data-view="game"] .judge-entry { gap: 3px; }
+    body[data-view="game"] .judge-entry .judge-avatar { --judge-size: 16px; }
+  }
+  @media (max-width: 620px) {
 
     .layout { gap: 20px; padding-top: 12px; }
 
@@ -1843,7 +1908,7 @@ window.__themeIconAssets = {
     .person-unit { margin-top: 0; transform: translateY(-8.8px); }
     .turn-band + .rule { margin-top: 0; }
     .round-stage { --question-inset: 9px; --question-height: 158px; }
-    .memory-window { inset-block-start: 9px; height: 76px; }
+    .memory-window { height: 112px; }
     .question-text { margin-top: 8px; line-height: 1.5; font-size: clamp(19px, 5.1vw, 23px); }
     .action-row { margin-top: 10px; }
     .round-stage .round-actions > .primary { width: 100%; min-width: 0; }
@@ -2081,13 +2146,16 @@ window.__themeIconAssets = {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    min-height: 44px;
-    padding: 0 2px;
+    min-height: 32px;
+    padding: 6px 0;
+    font-family: var(--sans);
     font-size: inherit;
+    line-height: 16px;
     letter-spacing: inherit;
     white-space: nowrap;
   }
-  .judge-entry .judge-avatar { --judge-size: 20px; }
+  .judge-entry .judge-avatar { --judge-size: 18px; flex: none; }
+  .judge-entry > span:last-child { line-height: 16px; }
   .judge-entry:disabled { opacity: .52; }
   .judge-entry[aria-expanded="true"] { color: var(--accent-dark); opacity: 1; }
   .judge-flying { position: fixed; z-index: 31; pointer-events: none; transform-origin: top left; }
@@ -2129,11 +2197,11 @@ window.__themeIconAssets = {
     min-inline-size: 0;
   }
   #judgeAdjustment .judge-tabs-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    display: flex;
     align-items: center;
-    gap: 8px;
-    margin-block-end: 6px;
+    justify-content: space-between;
+    gap: 10px;
+    margin-block-end: 8px;
   }
   #judgeAdjustment .judge-tabs { margin-block-end: 0; }
   #judgeAdjustment .judge-actions { margin-block-start: 6px; }
@@ -2225,22 +2293,31 @@ window.__themeIconAssets = {
     .judge-check-card:has(:enabled):hover { color: var(--ink); border-color: var(--control-line); }
   }
   .judge-tabs button {
-    min-height: 44px;
-    padding: 6px 10px;
+    min-height: 40px;
+    padding: 6px 15px;
     border: 1px solid var(--line);
     border-radius: var(--radius-control);
     background: var(--paper-bright);
     color: var(--muted-text);
-    font-size: 13px;
+    font-size: 15px;
+    line-height: 1.3;
     white-space: nowrap;
     cursor: pointer;
   }
-  .judge-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-bottom: 11px; }
-  @media (max-width: 440px) {
-    .judge-tabs { grid-template-columns: minmax(56px, .68fr) minmax(0, 1.32fr); }
-    .judge-tabs button { padding: 6px 7px; }
+  .judge-tabs { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 11px; min-width: 0; }
+  @media (pointer: coarse) {
+    .judge-tabs button { min-height: 44px; }
   }
-  .judge-tabs button[aria-pressed="true"] { color: var(--ink); background: var(--selected); border-color: var(--control-line); }
+  @media (max-width: 400px) {
+    .judge-tabs { gap: 6px; }
+    .judge-tabs button { padding: 6px 11px; font-size: 14px; }
+  }
+  .judge-tabs button[aria-pressed="true"] {
+    color: var(--ink);
+    font-weight: 500;
+    background: var(--selected);
+    border-color: var(--control-line);
+  }
 
   .draw-order-row label, .filter-checks label, .question-editor .editor-pending-filter,
   .question-editor .editor-tag-options label {
@@ -3168,10 +3245,10 @@ window.__themeIconAssets = {
             <div class="memory-window" id="memoryWindow" hidden aria-hidden="true">
               <div class="memory-ink"><div class="memory-track" id="memoryTrack">
                 <div class="memory-lines">
-                  <span>当初　·　如果　　　心动　　坦白</span>
-                  <span>遗憾　　选择　·　　沉默　　偏爱</span>
-                  <span>秘密　　距离　　　孤独　　期待</span>
-                  <span>后来　·　离开　　　未曾　　释怀</span>
+                  <span><em>当初</em><em>·</em><em>如果</em><em>心动</em><em>坦白</em><em>回望</em></span>
+                  <span><em>遗憾</em><em>选择</em><em>·</em><em>沉默</em><em>偏爱</em><em>归途</em></span>
+                  <span><em>秘密</em><em>距离</em><em>孤独</em><em>·</em><em>期待</em><em>微光</em></span>
+                  <span><em>后来</em><em>·</em><em>离开</em><em>未曾</em><em>释怀</em><em>余温</em></span>
                 </div>
               </div></div>
             </div>
@@ -3545,28 +3622,28 @@ const JudgeSelection = (() => {
 
   const scopes = {
     family: {
-      label: "家庭与亲情", detail: "家人、父母、家庭回忆",
+      label: "家庭与亲情", detail: "原生家庭与亲情",
       domains: ["family"], topicPrefix: "family_",
       topics: ["origin_family", "intergenerational", "parenting"]
     },
     romance: {
-      label: "个人感情经历", detail: "暧昧经历、前任、恋爱与分手回忆",
+      label: "恋爱与感情", detail: "恋爱与分手回忆",
       topics: ["dating_history", "ex_partners", "relationship_memories"],
       experiences: ["dating_experience", "long_term_relationship", "breakup_experience", "confession_experience"]
     },
     work: {
-      label: "实际工作与职场", detail: "工作事务、职场压力、团队管理",
+      label: "工作与职场", detail: "工作事务与职场关系",
       topics: ["work_experience", "work_pressure", "management", "teamwork", "work_conflict",
         "manager_conflict", "career_onboarding", "internship", "work_life", "burnout", "delegation"],
       experiences: ["work_experience", "internship_experience", "management_experience"]
     },
     finance: {
-      label: "个人经济状况", detail: "实际收入、债务、家庭财务",
+      label: "经济与财务", detail: "收入与金钱支配",
       topics: ["financial_privacy", "family_financial_responsibility"],
       experienceTopics: ["income", "compensation", "debt"]
     },
     privacy: {
-      label: "其他个人隐私", detail: "明确需要透露的私人信息",
+      label: "其他私人经历", detail: "可能需要透露的个人信息",
       topics: ["personal_privacy", "financial_privacy"]
     }
   };
@@ -4838,6 +4915,48 @@ const JudgeInterface = (() => {
       else void moveOpening(1);
     }
 
+    function adjustMotion(node, index) {
+      const mobile = matchMedia("(max-width: 980px)").matches;
+      if (mobile) {
+        return {
+          origin: "center bottom",
+          enterFrom: "translateY(28px)",
+          exitTo: "translateY(22px)",
+          delay: index * 20
+        };
+      }
+      const entryRect = entry.getBoundingClientRect();
+      const targetRect = node.getBoundingClientRect();
+      if (!entryRect.width || !targetRect.width) {
+        return {
+          origin: "top right",
+          enterFrom: "translate(18px, -22px) scale(0.96)",
+          exitTo: "translate(14px, -16px) scale(0.97)",
+          delay: index * 28
+        };
+      }
+      const entryCx = entryRect.left + entryRect.width / 2;
+      const entryCy = entryRect.top + entryRect.height / 2;
+      const targetCx = targetRect.left + targetRect.width / 2;
+      const targetCy = targetRect.top + targetRect.height / 2;
+      const dx = entryCx - targetCx;
+      const dy = entryCy - targetCy;
+      const dist = Math.hypot(dx, dy) || 1;
+      const travel = Math.min(44, Math.max(20, dist * 0.16));
+      const tx = ((dx / dist) * travel).toFixed(1);
+      const ty = ((dy / dist) * travel).toFixed(1);
+      const exitTx = ((dx / dist) * travel * 0.72).toFixed(1);
+      const exitTy = ((dy / dist) * travel * 0.72).toFixed(1);
+      const ox = Math.max(0, Math.min(targetRect.width, entryCx - targetRect.left)).toFixed(0);
+      const oy = Math.max(0, Math.min(targetRect.height, entryCy - targetRect.top)).toFixed(0);
+      return {
+        origin: `${ox}px ${oy}px`,
+        enterFrom: `translate(${tx}px, ${ty}px) scale(0.955)`,
+        exitTo: `translate(${exitTx}px, ${exitTy}px) scale(0.97)`,
+        delay: index * 28
+      };
+    }
+
     function showInline(nextMode, title) {
       mode = nextMode;
       game.dataset.judge = mode;
@@ -4856,9 +4975,28 @@ const JudgeInterface = (() => {
       for (const fade of entryFades) fade.cancel();
       if (!reducedMotion.matches) {
         const style = getComputedStyle(inline);
-        entryFades = [inline, ...turnParts].map(node => node.animate([{ opacity: 0 }, { opacity: 1 }], {
-          duration: parseFloat(style.getPropertyValue("--motion-overlay")), easing: style.getPropertyValue("--ease-enter").trim()
-        }));
+        const easing = style.getPropertyValue("--ease-enter").trim();
+        const duration = parseFloat(style.getPropertyValue("--motion-overlay"));
+        if (mode === "adjust") {
+          const targets = [...turnParts, inline];
+          entryFades = targets.map((node, index) => {
+            const motion = adjustMotion(node, index);
+            node.style.transformOrigin = motion.origin;
+            return node.animate([
+              { opacity: 0, transform: motion.enterFrom },
+              { opacity: 1, transform: "none" }
+            ], {
+              duration: duration + 36,
+              delay: motion.delay,
+              easing,
+              fill: "backwards"
+            });
+          });
+        } else {
+          entryFades = [inline, ...turnParts].map(node => node.animate([{ opacity: 0 }, { opacity: 1 }], {
+            duration, easing
+          }));
+        }
       }
       inlineTitle.focus({ preventScroll: mode === "adjust" });
     }
@@ -4899,10 +5037,14 @@ const JudgeInterface = (() => {
       delete game.dataset.judge;
       entry.setAttribute("aria-expanded", "false");
       entry.removeAttribute("aria-label");
-      for (const part of turnParts) part.hidden = true;
+      for (const part of turnParts) {
+        part.style.removeProperty("transform-origin");
+        part.hidden = true;
+      }
+      inline.style.removeProperty("transform-origin");
       inline.hidden = true;
       onInlineChange();
-      if (restoreFocus) entry.focus({ preventScroll: true });
+      if (restoreFocus && !window.__isTouchInput?.()) entry.focus({ preventScroll: true });
     }
 
     function exitSettings(applied) {
@@ -4922,7 +5064,7 @@ const JudgeInterface = (() => {
         }
       }
       sliderHost.querySelector('.fluid-slider__text-toggle[aria-expanded="true"]')?.click();
-      entry.focus({ preventScroll: true });
+      if (!window.__isTouchInput?.()) entry.focus({ preventScroll: true });
       fadeOutInline(finish);
     }
 
@@ -4938,8 +5080,18 @@ const JudgeInterface = (() => {
         easing: style.getPropertyValue("--ease-exit").trim(),
         fill: "forwards"
       };
-      const fades = [game.querySelector(".judge-person"), inline].map(node =>
-        node.animate([{ opacity: getComputedStyle(node).opacity }, { opacity: 0 }], timing));
+      const nodes = [game.querySelector(".judge-person"), inline];
+      const fades = nodes.map((node, index) => {
+        if (mode === "adjust") {
+          const motion = adjustMotion(node, index);
+          node.style.transformOrigin = motion.origin;
+          return node.animate([
+            { opacity: getComputedStyle(node).opacity, transform: "none" },
+            { opacity: 0, transform: motion.exitTo }
+          ], timing);
+        }
+        return node.animate([{ opacity: getComputedStyle(node).opacity }, { opacity: 0 }], timing);
+      });
       inlineExit = fades;
       fades[1].onfinish = () => {
         if (inlineExit !== fades) return;
@@ -5707,7 +5859,7 @@ const JudgeInterface = (() => {
     else if (["question", "end"].includes(turn.phase)) restoreDisplayedTurn(turn);
     else if (state.judge.checkIn.status === "pending") showCheckIn();
     else advanceTurn();
-    if (!judgeUI.mode && !el.primaryBtn.disabled) el.primaryBtn.focus();
+    if (!judgeUI.mode && !el.primaryBtn.disabled && !window.__isTouchInput?.()) el.primaryBtn.focus();
   }
 
   function padNumber(value) {
@@ -6920,7 +7072,7 @@ const JudgeInterface = (() => {
       if (!home) {
         updateGameControls();
         if (!el.primaryBtn.disabled && !judgeUI.mode && document.activeElement === document.body &&
-            !document.querySelector("dialog[open]") && !document.hidden) {
+            !document.querySelector("dialog[open]") && !document.hidden && !window.__isTouchInput?.()) {
           el.primaryBtn.focus({ preventScroll: true });
         }
       }
@@ -7434,7 +7586,8 @@ const JudgeInterface = (() => {
     setTimer(() => {
       if (token !== state.personToken || state.phase !== "drawing-person") return;
       revealPlayer(player, drawNextQuestion);
-      if (focus && !el.primaryBtn.disabled && document.activeElement === document.body && !document.querySelector("dialog[open]")) {
+      if (focus && !el.primaryBtn.disabled && document.activeElement === document.body &&
+          !document.querySelector("dialog[open]") && !window.__isTouchInput?.()) {
         el.primaryBtn.focus({ preventScroll: true });
       }
     }, rollDuration);
@@ -7702,7 +7855,7 @@ const JudgeInterface = (() => {
     showSetup();
     el.peopleInput.value = String(previousCount || 4);
     updateStepperButtons();
-    el.startBtn.focus({ preventScroll: true });
+    if (!window.__isTouchInput?.()) el.startBtn.focus({ preventScroll: true });
   }
 
   function initTheme() {
@@ -7840,6 +7993,38 @@ const JudgeInterface = (() => {
     } catch {}
   }
 
+  function initInputModality() {
+    const root = document.documentElement;
+    const coarse = matchMedia("(pointer: coarse)");
+    root.dataset.inputMode = coarse.matches ? "touch" : "pointer";
+    window.__isTouchInput = () => root.dataset.inputMode === "touch";
+
+    document.addEventListener("pointerdown", (event) => {
+      root.dataset.inputMode = event.pointerType === "touch" || coarse.matches ? "touch" : "pointer";
+    }, { capture: true, passive: true });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (["Tab", "Escape", "Enter", " ", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+        root.dataset.inputMode = "keyboard";
+      }
+    }, { capture: true });
+
+    // 移动端触摸点击普通按钮后，若未进入特殊空间提示（如呼出的设置/菜单），主动退焦以避免焦点残留。
+    document.addEventListener("click", (event) => {
+      if (!window.__isTouchInput()) return;
+      const control = event.target?.closest?.('button, a.reset-btn, [role="button"]');
+      if (!control) return;
+      setTimeout(() => {
+        if (!window.__isTouchInput()) return;
+        if (document.activeElement !== control) return;
+        if (control.getAttribute("aria-expanded") === "true") return;
+        control.blur();
+      }, 0);
+    });
+  }
+
+  initInputModality();
   initFilters();
   initMobileMenus();
   initTheme();
