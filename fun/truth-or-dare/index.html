@@ -5,22 +5,153 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>TIME真心话 · 大转盘</title>
+<script>
+(() => {
+  try {
+    if (localStorage.getItem("truth-wheel/theme/v1") === "night") {
+      document.documentElement.dataset.theme = "night";
+      const scheme = document.querySelector('meta[name="color-scheme"]');
+      if (scheme) scheme.setAttribute("content", "dark");
+    }
+  } catch {}
+})();
+</script>
 <style>
   :root {
+    color-scheme: light;
+
+    /* Theme Tokens — Day Edition */
     --paper: #F2EFE6;
     --paper-bright: #F8F8F4;
+    --input-bg: #F8F8F4;
     --ink: #252622;
     --muted: #70716B;
     --muted-text: color-mix(in srgb, var(--muted) 92%, var(--ink));
+    --placeholder: #70716B;
     --line: #D7D8D1;
+    --layer-border: var(--line);
+    --layer-shadow: none;
     --control-line: color-mix(in srgb, var(--muted) 76%, var(--line));
     --accent: #8D5148;
     --accent-dark: #78443D;
     --selected: #E8E8E1;
+    --selected-active: color-mix(in srgb, var(--selected) 92%, var(--ink));
     --disabled: #E7E7E1;
+    --disabled-ink: #A3A49B;
+    --disabled-btn-ink: var(--muted-text);
     --brass: #8C7A5D;
+    --error: #B53021;
+    --primary-bg: var(--ink);
+    --primary-ink: var(--paper-bright);
+    --primary-hover-bg: var(--accent-dark);
     --primary-active: color-mix(in srgb, var(--ink) 85%, var(--accent));
-    --backdrop: color-mix(in srgb, var(--ink) 38%, transparent);
+    --switch-checked-thumb: var(--paper-bright);
+    --backdrop: rgba(37, 38, 34, 0.38);
+    --feedback-scrim: rgba(37, 38, 34, 0.17);
+    --scrollbar-thumb: #81827B;
+    --panel-rule: #C2C3BA;
+    --panel-rule-highlight: #C9CAC2;
+    --panel-rule-shadow: rgb(37 38 34 / 8%);
+
+    /* Component Tokens — Editor & Controls (Day Edition) */
+    --editor-list-bg: #EFEFE9;
+    --editor-input-bg: var(--paper);
+    --editor-row-marked-bg: var(--selected);
+    --editor-row-current-bg: var(--paper-bright);
+    --editor-row-selected-bg: #E0E8FA;
+    --editor-state-bg: #E2E9FF;
+    --editor-state-ink: #243C89;
+    --editor-review-bg: #F5E5BC;
+    --editor-review-ink: #5D400C;
+    --editor-draft-bg: #D8EEED;
+    --editor-draft-ink: #195156;
+    --rewinding-btn-bg: #EBE6DA;
+    --rewinding-btn-border: #B8A88E;
+    --rewinding-btn-ink: #594B38;
+    --moon-fill: #EFE4C6;
+    --theme-switch-track: var(--selected);
+    --theme-switch-thumb: var(--ink);
+    --theme-switch-active-icon: var(--paper-bright);
+    --theme-switch-idle-icon: var(--muted-text);
+
+    /* Component Tokens — Mechanical Dial (Day Edition) */
+    --clock-face: #FAF8F2;
+    --clock-rim: #1C1F1B;
+    --clock-hairline: #1C1F1B;
+    --clock-hairline-opacity: 0.28;
+    --clock-track-base: #FFFDF7;
+    --clock-wash: #DED7C8;
+    --clock-tick: #1C1F1B;
+    --clock-tick-major: #1C1F1B;
+    --clock-brass: #9A784E;
+    --clock-orbit: #9A784E;
+    --clock-numeral-0: #413A2F;
+    --clock-numeral-1: #1A1C17;
+    --clock-numeral-2: #292A23;
+    --clock-numeral-stroke: #68604C;
+    --clock-engraving: #9A8A70;
+    --clock-engraving-fine: #B5A589;
+    --clock-engraving-mark: #A79172;
+    --clock-plate-0: #F2EDE2;
+    --clock-plate-1: #EAE5D8;
+    --clock-plate-2: #D6CFBD;
+    --clock-plate-stroke: #B6AC96;
+    --clock-bridge-stroke: #9E9583;
+    --clock-bridge-pin-stroke: #9E9481;
+    --clock-brass-0: #A68652;
+    --clock-brass-1: #D3B37B;
+    --clock-brass-2: #AE8B57;
+    --clock-brass-3: #917049;
+    --clock-brass-4: #AB8958;
+    --clock-hour-0: #A68652;
+    --clock-hour-1: #D3B37B;
+    --clock-hour-2: #AE8B57;
+    --clock-hour-3: #917049;
+    --clock-hour-4: #AB8958;
+    --clock-pinion-0: #B2A081;
+    --clock-pinion-1: #93886E;
+    --clock-pinion-2: #6F6855;
+    --clock-steel-0: #FBF7EC;
+    --clock-steel-1: #C2BBA9;
+    --clock-steel-2: #857D6C;
+    --clock-minute-0: #202820;
+    --clock-minute-1: #4A554D;
+    --clock-minute-2: #28332D;
+    --clock-minute-3: #161C19;
+    --clock-main-gear-edge: #695336;
+    --clock-aux-gear-edge: #6E6047;
+    --clock-gear-engraving: #E1C99E;
+    --clock-gear-engraving-opacity: 0.78;
+    --clock-lever-stroke: #6D6654;
+    --clock-lever-sheen: #F4EBD2;
+    --clock-lever-screw-edge: #756044;
+    --clock-lever-screw-slot: #5D4B34;
+    --clock-hour-stroke: #564533;
+    --clock-hour-sheen: #EBD5AD;
+    --clock-hour-band: #705736;
+    --clock-minute-stroke: #1D251F;
+    --clock-minute-sheen: #AAB4A5;
+    --clock-minute-band: #C2AE8D;
+    --clock-second: var(--accent);
+    --clock-pivot-shadow: #6C573F;
+    --clock-pivot-shadow-opacity: 0.29;
+    --clock-pivot-outer-edge: #66503A;
+    --clock-pivot-bevel: #F1DCB5;
+    --clock-pivot-ring-fill: url(#bluedSteel);
+    --clock-pivot-ring-edge: #6D573B;
+    --clock-pivot-dots: #DDC39A;
+    --clock-pivot-cap-edge: #181D19;
+    --clock-pivot-slot: #574D3C;
+    --clock-noon-fill: #1C1F1B;
+    --clock-noon-dot: #D5BC96;
+
+    /* Motion Tokens — Atmosphere, Grain & Blinds (Day Edition) */
+    --grain-opacity: 0.032;
+    --grain-blend: multiply;
+    --memory-ink: #6C6559;
+    --memory-opacity: 0.56;
+    --memory-blur: 1.5px;
+    --memory-shadow: .5px 3px 1px #A29B8D;
 
     --radius-control: 8px;
     --radius-choice: var(--radius-control);
@@ -30,9 +161,11 @@
     --motion-reveal: 336ms;
     --motion-overlay: 264ms;
     --motion-judge-page: 300ms;
+    --motion-theme: 380ms;
     --ease-standard: cubic-bezier(.2,.7,.25,1);
     --ease-enter: cubic-bezier(.16,1,.3,1);
     --ease-exit: cubic-bezier(.4,0,1,1);
+    --ease-theme: cubic-bezier(.22,.61,.36,1);
     --primary-press: .985;
     --choice-press: .99;
     --modal-travel: 6px;
@@ -43,10 +176,145 @@
     --stepper-travel: 10px;
     --stepper-blur: 2.4px;
 
-    --clock-brass: #9a784e;
-    --clock-wash: #ded7c8;
     --serif: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
     --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+
+  :root[data-theme="night"] {
+    color-scheme: dark;
+
+    /* Theme Tokens — Night Edition (Neutral Charcoal × Antique Brass v3) */
+    --paper: #1C1D20;
+    --paper-bright: #25262A;
+    --input-bg: #202126;
+    --ink: #E8DFD0;
+    --muted: #A6A6A8;
+    --muted-text: color-mix(in srgb, var(--muted) 88%, var(--ink));
+    --placeholder: #8F9094;
+    --line: #3A3B40;
+    --layer-border: #4A4C52;
+    --layer-shadow: 0 14px 36px rgba(8, 9, 11, 0.58), 0 2px 8px rgba(8, 9, 11, 0.36);
+    --control-line: #70727A;
+    --accent: #C58B7C;
+    --accent-dark: #D69E8E;
+    --selected: #303137;
+    --selected-active: #393A40;
+    --disabled: #26272B;
+    --disabled-ink: #77787D;
+    --disabled-btn-ink: #86878D;
+    --brass: #B69A6D;
+    --error: #E58074;
+    --primary-bg: #E8DFD0;
+    --primary-ink: #1C1D20;
+    --primary-hover-bg: #D59A8B;
+    --primary-active: #BC8274;
+    --switch-checked-thumb: #1C1D20;
+    --backdrop: rgba(10, 10, 12, 0.68);
+    --feedback-scrim: rgba(10, 10, 12, 0.44);
+    --scrollbar-thumb: #6F7076;
+    --panel-rule: #3A3B40;
+    --panel-rule-highlight: #4A4C52;
+    --panel-rule-shadow: rgb(8 9 11 / 42%);
+
+    /* Component Tokens — Editor & Controls (Night Edition) */
+    --editor-list-bg: #1F2024;
+    --editor-input-bg: #1B1C20;
+    --editor-row-marked-bg: #2D2E34;
+    --editor-row-current-bg: #2A2B30;
+    --editor-row-selected-bg: #2A3342;
+    --editor-state-bg: #2B3548;
+    --editor-state-ink: #BED0F5;
+    --editor-review-bg: #3F341D;
+    --editor-review-ink: #ECCE88;
+    --editor-draft-bg: #21393A;
+    --editor-draft-ink: #9ED7D4;
+    --rewinding-btn-bg: #2A2B31;
+    --rewinding-btn-border: #756248;
+    --rewinding-btn-ink: #D7C8AC;
+    --moon-fill: #EFE4C6;
+    --theme-switch-track: #1C1D20;
+    --theme-switch-thumb: #E8DFD0;
+    --theme-switch-active-icon: #1C1D20;
+    --theme-switch-idle-icon: #A6A6A8;
+
+    /* Component Tokens — Mechanical Dial (Night Edition: Baked Calibration v7) */
+    --clock-face: #232325;
+    --clock-rim: #76726C;
+    --clock-hairline: #77746F;
+    --clock-hairline-opacity: 0.34;
+    --clock-track-base: #282826;
+    --clock-wash: #373633;
+    --clock-tick: #837F74;
+    --clock-tick-major: #BAB3A5;
+    --clock-brass: #987E56;
+    --clock-orbit: #937D56;
+    --clock-numeral-0: #EEE3CF;
+    --clock-numeral-1: #DACFBC;
+    --clock-numeral-2: #B7AE9D;
+    --clock-numeral-stroke: #48463F;
+    --clock-engraving: #AB9D81;
+    --clock-engraving-fine: #685D47;
+    --clock-engraving-mark: #B59A6C;
+    --clock-plate-0: #40403F;
+    --clock-plate-1: #302F2D;
+    --clock-plate-2: #252523;
+    --clock-plate-stroke: #595752;
+    --clock-bridge-stroke: #686560;
+    --clock-bridge-pin-stroke: #605D58;
+    --clock-brass-0: #6C583B;
+    --clock-brass-1: #D0B37F;
+    --clock-brass-2: #A68654;
+    --clock-brass-3: #6D5234;
+    --clock-brass-4: #9C7E4F;
+    --clock-hour-0: #B6945E;
+    --clock-hour-1: #D4B67D;
+    --clock-hour-2: #B8955A;
+    --clock-hour-3: #8C6E3E;
+    --clock-hour-4: #B89863;
+    --clock-pinion-0: #B9B7B0;
+    --clock-pinion-1: #8A8984;
+    --clock-pinion-2: #57564F;
+    --clock-steel-0: #E9E7E0;
+    --clock-steel-1: #BDBBB4;
+    --clock-steel-2: #79766E;
+    --clock-minute-0: #D6C9B6;
+    --clock-minute-1: #F5EEE4;
+    --clock-minute-2: #C6C0B8;
+    --clock-minute-3: #86817A;
+    --clock-main-gear-edge: #493822;
+    --clock-aux-gear-edge: #46443E;
+    --clock-gear-engraving: #DEC394;
+    --clock-gear-engraving-opacity: 0.56;
+    --clock-lever-stroke: #49463F;
+    --clock-lever-sheen: #ECEAE3;
+    --clock-lever-screw-edge: #4D3C27;
+    --clock-lever-screw-slot: #35281A;
+    --clock-hour-stroke: #261F17;
+    --clock-hour-sheen: #E8D9B8;
+    --clock-hour-band: #5B462B;
+    --clock-minute-stroke: #393A40;
+    --clock-minute-sheen: #F4F1E9;
+    --clock-minute-band: #A58D64;
+    --clock-second: #BD6756;
+    --clock-pivot-shadow: #09090C;
+    --clock-pivot-shadow-opacity: 0.56;
+    --clock-pivot-outer-edge: #3D2F1D;
+    --clock-pivot-bevel: #E5CA97;
+    --clock-pivot-ring-fill: #2D2B26;
+    --clock-pivot-ring-edge: #604B30;
+    --clock-pivot-dots: #D3B889;
+    --clock-pivot-cap-edge: #25262B;
+    --clock-pivot-slot: #45433D;
+    --clock-noon-fill: #B5AB98;
+    --clock-noon-dot: #38393F;
+
+    /* Motion Tokens — Night Edition */
+    --grain-opacity: 0.056;
+    --grain-blend: soft-light;
+    --memory-ink: #BDBBB5;
+    --memory-opacity: 0.44;
+    --memory-blur: 1.65px;
+    --memory-shadow: .5px 3px 1.2px rgba(9, 10, 12, 0.58);
   }
 
   * { box-sizing: border-box; }
@@ -54,7 +322,7 @@
   html { min-width: 320px; }
   @media (forced-colors: none) {
     * { scrollbar-color: transparent transparent; }
-    [data-scroll-active] { scrollbar-color: #81827b transparent; }
+    [data-scroll-active] { scrollbar-color: var(--scrollbar-thumb) transparent; }
   }
 
   body {
@@ -68,20 +336,16 @@
     text-rendering: optimizeLegibility;
   }
 
-  #homeParticles {
+  #homeNotes {
     position: fixed;
     inset: 0;
     width: 100%;
     height: 100%;
     z-index: -1;
     pointer-events: none;
-    mask-image: radial-gradient(ellipse 34% 44% at 75% 50%, rgb(0 0 0 / 60%) 10%, #000 100%);
-  }
-  @media (max-width: 980px) {
-    #homeParticles { mask-image: radial-gradient(ellipse 58% 30% at 50% 28%, rgb(0 0 0 / 60%) 5%, #000 100%); }
   }
   @media (forced-colors: active), (prefers-reduced-motion: reduce) {
-    #homeParticles { display: none; }
+    #homeNotes { display: none; }
   }
 
   body::after {
@@ -90,14 +354,16 @@
     inset: 0;
     z-index: 30;
     pointer-events: none;
-    opacity: 0.032;
+    opacity: var(--grain-opacity);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    mix-blend-mode: multiply;
+    mix-blend-mode: var(--grain-blend);
   }
 
   button, input { font: inherit; }
   button { color: inherit; }
-  .primary, .secondary, .ghost-btn, .stepper button, .judge-scope {
+  input::placeholder, textarea::placeholder { color: var(--placeholder); opacity: 1; }
+  select option { background: var(--paper-bright); color: var(--ink); }
+  .primary, .secondary, .ghost-btn, .stepper button, .judge-scope, .theme-switch {
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -127,15 +393,83 @@
     user-select: none;
   }
 
-  .brand-mark {
-    display: block;
+  .brand-mark-host {
+    position: relative;
+    display: grid;
     width: 52px;
+    aspect-ratio: 1;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .brand-mark svg {
+  .brand-mark,
+  .brand-mark-moon {
+    grid-area: 1 / 1;
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
+    transform-origin: center;
+    transition: opacity var(--motion-theme) var(--ease-enter),
+      transform var(--motion-theme) var(--ease-enter);
+  }
+
+  .brand-mark-moon {
+    opacity: 0;
+    transform: rotate(28deg) scale(0.82);
+    pointer-events: none;
+  }
+
+  :root[data-theme="night"] .brand-mark {
+    opacity: 0;
+    transform: rotate(-28deg) scale(0.82);
+  }
+
+  :root[data-theme="night"] .brand-mark-moon {
+    opacity: 1;
+    transform: none;
+  }
+
+  .brand-mark svg,
+  .brand-mark-moon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Directional View Transition for top-left Easter-egg icon click */
+  :root[data-theme-ripple] .brand-mark-host {
+    view-transition-name: brand-theme-mark;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+  ::view-transition-old(root) { z-index: 1; }
+  ::view-transition-new(root) { z-index: 2; }
+  ::view-transition-group(brand-theme-mark) {
+    z-index: 3;
+    animation-duration: var(--motion-theme);
+  }
+  ::view-transition-old(brand-theme-mark) {
+    animation: brand-mark-out var(--motion-theme) var(--ease-enter) both;
+  }
+  ::view-transition-new(brand-theme-mark) {
+    animation: brand-mark-in var(--motion-theme) var(--ease-enter) both;
+  }
+  @keyframes brand-mark-out {
+    from { opacity: 1; transform: none; }
+    to { opacity: 0; transform: rotate(-28deg) scale(0.82); }
+  }
+  @keyframes brand-mark-in {
+    from { opacity: 0; transform: rotate(28deg) scale(0.82); }
+    to { opacity: 1; transform: none; }
+  }
+  :root[data-theme-ripple] .brand-mark,
+  :root[data-theme-ripple] .brand-mark-moon,
+  :root[data-theme-ripple] .judge-avatar-day,
+  :root[data-theme-ripple] .judge-avatar-night {
+    transition: none;
   }
 
   .brand-latin { font-family: "Times New Roman", Georgia, serif; }
@@ -191,9 +525,10 @@
   .home-choices {
     width: min(340px, calc(100vw - 44px));
     padding: 22px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--layer-border);
     background: var(--paper-bright);
     color: var(--ink);
+    box-shadow: var(--layer-shadow);
   }
   .home-choices h2 { margin: 0; font: 500 22px/1.45 var(--serif); }
   .home-choices .home-save-note { margin: 8px 0 0; color: var(--muted-text); font-size: 12px; line-height: 1.5; }
@@ -202,8 +537,8 @@
   .home-choice-actions button { min-width: 0; min-height: 44px; padding: 5px 6px; }
   .mobile-options {
     width: min(24rem, calc(100% - 28px)); max-height: min(72dvh, 32rem);
-    padding: 4px; border: 1px solid var(--line); border-radius: var(--radius-layer);
-    color: var(--ink); background: var(--paper-bright); overscroll-behavior: contain;
+    padding: 4px; border: 1px solid var(--layer-border); border-radius: var(--radius-layer);
+    color: var(--ink); background: var(--paper-bright); box-shadow: var(--layer-shadow); overscroll-behavior: contain;
   }
   .mobile-options::backdrop { background: var(--backdrop); }
   .mobile-options button {
@@ -280,23 +615,51 @@
   .wheel-wrap:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 50%; }
 
   .wheel-svg {
-    --paper-bright: #faf8f2;
-    --ink: #1c1f1b;
     display: block;
     width: 100%;
     height: 100%;
     overflow: visible;
   }
 
-  .clock-face { fill: var(--paper-bright); stroke: var(--ink); stroke-width: 1.4; }
-  .clock-hairline { fill: none; stroke: var(--ink); stroke-width: 1; opacity: 0.28; }
+  /* Mechanical Dial Gradient Stops */
+  .stop-dial-ink-0 { stop-color: var(--clock-numeral-0); }
+  .stop-dial-ink-1 { stop-color: var(--clock-numeral-1); }
+  .stop-dial-ink-2 { stop-color: var(--clock-numeral-2); }
+  .stop-plate-0 { stop-color: var(--clock-plate-0); }
+  .stop-plate-1 { stop-color: var(--clock-plate-1); }
+  .stop-plate-2 { stop-color: var(--clock-plate-2); }
+  .stop-brass-0 { stop-color: var(--clock-brass-0); }
+  .stop-brass-1 { stop-color: var(--clock-brass-1); }
+  .stop-brass-2 { stop-color: var(--clock-brass-2); }
+  .stop-brass-3 { stop-color: var(--clock-brass-3); }
+  .stop-brass-4 { stop-color: var(--clock-brass-4); }
+  .stop-hour-0 { stop-color: var(--clock-hour-0); }
+  .stop-hour-1 { stop-color: var(--clock-hour-1); }
+  .stop-hour-2 { stop-color: var(--clock-hour-2); }
+  .stop-hour-3 { stop-color: var(--clock-hour-3); }
+  .stop-hour-4 { stop-color: var(--clock-hour-4); }
+  .stop-pinion-0 { stop-color: var(--clock-pinion-0); }
+  .stop-pinion-1 { stop-color: var(--clock-pinion-1); }
+  .stop-pinion-2 { stop-color: var(--clock-pinion-2); }
+  .stop-steel-0 { stop-color: var(--clock-steel-0); }
+  .stop-steel-1 { stop-color: var(--clock-steel-1); }
+  .stop-steel-2 { stop-color: var(--clock-steel-2); }
+  .stop-minute-0 { stop-color: var(--clock-minute-0); }
+  .stop-minute-1 { stop-color: var(--clock-minute-1); }
+  .stop-minute-2 { stop-color: var(--clock-minute-2); }
+  .stop-minute-3 { stop-color: var(--clock-minute-3); }
+
+  .clock-face { fill: var(--clock-face); stroke: var(--clock-rim); stroke-width: 1.4; }
+  .clock-hairline { fill: none; stroke: var(--clock-hairline); stroke-width: 1; opacity: var(--clock-hairline-opacity); }
   .minute-track { fill: none; stroke-width: 9; }
-  .tick { stroke: var(--ink); stroke-width: 1.35; }
-  .tick.is-major { stroke-width: 3.2; }
+  .minute-track-base { stroke: var(--clock-track-base); }
+  .minute-track-dash { stroke: var(--clock-wash); }
+  .tick { stroke: var(--clock-tick); stroke-width: 1.35; }
+  .tick.is-major { stroke: var(--clock-tick-major); stroke-width: 3.2; }
   .hour-lozenge { fill: var(--clock-brass); }
   .clock-numerals {
     fill: url(#dialInk);
-    stroke: #68604c;
+    stroke: var(--clock-numeral-stroke);
     stroke-width: .55;
     paint-order: stroke fill;
     font-family: Baskerville, "Palatino Linotype", "Times New Roman", var(--serif);
@@ -305,23 +668,42 @@
     text-anchor: middle;
     dominant-baseline: central;
   }
-  .dial-engraving { fill: none; stroke: #9a8a70; stroke-width: 1; }
-  .dial-engraving-fine { fill: none; stroke: #b5a589; stroke-width: .8; }
-  .dial-engraving-mark { fill: #a79172; stroke: var(--paper-bright); stroke-width: 1; }
+  .dial-engraving { fill: none; stroke: var(--clock-engraving); stroke-width: 1; }
+  .dial-engraving-fine { fill: none; stroke: var(--clock-engraving-fine); stroke-width: .8; }
+  .dial-engraving-mark { fill: var(--clock-engraving-mark); stroke: var(--clock-face); stroke-width: 1; }
 
-  .orbit-track { fill: none; stroke: var(--clock-brass); stroke-width: 1.2; }
-  .movement-plate { fill: url(#movementMetal); stroke: #b6ac96; stroke-width: 1.2; }
-  .clock-bridge { fill: url(#movementMetal); stroke: #9e9583; stroke-width: 1.3; }
-  .main-gear { --gear-metal: url(#agedBrass); --gear-edge: #695336; }
-  .aux-gear { --gear-metal: url(#agedPinion); --gear-edge: #6e6047; }
+  .orbit-track { fill: none; stroke: var(--clock-orbit); stroke-width: 1.2; }
+  .orbit-pointer { fill: var(--clock-brass); stroke: none; }
+  .movement-plate { fill: url(#movementMetal); stroke: var(--clock-plate-stroke); stroke-width: 1.2; }
+  .clock-bridge { fill: url(#movementMetal); stroke: var(--clock-bridge-stroke); stroke-width: 1.3; }
+  .bridge-pins { fill: url(#pinSteel); stroke: var(--clock-bridge-pin-stroke); stroke-width: 1.3; }
+  .main-gear { --gear-metal: url(#agedBrass); --gear-edge: var(--clock-main-gear-edge); }
+  .aux-gear { --gear-metal: url(#agedPinion); --gear-edge: var(--clock-aux-gear-edge); }
   .gear-body { fill: var(--gear-metal); stroke: var(--gear-edge); stroke-width: 1.15; stroke-linejoin: round; }
-  .gear-engraving { fill: none; stroke: #e1c99e; stroke-width: 1; opacity: .78; }
+  .gear-engraving { fill: none; stroke: var(--clock-gear-engraving); stroke-width: 1; opacity: var(--clock-gear-engraving-opacity); }
   .bearing { fill: url(#pinSteel); stroke: var(--gear-edge); stroke-width: 1.3; }
   .screw-slot { stroke: var(--gear-edge); stroke-width: 1.65; stroke-linecap: round; }
-  .minute-hand { fill: url(#bluedSteel); stroke: #1d251f; stroke-width: .75; stroke-linejoin: round; }
-  .hour-hand { fill: url(#agedBrass); stroke: #564533; stroke-width: 1.1; stroke-linejoin: round; }
-  #secondHand { display: none; fill: var(--accent); }
+  .lever-arm { fill: url(#pinSteel); stroke: var(--clock-lever-stroke); stroke-width: 1.3; stroke-linejoin: round; }
+  .lever-sheen { fill: none; stroke: var(--clock-lever-sheen); stroke-width: 1.2; }
+  .lever-screw { fill: url(#agedBrass); stroke: var(--clock-lever-screw-edge); }
+  .lever-slot { fill: none; stroke: var(--clock-lever-screw-slot); stroke-width: 1.3; }
+  .minute-hand { fill: url(#bluedSteel); stroke: var(--clock-minute-stroke); stroke-width: .95; stroke-linejoin: round; }
+  .minute-sheen { fill: none; stroke: var(--clock-minute-sheen); stroke-width: 1; }
+  .minute-band { fill: none; stroke: var(--clock-minute-band); stroke-width: 1.2; }
+  .hour-hand { fill: url(#hourBrass); stroke: var(--clock-hour-stroke); stroke-width: 1.15; stroke-linejoin: round; }
+  .hour-sheen { fill: none; stroke: var(--clock-hour-sheen); stroke-width: 1.4; }
+  .hour-band { fill: none; stroke: var(--clock-hour-band); stroke-width: 1.2; }
+  #secondHand { display: none; fill: var(--clock-second); }
   body[data-clock-ready] #secondHand { display: inline; }
+  .pivot-shadow { fill: var(--clock-pivot-shadow); opacity: var(--clock-pivot-shadow-opacity); }
+  .pivot-outer { fill: url(#agedBrass); stroke: var(--clock-pivot-outer-edge); stroke-width: 1.25; }
+  .pivot-bevel { fill: none; stroke: var(--clock-pivot-bevel); stroke-width: 1.35; }
+  .pivot-ring { fill: var(--clock-pivot-ring-fill); stroke: var(--clock-pivot-ring-edge); stroke-width: 1.2; }
+  .pivot-dots { fill: none; stroke: var(--clock-pivot-dots); stroke-width: 1.25; stroke-dasharray: 1 2.3; }
+  .pivot-cap { fill: url(#pinSteel); stroke: var(--clock-pivot-cap-edge); stroke-width: 1.25; }
+  .pivot-slot { stroke: var(--clock-pivot-slot); stroke-width: 1.85; stroke-linecap: round; }
+  .noon-marker { fill: var(--clock-noon-fill); }
+  .noon-dot { fill: var(--clock-noon-dot); }
 
   .panel {
     display: flex;
@@ -343,11 +725,11 @@
       grid-template-columns: minmax(0, 1fr);
       margin-inline-start: clamp(20px, 2.65vw, 40px);
       padding-inline-start: clamp(30px, 4vw, 60px);
-      border-left-color: #c2c3ba;
+      border-left-color: var(--panel-rule);
     }
     .panel::before {
       content: ""; position: absolute; inset: 0 auto 0 0; width: 1px;
-      background: #c9cac2; box-shadow: 2px 0 3px rgb(37 38 34 / 8%); pointer-events: none;
+      background: var(--panel-rule-highlight); box-shadow: 2px 0 3px var(--panel-rule-shadow); pointer-events: none;
     }
     .game-view:not([data-judge]) .turn-band { translate: 0 -14px; }
     /* 首页确定共享行高。长题和局内设置在同一格中排版，不会推移表盘和竖线。 */
@@ -450,14 +832,14 @@
   @media (hover: hover) and (pointer: fine) {
     .stepper button:hover:enabled:not([aria-disabled="true"]) { background: var(--selected); color: var(--accent-dark); }
   }
-  .stepper button:active:enabled:not([aria-disabled="true"]) { background: color-mix(in srgb, var(--selected) 92%, var(--ink)); color: var(--accent-dark); }
+  .stepper button:active:enabled:not([aria-disabled="true"]) { background: var(--selected-active); color: var(--accent-dark); }
   .stepper button:enabled { font-weight: 500; }
-  .stepper button:is(:disabled, [aria-disabled="true"]) { background: var(--selected); color: #a3a49b; cursor: default; }
+  .stepper button:is(:disabled, [aria-disabled="true"]) { background: var(--disabled); color: var(--disabled-ink); cursor: default; }
   @media (forced-colors: active) { .stepper button:is(:disabled, [aria-disabled="true"]) { color: GrayText; } }
   .stepper-limit {
     position: absolute; top: calc(100% + 5px); inset-inline-start: 0; z-index: 2;
-    border: 1px solid var(--line); border-radius: var(--radius-control); padding: 5px 10px;
-    background: var(--paper-bright); color: var(--ink); font: 14px/1.4 var(--sans);
+    border: 1px solid var(--layer-border); border-radius: var(--radius-control); padding: 5px 10px;
+    background: var(--paper-bright); color: var(--ink); box-shadow: var(--layer-shadow); font: 14px/1.4 var(--sans);
     white-space: nowrap; pointer-events: none; opacity: 0; visibility: hidden;
     transition: opacity var(--motion-micro), visibility 0s var(--motion-micro);
   }
@@ -507,11 +889,11 @@
 
   .primary {
     min-height: 54px;
-    border: 1px solid var(--ink);
+    border: 1px solid var(--primary-bg);
     border-radius: var(--radius-control);
     padding: 0 27px;
-    background: var(--ink);
-    color: var(--paper-bright);
+    background: var(--primary-bg);
+    color: var(--primary-ink);
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.08em;
@@ -521,7 +903,7 @@
       transform var(--motion-micro) var(--ease-standard), opacity var(--motion-micro) var(--ease-standard);
   }
 
-  .primary:hover:enabled { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .primary:hover:enabled { background: var(--primary-hover-bg); border-color: var(--primary-hover-bg); }
   .primary:active:enabled {
     background: var(--primary-active);
     border-color: var(--primary-active);
@@ -530,7 +912,7 @@
   .primary:disabled {
     border-color: var(--line);
     background: var(--disabled);
-    color: var(--muted-text);
+    color: var(--disabled-btn-ink);
     cursor: default;
   }
   .secondary {
@@ -546,12 +928,12 @@
   }
   .secondary:hover:enabled { background: var(--selected); border-color: var(--accent); color: var(--accent-dark); }
   .secondary:active:enabled {
-    background: color-mix(in srgb, var(--selected) 92%, var(--ink));
+    background: var(--selected-active);
     border-color: var(--accent);
     color: var(--accent-dark);
     transform: scale(var(--primary-press));
   }
-  .secondary:disabled { color: var(--muted-text); border-color: var(--line); cursor: default; }
+  .secondary:disabled { color: var(--disabled-btn-ink); border-color: var(--line); cursor: default; }
 
   .start-btn {
     font-size: clamp(22px, 1.8vw, 28px);
@@ -567,12 +949,12 @@
   .form-error {
     min-height: 18px;
     margin: 9px 0 0;
-    color: #b53021;
+    color: var(--error);
     font-size: 11px;
     line-height: 18px;
   }
 
-  .stepper.has-error { border-color: #b53021; }
+  .stepper.has-error { border-color: var(--error); }
 
   .pool-summary {
     margin: 8px 0 0;
@@ -594,6 +976,8 @@
   @media (min-width: 981px) {
     /* 沿用这行原来的排版高度，让居中的主页标题不随控件字号移动。 */
     .draw-order-row {
+      justify-content: space-between;
+      margin-inline-end: 29px;
       font-size: clamp(14px, 1.04vw, 16px);
       block-size: max(36px, calc(1lh + 14px));
     }
@@ -622,7 +1006,7 @@
   }
   .guide-choice input:checked { border-color: var(--ink); background: var(--ink); }
   .guide-choice input:checked::before {
-    inset-inline: var(--thumb-far) var(--thumb-near); background: var(--paper-bright);
+    inset-inline: var(--thumb-far) var(--thumb-near); background: var(--switch-checked-thumb);
     transition-duration: 160ms, 144ms, 160ms;
   }
   .guide-choice input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
@@ -723,10 +1107,11 @@
     padding: 14px 16px;
     overflow: auto;
     overscroll-behavior: contain;
-    border: 1px solid var(--line);
+    border: 1px solid var(--layer-border);
     border-radius: var(--radius-layer);
     background: var(--paper-bright);
     color: var(--ink);
+    box-shadow: var(--layer-shadow);
     opacity: 0;
     transform: translateY(var(--filters-enter-y));
     transition: opacity var(--motion-micro) var(--ease-exit), transform var(--motion-micro) var(--ease-exit),
@@ -765,7 +1150,7 @@
     padding: 4px 6px;
     border: 1px solid var(--control-line);
     border-radius: var(--radius-control);
-    background: var(--paper-bright);
+    background: var(--input-bg);
     color: var(--ink);
     font: inherit;
   }
@@ -785,6 +1170,93 @@
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
     border-block-start: 1px solid var(--line);
   }
+  .theme-setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    border-block-start: 1px solid var(--line);
+  }
+  .theme-setting-label {
+    color: var(--ink);
+    font-size: 13px;
+  }
+  .theme-switch {
+    --ts-w: 56px;
+    --ts-h: 30px;
+    --ts-pad: 3px;
+    position: relative;
+    display: inline-grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    justify-items: center;
+    width: var(--ts-w);
+    height: var(--ts-h);
+    padding: 0 1px;
+    border: 1px solid var(--control-line);
+    border-radius: 999px;
+    background: var(--theme-switch-track);
+    color: var(--theme-switch-idle-icon);
+    cursor: pointer;
+    flex: none;
+    transition: background-color var(--motion-micro) var(--ease-standard),
+      border-color var(--motion-micro) var(--ease-standard);
+  }
+  .theme-switch:hover { border-color: var(--accent); }
+  .theme-switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .theme-switch::before {
+    content: "";
+    position: absolute;
+    inset-block: var(--ts-pad);
+    inset-inline-start: var(--ts-pad);
+    width: calc(var(--ts-h) - 2 * var(--ts-pad) - 2px);
+    border-radius: 50%;
+    background: var(--theme-switch-thumb);
+    transform: translateX(0);
+    transition: transform 220ms var(--ease-enter), background-color var(--motion-micro) var(--ease-standard);
+  }
+  .theme-switch[aria-checked="true"]::before {
+    transform: translateX(calc(var(--ts-w) - var(--ts-h)));
+  }
+  .theme-switch-icon {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    transition: color 180ms var(--ease-standard), opacity 180ms var(--ease-standard);
+  }
+  .theme-switch-icon svg { display: block; width: 13px; height: 13px; }
+  .theme-switch[aria-checked="false"] .theme-switch-sun,
+  .theme-switch[aria-checked="true"] .theme-switch-moon {
+    color: var(--theme-switch-active-icon);
+    opacity: 1;
+  }
+  .theme-switch[aria-checked="false"] .theme-switch-moon,
+  .theme-switch[aria-checked="true"] .theme-switch-sun {
+    color: var(--theme-switch-idle-icon);
+    opacity: 0.78;
+  }
+  .judge-theme-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding-inline: 2px;
+  }
+  @media (forced-colors: active) {
+    .theme-switch { forced-color-adjust: none; border-color: ButtonText; background: ButtonFace; color: ButtonText; }
+    .theme-switch::before { background: Highlight; }
+    .theme-switch[aria-checked="false"] .theme-switch-sun,
+    .theme-switch[aria-checked="true"] .theme-switch-moon { color: HighlightText; }
+    .theme-switch[aria-checked="false"] .theme-switch-moon,
+    .theme-switch[aria-checked="true"] .theme-switch-sun { color: ButtonText; opacity: 1; }
+    .theme-switch:focus-visible { outline-color: Highlight; }
+    .brand-mark-moon path, .judge-avatar-night path { fill: CanvasText; }
+  }
   .home-motion-choice {
     display: flex;
     align-items: center;
@@ -798,9 +1270,10 @@
     width: min(600px, calc(100% - 28px));
     max-height: calc(100% - 28px);
     padding: clamp(16px, 4vw, 30px);
-    border: 1px solid var(--line);
+    border: 1px solid var(--layer-border);
     background: var(--paper-bright);
     color: var(--ink);
+    box-shadow: var(--layer-shadow);
   }
 
   .editor-header, .editor-nav, .editor-actions, .editor-search {
@@ -818,7 +1291,7 @@
     border: 1px solid var(--control-line);
     border-radius: var(--radius-control);
     padding: 7px 8px;
-    background: var(--paper);
+    background: var(--editor-input-bg);
     color: var(--ink);
     font: inherit;
   }
@@ -901,7 +1374,7 @@
   .bank-editor-main { min-height: 0; display: grid; grid-template-columns: minmax(315px, .95fr) minmax(0, 1.15fr); }
   .editor-library { min-height: 0; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr); border-right: 1px solid var(--line); }
   .editor-library-scroll, .editor-pane { overflow: auto; overscroll-behavior: contain; min-width: 0; min-height: 0; }
-  .editor-library-scroll { background: #efefe9; }
+  .editor-library-scroll { background: var(--editor-list-bg); }
   .editor-pane { padding: 15px 20px 20px; }
   .editor-list-tools { padding: 10px 12px 6px; border-bottom: 1px solid var(--line); }
   .editor-tabs { display: flex; gap: 5px; margin: 9px 0 6px; }
@@ -917,23 +1390,23 @@
   .editor-advanced { margin: 9px 0; font-size: 13px; }
   .editor-advanced summary { cursor: pointer; }
   .editor-facets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 8px; }
-  .editor-batch { position: sticky; top: 0; z-index: 1; padding: 6px 12px; background: #efefe9; border-bottom: 1px solid var(--line); }
+  .editor-batch { position: sticky; top: 0; z-index: 1; padding: 6px 12px; background: var(--editor-list-bg); border-bottom: 1px solid var(--line); }
   .editor-batch-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 8px; min-height: 33px; }
   .editor-batch-row .ghost-btn { padding: 5px 3px; white-space: nowrap; }
   .question-editor .editor-checkbox { flex: none; width: auto; margin: 0; accent-color: var(--accent); }
   .editor-rows { margin: 0; padding: 0; list-style: none; }
   .editor-row { display: flex; align-items: flex-start; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--line); border-left: 3px solid transparent; }
   .editor-row > .editor-checkbox { margin-top: 6px; }
-  .editor-row[data-marked="true"] { border-left-color: var(--accent); background: var(--selected); }
-  .editor-row[data-current="true"] { outline: 1px solid var(--accent); outline-offset: -1px; background: var(--paper-bright); }
-  .editor-row[data-selected="true"] { background: #e0e8fa; }
+  .editor-row[data-marked="true"] { border-left-color: var(--accent); background: var(--editor-row-marked-bg); }
+  .editor-row[data-current="true"] { outline: 1px solid var(--accent); outline-offset: -1px; background: var(--editor-row-current-bg); }
+  .editor-row[data-selected="true"] { background: var(--editor-row-selected-bg); }
   .editor-row-open { flex: 1; min-width: 0; padding: 0; text-align: left; border: 0; background: none; color: var(--ink); cursor: pointer; }
   .editor-row-heading, .editor-row-flags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
   .editor-row-heading { font-size: 11px; color: var(--muted-text); }
   .editor-row-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin: 3px 0; font-size: 14px; line-height: 1.5; }
-  .editor-state { display: inline-block; padding: 1px 5px; font-size: 11px; line-height: 1.4; background: #e2e9ff; color: #243c89; }
-  .editor-state[data-kind="review"] { background: #f5e5bc; color: #5d400c; }
-  .editor-state[data-kind="draft"] { background: #d8eeed; color: #195156; }
+  .editor-state { display: inline-block; padding: 1px 5px; font-size: 11px; line-height: 1.4; background: var(--editor-state-bg); color: var(--editor-state-ink); }
+  .editor-state[data-kind="review"] { background: var(--editor-review-bg); color: var(--editor-review-ink); }
+  .editor-state[data-kind="draft"] { background: var(--editor-draft-bg); color: var(--editor-draft-ink); }
   .editor-pane-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .editor-pane-head h3 { font-size: 21px; }
   .editor-pane-state { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
@@ -1098,10 +1571,10 @@
     to { opacity: 1; transform: translateY(0); }
   }
   .memory-ink {
-    color: #6c6559;
-    opacity: .56;
-    filter: blur(1.5px);
-    text-shadow: .5px 3px 1px #a29b8d;
+    color: var(--memory-ink);
+    opacity: var(--memory-opacity);
+    filter: blur(var(--memory-blur));
+    text-shadow: var(--memory-shadow);
     transition: opacity 180ms ease;
   }
   .memory-track { will-change: transform; }
@@ -1139,9 +1612,9 @@
     min-height: 54px;
   }
   .question-area[data-motion] ~ .action-row .primary:disabled {
-    background: #ebe6da;
-    border-color: #b8a88e;
-    color: #594b38;
+    background: var(--rewinding-btn-bg);
+    border-color: var(--rewinding-btn-border);
+    color: var(--rewinding-btn-ink);
   }
 
   .ghost-btn {
@@ -1188,7 +1661,7 @@
   }
 
   @media (max-width: 980px) {
-    body[data-view="game"] .brand-mark { display: none; }
+    body[data-view="game"] .brand-mark-host { display: none; }
     .layout {
       grid-template-columns: 1fr;
       gap: 26px;
@@ -1235,7 +1708,7 @@
     .brand { gap: 6px; }
     .brand-word { font-size: 15px; letter-spacing: 0.06em; }
     .topbar { min-height: 36px; gap: 6px; }
-    .brand-mark { width: 36px; }
+    .brand-mark-host { width: 36px; }
     .topbar-meta { gap: 2px 10px; flex-wrap: wrap; justify-content: flex-end; line-height: 1.35; }
     body[data-view="game"] .brand-word { font-size: clamp(12px, 3.45vw, 15px); letter-spacing: .025em; }
     body[data-view="game"] .topbar { flex-wrap: wrap; }
@@ -1296,8 +1769,36 @@
     .start-btn { min-width: 110px; padding: 0 16px; }
   }
 
-  .judge-avatar { display: inline-grid; flex: none; inline-size: var(--judge-size, 24px); }
-  .judge-avatar svg { display: block; inline-size: 100%; block-size: auto; }
+  .judge-avatar {
+    position: relative;
+    display: inline-grid;
+    flex: none;
+    inline-size: var(--judge-size, 24px);
+    aspect-ratio: 1;
+  }
+  .judge-avatar-day,
+  .judge-avatar-night {
+    grid-area: 1 / 1;
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    transform-origin: center;
+    transition: opacity var(--motion-theme) var(--ease-enter),
+      transform var(--motion-theme) var(--ease-enter);
+  }
+  .judge-avatar-night {
+    opacity: 0;
+    transform: rotate(28deg) scale(0.82);
+  }
+  :root[data-theme="night"] .judge-avatar-day {
+    opacity: 0;
+    transform: rotate(-28deg) scale(0.82);
+  }
+  :root[data-theme="night"] .judge-avatar-night {
+    opacity: 1;
+    transform: none;
+  }
+  .judge-avatar svg { display: block; inline-size: 100%; block-size: 100%; }
 
   .judge-opening {
     --opening-inset: clamp(16px, 4.5vw, 36px);
@@ -1307,9 +1808,10 @@
     max-height: calc(100dvh - 28px);
     padding: clamp(12px, 3vw, 26px) var(--opening-inset) 0;
     grid-template-rows: auto minmax(0, 1fr) auto;
-    border: 1px solid var(--line);
+    border: 1px solid var(--layer-border);
     background: var(--paper-bright);
     color: var(--ink);
+    box-shadow: var(--layer-shadow);
     overflow: hidden;
   }
   .judge-opening[open] { display: grid; }
@@ -1343,7 +1845,7 @@
   }
   .dialog-close:hover { background: var(--selected); border-color: var(--accent); color: var(--accent-dark); }
   .dialog-close:active {
-    background: color-mix(in srgb, var(--selected) 92%, var(--ink));
+    background: var(--selected-active);
     border-color: var(--accent);
     transform: scale(var(--primary-press));
   }
@@ -1526,7 +2028,14 @@
     block-size: 100%;
     min-inline-size: 0;
   }
-  #judgeAdjustment .judge-tabs { margin-block-end: 6px; }
+  #judgeAdjustment .judge-tabs-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    margin-block-end: 6px;
+  }
+  #judgeAdjustment .judge-tabs { margin-block-end: 0; }
   #judgeAdjustment .judge-actions { margin-block-start: 6px; }
   #judgeAdjustmentContent:has(.judge-slider:not([hidden])) {
     min-height: 100%;
@@ -1551,7 +2060,7 @@
     justify-items: center;
     align-content: start;
     padding-block-start: max(calc(env(safe-area-inset-top, 0px) + 12px), min(var(--notice-top, 76px), 24dvh));
-    background: color-mix(in srgb, var(--ink) 17%, transparent);
+    background: var(--feedback-scrim);
     pointer-events: none;
     opacity: 0;
     visibility: hidden;
@@ -1570,6 +2079,7 @@
     border-radius: var(--radius-layer);
     background: var(--paper-bright);
     color: var(--ink);
+    box-shadow: var(--layer-shadow);
     font-size: 14px;
     text-align: center;
     transform: translateY(-6px);
@@ -1608,7 +2118,7 @@
   .judge-check-card:has([value="0"]) { color: var(--ink); font-weight: 600; }
   .judge-check-card:has(:checked) { background: var(--selected); border-color: var(--brass); color: var(--ink); }
   .judge-check-card:has(:focus-visible) { outline: 2px solid var(--accent); outline-offset: -2px; }
-  .judge-check-card:has(:disabled) { color: var(--muted); background: var(--disabled); cursor: default; }
+  .judge-check-card:has(:disabled) { color: var(--disabled-ink); background: var(--disabled); cursor: default; }
   .judge-check-card input:disabled { pointer-events: none; }
   .judge-check-card:focus-visible { outline-offset: -2px; }
   @media (hover: hover) {
@@ -1622,9 +2132,14 @@
     background: var(--paper-bright);
     color: var(--muted-text);
     font-size: 13px;
+    white-space: nowrap;
     cursor: pointer;
   }
   .judge-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-bottom: 11px; }
+  @media (max-width: 440px) {
+    .judge-tabs { grid-template-columns: minmax(56px, .68fr) minmax(0, 1.32fr); }
+    .judge-tabs button { padding: 6px 7px; }
+  }
   .judge-tabs button[aria-pressed="true"] { color: var(--ink); background: var(--selected); border-color: var(--control-line); }
 
   .draw-order-row label, .filter-checks label, .question-editor .editor-pending-filter,
@@ -1729,6 +2244,77 @@
     #judgeNext { inline-size: 118px; }
   }
 
+  /* Scoped synchronized color transitions for Settings Toggle switches (no transition: all) */
+  :root[data-theme-transition] body,
+  :root[data-theme-transition] .panel,
+  :root[data-theme-transition] .panel::before,
+  :root[data-theme-transition] .rule,
+  :root[data-theme-transition] .stepper,
+  :root[data-theme-transition] .stepper input,
+  :root[data-theme-transition] .stepper button,
+  :root[data-theme-transition] .primary,
+  :root[data-theme-transition] .secondary,
+  :root[data-theme-transition] .ghost-btn,
+  :root[data-theme-transition] .reset-btn,
+  :root[data-theme-transition] .draw-order-row select,
+  :root[data-theme-transition] .guide-choice input,
+  :root[data-theme-transition] .guide-choice input::before,
+  :root[data-theme-transition] .filters,
+  :root[data-theme-transition] .filters-toggle,
+  :root[data-theme-transition] .filters-grid select,
+  :root[data-theme-transition] .filters-grid input,
+  :root[data-theme-transition] .judge-opening-head,
+  :root[data-theme-transition] .judge-opening-actions,
+  :root[data-theme-transition] .judge-scope,
+  :root[data-theme-transition] .judge-check-card,
+  :root[data-theme-transition] .judge-tabs button,
+  :root[data-theme-transition] .judge-adjust-notice,
+  :root[data-theme-transition] .editor-library-scroll,
+  :root[data-theme-transition] .editor-batch,
+  :root[data-theme-transition] .editor-row,
+  :root[data-theme-transition] .editor-state,
+  :root[data-theme-transition] .icon-control,
+  :root[data-theme-transition] .theme-switch,
+  :root[data-theme-transition] .fluid-slider__rail,
+  :root[data-theme-transition] .fluid-slider__face,
+  :root[data-theme-transition] .fluid-slider__value,
+  :root[data-theme-transition] .fluid-slider__description {
+    transition-property: background-color, color, border-color, box-shadow;
+    transition-duration: var(--motion-theme);
+    transition-timing-function: var(--ease-theme);
+  }
+  :root[data-theme-transition] .filters-menu,
+  :root[data-theme-transition] .home-choices,
+  :root[data-theme-transition] .question-editor,
+  :root[data-theme-transition] .judge-opening {
+    transition: opacity var(--motion-micro) var(--ease-exit), transform var(--motion-micro) var(--ease-exit),
+      display var(--motion-micro) allow-discrete, overlay var(--motion-micro) allow-discrete,
+      background-color var(--motion-theme) var(--ease-theme), color var(--motion-theme) var(--ease-theme),
+      border-color var(--motion-theme) var(--ease-theme), box-shadow var(--motion-theme) var(--ease-theme);
+  }
+  :root[data-theme-transition] .judge-slider .judge-water-explanation .judge-water-popover {
+    transition: opacity var(--motion-micro) var(--ease-exit), clip-path var(--motion-micro) var(--ease-exit),
+      transform var(--motion-micro) var(--ease-exit), display var(--motion-micro) allow-discrete,
+      overlay var(--motion-micro) allow-discrete,
+      background-color var(--motion-theme) var(--ease-theme), color var(--motion-theme) var(--ease-theme),
+      border-color var(--motion-theme) var(--ease-theme), box-shadow var(--motion-theme) var(--ease-theme);
+  }
+  :root[data-theme-transition] #homeNotes {
+    transition: opacity var(--motion-theme) var(--ease-theme);
+  }
+  :root[data-theme-transition] #wheelSvg stop {
+    transition: stop-color var(--motion-theme) var(--ease-theme);
+  }
+  :root[data-theme-transition] #wheelSvg circle,
+  :root[data-theme-transition] #wheelSvg path,
+  :root[data-theme-transition] #wheelSvg line,
+  :root[data-theme-transition] #wheelSvg text,
+  :root[data-theme-transition] #wheelSvg g {
+    transition: fill var(--motion-theme) var(--ease-theme),
+      stroke var(--motion-theme) var(--ease-theme),
+      opacity var(--motion-theme) var(--ease-theme);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     :root { --primary-press: 1; --choice-press: 1; }
     .filters .filter-subsection::details-content { transition: none; }
@@ -1749,11 +2335,23 @@
     --muted: #706456;
     --line: #ded5c6;
     --rail: #e8e0d3;
+    --rail-shadow: inset 0 1px 2px #604c2b14;
     --tick: #93826e;
+    --tick-selected-bg: #42382f;
+    --tick-selected-ring: #faf3e1ad;
     --focus: #50716c;
-    /* 默认档位于首末刻度间的三分之一处。 */
-    --default-stop: calc(var(--start-inset) + (100% - var(--start-inset) - var(--end-inset)) / 3);
+    /* 默认档位于有效滑轨的 50% 中心处，高档位于 76%。 */
+    --default-stop: calc(var(--start-inset) + (100% - var(--start-inset) - var(--end-inset)) * 0.5);
+    --high-stop: calc(var(--start-inset) + (100% - var(--start-inset) - var(--end-inset)) * 0.76);
+    --water-sheen: linear-gradient(180deg, #ffffff29, #ffffff00 55%);
     --water: linear-gradient(90deg, #8bb9ed, #a0a5eb var(--default-stop), #9c5cf7);
+    --thumb-border: #bdad96;
+    --thumb-bg: #fffaf0;
+    --thumb-shadow: 0 3px 8px #47301c2a, 0 1px 2px #47301c18, inset 0 1px 0 #fff;
+    --thumb-shadow-active: 0 2px 5px #47301c40, inset 0 1px 0 #fff;
+    --thumb-shadow-breath: 0 4px 11px #47301c38, 0 1px 3px #47301c1e, inset 0 1px 0 #fff;
+    --thumb-halo-border: color-mix(in srgb, var(--thumb-border) 46%, transparent);
+    --thumb-halo-glow: color-mix(in srgb, var(--thumb-border) 28%, transparent);
     --sans: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
     --serif: "Songti SC", "Noto Serif SC", "SimSun", serif;
     --start-inset: clamp(36px, 7vw, 42px);
@@ -1762,6 +2360,28 @@
     --rail-height: 32px;
     --shape-time: 130ms;
     font-family: var(--sans);
+  }
+
+  :root[data-theme="night"] .fluid-slider {
+    --ink: #E8DFD0;
+    --ink-hot: #D9A0A8;
+    --muted: #A6A6A8;
+    --line: #3A3B40;
+    --rail: #303137;
+    --rail-shadow: inset 0 1px 2px rgba(8, 9, 11, 0.52), inset 0 0 0 1px rgba(232, 223, 208, 0.06);
+    --tick: #8E8F94;
+    --tick-selected-bg: #E8DFD0;
+    --tick-selected-ring: rgba(37, 38, 42, 0.76);
+    --focus: #C58B7C;
+    --water-sheen: linear-gradient(180deg, rgba(244, 238, 226, 0.14), rgba(244, 238, 226, 0) 55%);
+    --water: linear-gradient(90deg, #66819C, #7C789C var(--default-stop), #9D7A90 var(--high-stop), #CA9098);
+    --thumb-border: #A89C89;
+    --thumb-bg: #EFE7D8;
+    --thumb-shadow: 0 3px 10px rgba(8, 9, 11, 0.58), 0 1px 3px rgba(8, 9, 11, 0.38), inset 0 1px 0 rgba(255, 250, 240, 0.65);
+    --thumb-shadow-active: 0 2px 6px rgba(8, 9, 11, 0.70), inset 0 1px 0 rgba(255, 250, 240, 0.55);
+    --thumb-shadow-breath: 0 4px 14px rgba(8, 9, 11, 0.66), 0 0 8px rgba(239, 231, 216, 0.13), inset 0 1px 0 rgba(255, 250, 240, 0.76);
+    --thumb-halo-border: color-mix(in srgb, var(--thumb-bg) 34%, transparent);
+    --thumb-halo-glow: color-mix(in srgb, var(--thumb-border) 26%, transparent);
   }
 
   .fluid-slider__readout {
@@ -1949,7 +2569,7 @@
     overflow: hidden;
     border-radius: 99px;
     background: var(--rail);
-    box-shadow: inset 0 1px 2px #604c2b14;
+    box-shadow: var(--rail-shadow);
     pointer-events: none;
   }
 
@@ -1957,7 +2577,7 @@
     position: absolute;
     inset: 0;
     clip-path: inset(0 var(--unfilled) 0 0);
-    background: linear-gradient(180deg, #ffffff29, #ffffff00 55%), var(--water);
+    background: var(--water-sheen), var(--water);
   }
 
   .fluid-slider__particles {
@@ -1987,8 +2607,8 @@
 
   .fluid-slider__tick[data-filled="true"] { visibility: hidden; }
   .fluid-slider__tick[data-selected="true"] {
-    background: #42382f;
-    box-shadow: 0 0 0 2px #faf3e1ad;
+    background: var(--tick-selected-bg);
+    box-shadow: 0 0 0 2px var(--tick-selected-ring);
   }
 
   .fluid-slider__thumb {
@@ -2000,16 +2620,62 @@
     transform: translate(var(--position), -50%) translateX(-50%);
   }
 
+  .fluid-slider__thumb::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border: 1px solid var(--thumb-halo-border);
+    border-radius: 50%;
+    box-shadow: 0 0 6px 2px var(--thumb-halo-glow);
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1);
+    transition: opacity 240ms ease-out, transform 240ms ease-out;
+  }
+
   .fluid-slider__face {
     position: absolute;
     inset: 0;
-    border: 1px solid #bdad96;
+    z-index: 1;
+    border: 1px solid var(--thumb-border);
     border-radius: 50%;
-    background: #fffaf0;
-    box-shadow: 0 3px 8px #47301c2a, 0 1px 2px #47301c18, inset 0 1px 0 #fff;
+    background: var(--thumb-bg);
+    box-shadow: var(--thumb-shadow);
     transform: scale(var(--shape-x, 1), var(--shape-y, 1));
     transition: transform var(--shape-time) cubic-bezier(.2, .7, .25, 1),
                 box-shadow var(--shape-time) ease-out;
+  }
+
+  @keyframes fluid-slider-halo-breath {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.09);
+      opacity: 0.66;
+    }
+  }
+
+  @keyframes fluid-slider-face-breath {
+    0%, 100% {
+      scale: 1;
+      box-shadow: var(--thumb-shadow);
+    }
+    50% {
+      scale: 1.024;
+      box-shadow: var(--thumb-shadow-breath);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fluid-slider[data-off-default="true"][data-phase="idle"] .fluid-slider__thumb::before {
+      animation: fluid-slider-halo-breath 4s ease-in-out 240ms infinite;
+    }
+
+    .fluid-slider[data-off-default="true"][data-phase="idle"] .fluid-slider__face {
+      animation: fluid-slider-face-breath 4s ease-in-out 240ms infinite;
+    }
   }
 
   .fluid-slider[data-phase="hover"] { --shape-x: 1.06; --shape-y: 1.06; --shape-time: 90ms; }
@@ -2019,7 +2685,7 @@
 
   .fluid-slider[data-phase="pressed"] .fluid-slider__face,
   .fluid-slider[data-phase="dragging"] .fluid-slider__face {
-    box-shadow: 0 2px 5px #47301c40, inset 0 1px 0 #fff;
+    box-shadow: var(--thumb-shadow-active);
   }
 
   .fluid-slider__input {
@@ -2043,7 +2709,9 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .fluid-slider__face, .fluid-slider__tick { transition: none; }
+    .fluid-slider__face, .fluid-slider__tick, .fluid-slider__thumb::before { transition: none; }
+    .fluid-slider__face, .fluid-slider__thumb::before { animation: none; }
+    .fluid-slider__thumb::before { opacity: 0; }
     .fluid-slider__face { transform: none; }
     .fluid-slider__caption, .fluid-slider__chevron,
     .fluid-slider__close, .fluid-slider__detail { transition: none; }
@@ -2057,6 +2725,7 @@
     .fluid-slider__rail { border: 1px solid CanvasText; background: Canvas; }
     .fluid-slider__water { background: Highlight; }
     .fluid-slider__particles { display: none; }
+    .fluid-slider__thumb::before { display: none; }
     .fluid-slider__face { border: 2px solid CanvasText; background: Canvas; box-shadow: none; }
     .fluid-slider__tick { background: CanvasText; }
     .fluid-slider__tick[data-selected="true"] { background: CanvasText; box-shadow: 0 0 0 2px Canvas; }
@@ -2080,10 +2749,11 @@
     max-width: calc(100% - 2 * var(--popover-inset));
     margin: 0;
     padding: 10px 12px;
-    border: 1px solid var(--popover-line);
+    border: 1px solid var(--layer-border);
     border-radius: var(--radius-layer);
     background: var(--paper-bright);
     color: var(--muted-text);
+    box-shadow: var(--layer-shadow);
     text-align: start;
     overflow: auto;
     overflow-wrap: anywhere;
@@ -2136,16 +2806,22 @@
 </style>
 </head>
 <body data-view="setup">
-<canvas id="homeParticles" aria-hidden="true" hidden></canvas>
+<canvas id="homeNotes" aria-hidden="true" hidden></canvas>
 <div class="page">
   <header class="topbar">
     <div class="brand" aria-label="TIME真心话">
-      <span class="brand-mark" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-1041 -1041 2082 2082">
-          <title>TIME真心话</title>
-          <circle r="1041" fill="#262420"/>
-          <path fill="#F2EDE2" d="M573.00286 -818.332892 L30.603748 -43.706682 L756 -33 L756 33 L-30.603748 43.706682 L-573.00286 818.332892 A999 999 0 0 0 818.332892 573.00286 A999 999 0 0 0 573.00286 -818.332892 Z M30.603748 -43.706682 L-160.482273 -505.029148 L-243.631431 -470.587639 L-30.603748 43.706682 Z"/>
-        </svg>
+      <span class="brand-mark-host" id="brandThemeTrigger">
+        <span class="brand-mark" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="-1041 -1041 2082 2082">
+            <circle r="1041" fill="#262420"/>
+            <path fill="#F2EDE2" d="M573.00286 -818.332892 L30.603748 -43.706682 L756 -33 L756 33 L-30.603748 43.706682 L-573.00286 818.332892 A999 999 0 0 0 818.332892 573.00286 A999 999 0 0 0 573.00286 -818.332892 Z M30.603748 -43.706682 L-160.482273 -505.029148 L-243.631431 -470.587639 L-30.603748 43.706682 Z"/>
+          </svg>
+        </span>
+        <span class="brand-mark-moon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="-1041 -1041 2082 2082">
+            <path fill="var(--moon-fill, #EFE4C6)" d="M130.91 -1005.3 A985 985 0 1 1 -900.38 467.53 A900 900 0 0 0 130.91 -1005.3 Z"/>
+          </svg>
+        </span>
       </span>
       <span class="brand-word"><span class="brand-latin" lang="en">TIME</span>真心话</span>
     </div>
@@ -2165,29 +2841,33 @@
         <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 640 640" width="640" height="640" aria-hidden="true">
           <defs>
             <linearGradient id="dialInk" x2="0" y2="1">
-              <stop stop-color="#413a2f"/><stop offset=".42" stop-color="#1a1c17"/><stop offset="1" stop-color="#292a23"/>
+              <stop class="stop-dial-ink-0"/><stop class="stop-dial-ink-1" offset=".42"/><stop class="stop-dial-ink-2" offset="1"/>
             </linearGradient>
             <radialGradient id="movementMetal" cx=".43" cy=".34" r=".74">
-              <stop stop-color="#f2ede2"/><stop offset=".7" stop-color="#eae5d8"/><stop offset="1" stop-color="#d6cfbd"/>
+              <stop class="stop-plate-0"/><stop class="stop-plate-1" offset=".7"/><stop class="stop-plate-2" offset="1"/>
             </radialGradient>
             <linearGradient id="agedBrass" x2="1" y2=".92">
-              <stop stop-color="#a68652"/><stop offset=".27" stop-color="#d3b37b"/>
-              <stop offset=".58" stop-color="#ae8b57"/><stop offset=".81" stop-color="#917049"/><stop offset="1" stop-color="#ab8958"/>
+              <stop class="stop-brass-0"/><stop class="stop-brass-1" offset=".27"/>
+              <stop class="stop-brass-2" offset=".58"/><stop class="stop-brass-3" offset=".81"/><stop class="stop-brass-4" offset="1"/>
+            </linearGradient>
+            <linearGradient id="hourBrass" x2="1" y2=".92">
+              <stop class="stop-hour-0"/><stop class="stop-hour-1" offset=".27"/>
+              <stop class="stop-hour-2" offset=".58"/><stop class="stop-hour-3" offset=".81"/><stop class="stop-hour-4" offset="1"/>
             </linearGradient>
             <linearGradient id="agedPinion" x2=".8" y2="1">
-              <stop stop-color="#b2a081"/><stop offset=".5" stop-color="#93886e"/><stop offset="1" stop-color="#6f6855"/>
+              <stop class="stop-pinion-0"/><stop class="stop-pinion-1" offset=".5"/><stop class="stop-pinion-2" offset="1"/>
             </linearGradient>
             <linearGradient id="pinSteel" x2=".65" y2="1">
-              <stop stop-color="#fbf7ec"/><stop offset=".44" stop-color="#c2bba9"/><stop offset="1" stop-color="#857d6c"/>
+              <stop class="stop-steel-0"/><stop class="stop-steel-1" offset=".44"/><stop class="stop-steel-2" offset="1"/>
             </linearGradient>
             <linearGradient id="bluedSteel" x2="1" y2="0">
-              <stop stop-color="#202820"/><stop offset=".42" stop-color="#4a554d"/><stop offset=".54" stop-color="#28332d"/><stop offset="1" stop-color="#161c19"/>
+              <stop class="stop-minute-0"/><stop class="stop-minute-1" offset=".42"/><stop class="stop-minute-2" offset=".54"/><stop class="stop-minute-3" offset="1"/>
             </linearGradient>
           </defs>
           <circle class="clock-hairline" cx="320" cy="320" r="308"/>
           <circle class="clock-face" cx="320" cy="320" r="300"/>
-          <circle class="minute-track" cx="320" cy="320" r="286" stroke="#fffdf7"/>
-          <circle class="minute-track" cx="320" cy="320" r="286" stroke="var(--clock-wash)" pathLength="60"
+          <circle class="minute-track minute-track-base" cx="320" cy="320" r="286"/>
+          <circle class="minute-track minute-track-dash" cx="320" cy="320" r="286" pathLength="60"
                   stroke-dasharray="1 1" transform="rotate(-90 320 320)"/>
           <g id="ticks"></g>
           <g id="hourMarkers"></g>
@@ -2208,13 +2888,13 @@
           <g transform="translate(320 320)">
             <g id="orbitRing" class="orbit-track">
               <circle r="187" stroke-dasharray="202 31 62 56 5 29" opacity=".6"/>
-              <path d="M0 -192l3 5-3 5-3-5z" fill="var(--clock-brass)" stroke="none"/>
+              <path class="orbit-pointer" d="M0 -192l3 5-3 5-3-5z"/>
             </g>
           </g>
 
           <g transform="translate(3 37)">
             <path class="clock-bridge" d="M176 387Q211 380 259 342Q271 330 282 341L399 264Q410 257 429 255L444 251Q449 249 451 255Q453 261 448 263L418 271Q407 274 396 286L286 362Q275 372 263 363Q217 388 181 399Q173 401 171 395Q169 390 176 387Z"/>
-            <g fill="url(#pinSteel)" stroke="#9e9481" stroke-width="1.3">
+            <g class="bridge-pins">
               <circle cx="179" cy="393" r="3.8"/><circle cx="445" cy="257" r="3.5"/>
             </g>
           </g>
@@ -2229,40 +2909,39 @@
           <g transform="translate(409 224)">
             <path class="clock-bridge" d="M-13 -7Q-8 -14 3 -12L18 -9Q23 -5 19 1L8 12Q-1 16 -11 9Z"/>
             <g id="pressLever" transform="rotate(0)">
-              <path d="M-7 -5Q2 -12 9 -3Q13 3 9 10Q5 23 13 38L14 43 7 49 3 43Q4 36 0 29Q-5 18 -5 7Q-9 3 -7 -5Z"
-                    fill="url(#pinSteel)" stroke="#6d6654" stroke-width="1.3" stroke-linejoin="round"/>
-              <path d="M5 8Q1 21 8 36L11 42" fill="none" stroke="#f4ebd2" stroke-width="1.2"/>
+              <path class="lever-arm" d="M-7 -5Q2 -12 9 -3Q13 3 9 10Q5 23 13 38L14 43 7 49 3 43Q4 36 0 29Q-5 18 -5 7Q-9 3 -7 -5Z"/>
+              <path class="lever-sheen" d="M5 8Q1 21 8 36L11 42"/>
             </g>
-            <circle r="6.3" fill="url(#agedBrass)" stroke="#756044"/>
-            <path d="M-2.8 -2l5.6 4" fill="none" stroke="#5d4b34" stroke-width="1.3"/>
+            <circle class="lever-screw" r="6.3"/>
+            <path class="lever-slot" d="M-2.8 -2l5.6 4"/>
           </g>
 
           <g transform="translate(320 320)">
             <g id="hourHand" transform="rotate(-22.5)">
               <path class="hour-hand" d="M0 -157Q2 -145 7 -136Q14 -117 9 -88L6 -33Q6 -24 11 -20L10 14Q0 25 -10 14L-11 -20Q-6 -24 -6 -33L-9 -88Q-14 -117 -7 -136Q-2 -145 0 -157Z"/>
-              <path d="M0 -143Q-4 -128 -4 -117L-2 -33" fill="none" stroke="#ebd5ad" stroke-width="1.4"/>
-              <path d="M-7 -31H7M-9 -23H9" fill="none" stroke="#705736" stroke-width="1.2"/>
+              <path class="hour-sheen" d="M0 -143Q-4 -128 -4 -117L-2 -33"/>
+              <path class="hour-band" d="M-7 -31H7M-9 -23H9"/>
             </g>
             <g id="minuteHand" transform="rotate(90)">
               <path class="minute-hand" fill-rule="evenodd" d="M0 -237Q2 -220 4 -209Q6 -198 11 -192Q8 -187 4 -177L2.3 -41Q2.5 -28 7.5 -23L6.3 21Q6 30 0 40Q-6 30 -6.3 21L-7.5 -23Q-2.5 -28 -2.3 -41L-4 -177Q-8 -187 -11 -192Q-6 -198 -4 -209Q-2 -220 0 -237ZM0 -209Q-2 -200 -5.2 -192Q-2 -189 0 -181Q2 -189 5.2 -192Q2 -200 0 -209Z"/>
-              <path d="M-.8 -172V-37Q-1.2 -28 -4 -25M-4 20Q-3.3 29 0 34" fill="none" stroke="#aab4a5" stroke-width="1"/>
-              <path d="M-6 -24H6M-5.6 21H5.6" fill="none" stroke="#c2ae8d" stroke-width="1.2"/>
+              <path class="minute-sheen" d="M-.8 -172V-37Q-1.2 -28 -4 -25M-4 20Q-3.3 29 0 34"/>
+              <path class="minute-band" d="M-6 -24H6M-5.6 21H5.6"/>
             </g>
             <g id="secondHand" transform="rotate(0)">
               <path d="M0 -275 L1.25 -254 L1.45 32 L3.3 36 L3.3 48 L2.2 51 H-2.2 L-3.3 48 V36 L-1.45 32 L-1.25 -254 Z"/>
             </g>
             <g id="handPivot">
-              <circle r="22" cy="1" fill="#6c573f" opacity=".29"/>
-              <circle r="20" fill="url(#agedBrass)" stroke="#66503a" stroke-width="1.25"/>
-              <circle r="17.2" fill="none" stroke="#f1dcb5" stroke-width="1.35"/>
-              <circle r="14.2" fill="url(#bluedSteel)" stroke="#6d573b" stroke-width="1.2"/>
-              <circle r="11.5" fill="none" stroke="#ddc39a" stroke-width="1.25" stroke-dasharray="1 2.3"/>
-              <circle r="7.8" fill="url(#pinSteel)" stroke="#181d19" stroke-width="1.25"/>
-              <path d="M-4.4 2.5l8.8-5" stroke="#574d3c" stroke-width="1.85" stroke-linecap="round"/>
+              <circle class="pivot-shadow" r="22" cy="1"/>
+              <circle class="pivot-outer" r="20"/>
+              <circle class="pivot-bevel" r="17.2"/>
+              <circle class="pivot-ring" r="14.2"/>
+              <circle class="pivot-dots" r="11.5"/>
+              <circle class="pivot-cap" r="7.8"/>
+              <path class="pivot-slot" d="M-4.4 2.5l8.8-5"/>
             </g>
           </g>
-          <g id="noonMarker" fill="var(--ink)">
-            <path d="M312 10h16l-8 20z"/><circle cx="320" cy="15" r="2" fill="#d5bc96"/>
+          <g id="noonMarker" class="noon-marker">
+            <path d="M312 10h16l-8 20z"/><circle class="noon-dot" cx="320" cy="15" r="2"/>
           </g>
         </svg>
         <span class="minute-grip-axis" aria-hidden="true"><span id="minuteGrip"></span></span>
@@ -2290,7 +2969,7 @@
           <p class="sr-only" id="peopleHint">请输入 2 到 99 之间的人数</p>
           <p class="form-error" id="formError" role="alert"></p>
           <div class="draw-order-row">
-            <label>抽题顺序<select id="drawOrder"><option value="random">默认随机</option><option value="gradual">循序渐进</option><option value="direct">直奔主题</option></select></label>
+            <label>抽题顺序<select id="drawOrder"><option value="random">默认随机</option><option value="gradual">循序渐进</option><option value="direct">直击灵魂</option></select></label>
             <label>选人顺序<select id="playerOrder"><option value="random">随机抽取</option><option value="sequential">轮流回答</option></select></label>
             <label class="guide-choice"><input type="checkbox" role="switch" id="guideEnabled" checked>引导</label>
           </div>
@@ -2331,8 +3010,24 @@
                   <datalist id="topicOptions"></datalist>
                 </div>
               </details>
+              <div class="theme-setting-row">
+                <span class="theme-setting-label" id="homeThemeLabel">深色模式</span>
+                <button class="theme-switch" id="homeThemeToggle" type="button" role="switch" aria-checked="false" aria-labelledby="homeThemeLabel" data-theme-toggle>
+                  <span class="theme-switch-icon theme-switch-sun" aria-hidden="true">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+                      <circle cx="8" cy="8" r="3.1" fill="currentColor" stroke="none"/>
+                      <path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1"/>
+                    </svg>
+                  </span>
+                  <span class="theme-switch-icon theme-switch-moon" aria-hidden="true">
+                    <svg viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M9.6 2.5A5.8 5.8 0 1 1 2.5 9.6a5.2 5.2 0 0 0 7.1-7.1Z"/>
+                    </svg>
+                  </span>
+                </button>
+              </div>
               <div class="home-clock-options">
-                <label class="home-motion-choice"><input id="homeMotion" type="checkbox" checked>主页动效</label>
+                <label class="home-motion-choice"><input id="homeMotion" type="checkbox" checked>动态效果</label>
                 <button class="reset-btn" id="resetHomeClock" type="button">重置钟表</button>
               </div>
             </div>
@@ -2388,9 +3083,26 @@
               <label class="judge-check-card"><input type="radio" name="checkInChoice" value="1">加大力度</label>
             </fieldset>
             <div id="judgeAdjustment" hidden>
-              <div class="judge-tabs" role="group" aria-label="调整项目">
-                <button type="button" data-judge-section="temperature" aria-pressed="true">水温</button>
-                <button type="button" data-judge-section="excludedScopes" aria-pressed="false">需要回避的话题</button>
+              <div class="judge-tabs-row">
+                <div class="judge-tabs" role="group" aria-label="调整项目">
+                  <button type="button" data-judge-section="temperature" aria-pressed="true">水温</button>
+                  <button type="button" data-judge-section="excludedScopes" aria-pressed="false">需要回避的话题</button>
+                </div>
+                <span class="judge-theme-slot">
+                  <button class="theme-switch" id="gameThemeToggle" type="button" role="switch" aria-checked="false" aria-label="深色模式" data-theme-toggle>
+                    <span class="theme-switch-icon theme-switch-sun" aria-hidden="true">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+                        <circle cx="8" cy="8" r="3.1" fill="currentColor" stroke="none"/>
+                        <path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1"/>
+                      </svg>
+                    </span>
+                    <span class="theme-switch-icon theme-switch-moon" aria-hidden="true">
+                      <svg viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M9.6 2.5A5.8 5.8 0 1 1 2.5 9.6a5.2 5.2 0 0 0 7.1-7.1Z"/>
+                      </svg>
+                    </span>
+                  </button>
+                </span>
               </div>
               <div class="judge-adjustment-stage" id="judgeAdjustmentStage">
                 <div id="judgeAdjustmentContent"></div>
@@ -2458,9 +3170,13 @@
 
 <template id="judgeBrand">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-1041 -1041 2082 2082">
-  <title>TIME真心话</title>
   <circle r="1041" fill="#262420"/>
   <path fill="#F2EDE2" d="M573.00286 -818.332892 L30.603748 -43.706682 L756 -33 L756 33 L-30.603748 43.706682 L-573.00286 818.332892 A999 999 0 0 0 818.332892 573.00286 A999 999 0 0 0 573.00286 -818.332892 Z M30.603748 -43.706682 L-160.482273 -505.029148 L-243.631431 -470.587639 L-30.603748 43.706682 Z"/>
+</svg>
+</template>
+<template id="brandMoonTemplate">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1041 -1041 2082 2082">
+  <path fill="var(--moon-fill, #EFE4C6)" d="M130.91 -1005.3 A985 985 0 1 1 -900.38 467.53 A900 900 0 0 0 130.91 -1005.3 Z"/>
 </svg>
 </template>
 <template id="judgeSliderTemplate">
@@ -2720,7 +3436,7 @@ const JudgeSelection = (() => {
   const sequences = {
     gradual: { label: "循序渐进", detail: "慢热一些", exponent: -2.5, length: 8 },
     random:  { label: "默认随机", detail: "来者不拒，交给天意", exponent: 0, length: 0 },
-    direct:  { label: "直奔主题", detail: "直接端上来吧！", exponent: 1.2, length: 3 }
+    direct:  { label: "直击灵魂", detail: "直接端上来吧！", exponent: 1.2, length: 3 }
   };
   const intensity = { depth: .35, sensitivity: .65, maxDepth: 3, maxSensitivity: 2 };
   const checkIn = { min: 5, max: 10 };
@@ -2867,6 +3583,9 @@ const createFluidSlider = (() => {
     { title: "最高", description: "火力全开", detail: "更多敏感私密、需要仔细斟酌的话题", hot: true },
   ];
 
+  // 相对于有效滑轨（.fluid-slider__lane）的非等距四档锚点坐标。
+  const defaultStopPositions = [0.12, 0.50, 0.76, 1.00];
+
   // 像素与秒。漂流、剪切、起伏、涡流频率和亮度各有自己的变化幅度。
   const waterMotion = [
     { flow: 2,  shear: 1.7, lift: .65, rate: .48, shimmer: .035 },
@@ -2918,6 +3637,11 @@ const createFluidSlider = (() => {
       this.fieldContext = this.field.getContext("2d", { alpha: false });
       this.reduced = reduced;
       this.forcedColors = matchMedia("(forced-colors: active)");
+      this.themeTarget = document.documentElement.dataset.theme === "night" ? 1 : 0;
+      this.themeBlend = this.themeTarget;
+      this.themeFrom = this.themeTarget;
+      this.themeProgress = 1;
+      this.themeForceRepaint = false;
       this.frame = null;
       this.lastTime = null;
 
@@ -2949,15 +3673,43 @@ const createFluidSlider = (() => {
       this.events = new AbortController();
       const { signal } = this.events;
       document.addEventListener("visibilitychange", () => this.updatePlayback(), { signal });
+      document.addEventListener("themechange", (event) => {
+        const next = document.documentElement.dataset.theme === "night" ? 1 : 0;
+        this.setTheme(next, Boolean(event.detail?.immediate) || this.reduced.matches);
+      }, { signal });
+      this.themeObserver = new MutationObserver(() => {
+        const next = document.documentElement.dataset.theme === "night" ? 1 : 0;
+        if (next !== this.themeTarget) {
+          this.setTheme(next, this.reduced.matches || document.documentElement.hasAttribute("data-theme-ripple"));
+        }
+      });
+      this.themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
       for (const preference of [reduced, this.forcedColors]) {
         preference.addEventListener("change", () => this.updatePlayback(), { signal });
       }
       this.updatePlayback();
     }
 
+    setTheme(target, immediate = false) {
+      if (immediate || this.reduced.matches) {
+        this.themeTarget = this.themeBlend = this.themeFrom = target;
+        this.themeProgress = 1;
+        this.themeForceRepaint = true;
+        if (this.context && this.width) this.paint(0);
+        return;
+      }
+      if (target === this.themeTarget && this.themeProgress >= 1) return;
+      this.themeFrom = this.themeBlend;
+      this.themeTarget = target;
+      this.themeProgress = 0;
+      this.themeForceRepaint = true;
+      if (this.frame === null && !document.hidden && !this.forcedColors.matches) this.paint(0);
+    }
+
     destroy() {
       this.events?.abort();
       this.observer?.disconnect();
+      this.themeObserver?.disconnect();
       if (this.frame != null) cancelAnimationFrame(this.frame);
     }
 
@@ -3017,11 +3769,19 @@ const createFluidSlider = (() => {
       const interpolate = key => from[key] + (to[key] - from[key]) * fraction;
       this.fieldPhase += seconds * interpolate("pace");
       this.fieldElapsed += seconds;
-      if (seconds === 0 || this.fieldElapsed >= 1 / 24) {
+      if (this.themeProgress < 1 && seconds > 0) {
+        this.themeProgress = Math.min(1, this.themeProgress + seconds / 0.38);
+        const eased = this.themeProgress * this.themeProgress * (3 - 2 * this.themeProgress);
+        this.themeBlend = this.themeFrom + (this.themeTarget - this.themeFrom) * eased;
+        this.themeForceRepaint = true;
+      }
+      if (seconds === 0 || this.themeForceRepaint || this.fieldElapsed >= 1 / 24) {
         this.fieldElapsed %= 1 / 24;
+        this.themeForceRepaint = false;
         const phase = this.fieldPhase;
         const contrast = interpolate("contrast"), fold = interpolate("fold");
         const violet = interpolate("violet");
+        const night = this.themeBlend;
         // 三处宽软色瓣各自在有限范围内游移、聚拢和消退，保留轨道自身的冷暖方向。
         const cap = .045 + .042 * Math.sin(.83 * phase + .2);
         const middle = .25 + .21 * fold + (.055 + .05 * fold) * Math.sin(.71 * phase - .8);
@@ -3044,15 +3804,36 @@ const createFluidSlider = (() => {
             const trough = Math.exp(-((x - valley) ** 2) / .009);
             const light = contrast * (capLight * coldLobe + middleLight * midLobe +
               fold * (farLight * farLobe - .76 * trough));
-            // 蓝、长春花蓝、紫三个锚点。温度改变可见前缀本身的偏色；裁切不会缩放色瓣。
+            // 日间：蓝、长春花蓝、紫三锚点；夜间：月光蓝→雾紫→藕紫→灰桃粉四锚点。
             const tint = clamp(violet + (.86 - .36 * violet) * x -
               .32 * violet * coldLobe - .115 * light);
-            const blueMix = Math.min(1, tint * 2);
-            const purpleMix = Math.max(0, tint * 2 - 1);
-            const luminance = 18 * light - 5 * y;
-            data[offset++] = 129 + 23 * blueMix + 4 * purpleMix + luminance;
-            data[offset++] = 180 - 27 * blueMix - 61 * purpleMix + luminance;
-            data[offset++] = 233 + 7 * blueMix + 7 * purpleMix + .55 * luminance;
+            let r, g, b;
+            if (night < 1) {
+              const blueMix = Math.min(1, tint * 2);
+              const purpleMix = Math.max(0, tint * 2 - 1);
+              const luminance = 18 * light - 5 * y;
+              r = 129 + 23 * blueMix + 4 * purpleMix + luminance;
+              g = 180 - 27 * blueMix - 61 * purpleMix + luminance;
+              b = 233 + 7 * blueMix + 7 * purpleMix + .55 * luminance;
+            }
+            if (night > 0) {
+              const s1 = clamp(tint / 0.35);
+              const s2 = clamp((tint - 0.35) / 0.33);
+              const s3 = clamp((tint - 0.68) / 0.32);
+              const nLum = 15 * light - 4 * y;
+              const nr = 102 + 22 * s1 + 33 * s2 + 45 * s3 + nLum;
+              const ng = 129 - 9 * s1 + 2 * s2 + 22 * s3 + nLum * .85;
+              const nb = 156 + 0 * s1 - 12 * s2 + 8 * s3 + nLum * .72;
+              if (night >= 1) { r = nr; g = ng; b = nb; }
+              else {
+                r += (nr - r) * night;
+                g += (ng - g) * night;
+                b += (nb - b) * night;
+              }
+            }
+            data[offset++] = r;
+            data[offset++] = g;
+            data[offset++] = b;
             data[offset++] = 255;
           }
         }
@@ -3078,7 +3859,12 @@ const createFluidSlider = (() => {
       context.globalAlpha = 1;
       context.clearRect(0, 0, width, height);
       this.paintField(seconds, lower, heat - lower);
-      context.fillStyle = "#f7f8ff";
+      const night = this.themeBlend;
+      const pr = Math.round(247 - 8 * night);
+      const pg = Math.round(248 - 16 * night);
+      const pb = Math.round(255 - 35 * night);
+      const particleScale = 1 - 0.14 * night;
+      context.fillStyle = `rgb(${pr},${pg},${pb})`;
 
       for (const particle of this.particles) {
         particle.phase += seconds * rate * particle.pace;
@@ -3097,7 +3883,7 @@ const createFluidSlider = (() => {
         }
         const y = height * particle.band + lift * (.72 * eddy + .28 * wave);
         const stretch = particle.edge === null ? Math.min(1.15, Math.abs(speed) / 105) : 0;
-        context.globalAlpha = particle.opacity * (1 + shimmer * Math.cos(particle.phase * 1.7));
+        context.globalAlpha = particle.opacity * particleScale * (1 + shimmer * Math.cos(particle.phase * 1.7));
         context.beginPath();
         context.ellipse(x, y, particle.radius + stretch, particle.radius, eddy * stretch * .16, 0, 2 * Math.PI);
         context.fill();
@@ -3107,13 +3893,19 @@ const createFluidSlider = (() => {
 
   // 组件以原生 range 的 input/change 事件对外提供当前档位。
   class FluidSlider {
-    constructor(root, { levels, initialIndex, motion, materialProfiles }) {
+    constructor(root, { levels, initialIndex, defaultIndex = 1, stopPositions, motion, materialProfiles }) {
       this.root = root;
       this.events = new AbortController();
       const { signal } = this.events;
       this.levels = levels;
       this.motion = motion;
       this.maxIndex = levels.length - 1;
+      this.defaultIndex = clamp(defaultIndex, 0, this.maxIndex);
+      this.stopPositions = Array.isArray(stopPositions) && stopPositions.length === levels.length
+        ? stopPositions.slice()
+        : levels.length === defaultStopPositions.length
+          ? defaultStopPositions.slice()
+          : levels.map((_, index) => (this.maxIndex > 0 ? index / this.maxIndex : 0));
       this.input = root.querySelector(".fluid-slider__input");
       this.hit = root.querySelector(".fluid-slider__hit");
       this.lane = root.querySelector(".fluid-slider__lane");
@@ -3130,7 +3922,7 @@ const createFluidSlider = (() => {
       this.overThumb = false;
       this.frame = null;
       this.index = -1;
-      this.position = initialIndex / this.maxIndex;
+      this.position = this.stopAt(initialIndex);
       this.velocity = 0;
 
       this.input.min = 0;
@@ -3138,7 +3930,7 @@ const createFluidSlider = (() => {
       this.input.step = 1;
       this.input.defaultValue = initialIndex;
       this.markers = levels.map((_, index) => {
-        const stop = `${100 * index / this.maxIndex}%`;
+        const stop = `${this.stopAt(index) * 100}%`;
         const tick = document.createElement("span");
         tick.className = "fluid-slider__tick";
         tick.style.setProperty("--stop", stop);
@@ -3221,17 +4013,46 @@ const createFluidSlider = (() => {
       const travel = Math.max(lane.width, 1);
       this.geometry = {
         left: lane.left, inset, travel, width: hit.width,
-        // 归一化 0 仍是最低档，拖动可继续到距轨道左缘 2px 的位置。
+        // 归一化 0 为有效滑轨起点，拖动可继续到距轨道左缘 2px 的位置，松手后吸附回低档锚点。
         minPosition: Math.min(0, (2 - inset) / travel),
         thumbRadius: this.thumb.offsetWidth / 2 + 3,
       };
+    }
+
+    stopAt(index) {
+      return this.stopPositions[clamp(index, 0, this.maxIndex)];
     }
 
     at(clientX) {
       return (clientX - this.geometry.left) / this.geometry.travel;
     }
 
-    indexAt(position) { return Math.round(clamp(position) * this.maxIndex); }
+    indexAt(position) {
+      const clamped = clamp(position, 0, 1);
+      let nearest = 0;
+      let bestDistance = Math.abs(clamped - this.stopPositions[0]);
+      for (let i = 1; i < this.stopPositions.length; i++) {
+        const distance = Math.abs(clamped - this.stopPositions[i]);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          nearest = i;
+        }
+      }
+      return nearest;
+    }
+
+    dragIndexAt(position) {
+      const nearest = this.indexAt(position);
+      if (nearest === this.index || this.index < 0) return nearest;
+      const clamped = clamp(position, 0, 1);
+      const hysteresis = Math.min(0.008, 2.5 / this.geometry.travel);
+      const step = nearest > this.index ? 1 : -1;
+      const boundary = (this.stopPositions[this.index] + this.stopPositions[this.index + step]) / 2;
+      if (step > 0 ? clamped < boundary + hysteresis : clamped > boundary - hysteresis) {
+        return this.index;
+      }
+      return nearest;
+    }
 
     boundPosition(position) { return clamp(position, this.geometry.minPosition); }
 
@@ -3245,6 +4066,7 @@ const createFluidSlider = (() => {
       if (index === this.index) return;
       this.closeExplanation?.();
       this.index = index;
+      this.root.dataset.offDefault = String(index !== this.defaultIndex);
       this.input.value = index;
       const { title, description, hot } = this.levels[index];
       this.input.setAttribute("aria-valuetext", title);
@@ -3276,7 +4098,7 @@ const createFluidSlider = (() => {
       this.hit.style.setProperty("--position", `${pixel}px`);
       this.hit.style.setProperty("--unfilled", `${this.geometry.width - pixel}px`);
       this.markers.forEach((tick, stop) => {
-        const filled = stop / this.maxIndex <= this.position;
+        const filled = this.stopAt(stop) <= this.position;
         if (tick.dataset.filled !== String(filled)) tick.dataset.filled = filled;
       });
       this.syncHover();
@@ -3314,7 +4136,7 @@ const createFluidSlider = (() => {
     }
 
     settle(now) {
-      const target = this.index / this.maxIndex;
+      const target = this.stopAt(this.index);
       const offset = this.position - target;
       if (this.reduced.matches || (offset === 0 && this.velocity === 0)) {
         this.position = target;
@@ -3445,7 +4267,7 @@ const createFluidSlider = (() => {
         this.spring = null;
         pointer.dragging = true;
       }
-      this.setIndex(this.indexAt(pointer.position), true);
+      this.setIndex(this.dragIndexAt(pointer.position), true);
       this.updateHover(event);
       this.updatePhase();
       this.queueDraw();
@@ -3496,7 +4318,7 @@ const createFluidSlider = (() => {
     }
   }
 
-  return (root, { initialIndex = 1, levels = waterLevels, compact = false, label } = {}) => {
+  return (root, { initialIndex = 1, defaultIndex = 1, levels = waterLevels, stopPositions, compact = false, label } = {}) => {
     if (compact) {
       const explanation = root.querySelector(".fluid-slider__explanation");
       explanation.classList.add("fluid-slider__explanation--compact");
@@ -3516,7 +4338,7 @@ const createFluidSlider = (() => {
       }
     }
     const slider = new FluidSlider(root, {
-      levels, initialIndex, motion: motionTuning, materialProfiles: waterMotion
+      levels, initialIndex, defaultIndex, stopPositions, motion: motionTuning, materialProfiles: waterMotion
     });
     if (label) slider.input.setAttribute("aria-label", label);
     return slider;
@@ -3657,6 +4479,7 @@ const JudgeInterface = (() => {
     const scopes = byId("judgeScopes");
     const availability = byId("judgeAvailability");
     const brand = byId("judgeBrand");
+    const brandMoon = byId("brandMoonTemplate");
     const { temperatures } = JudgeSelection;
     let mode = null;
     let editing = null;
@@ -3669,7 +4492,16 @@ const JudgeInterface = (() => {
     let noticeTimer;
 
     for (const avatar of document.querySelectorAll("[data-judge-avatar]")) {
-      avatar.append(brand.content.cloneNode(true));
+      const dayMark = document.createElement("span");
+      dayMark.className = "judge-avatar-day";
+      dayMark.append(brand.content.cloneNode(true));
+      avatar.append(dayMark);
+      if (brandMoon) {
+        const nightMark = document.createElement("span");
+        nightMark.className = "judge-avatar-night";
+        nightMark.append(brandMoon.content.cloneNode(true));
+        avatar.append(nightMark);
+      }
     }
     const scopeInputs = Object.entries(JudgeSelection.scopes).map(([key, { label, detail }]) => {
       const option = document.createElement("label");
@@ -4155,7 +4987,7 @@ const JudgeInterface = (() => {
 
   const wheelSvg = document.getElementById("wheelSvg");
   const clock = createClock(wheelSvg, document.getElementById("memoryTrack"));
-  const homeAtmosphere = createHomeAtmosphere(wheelSvg, document.getElementById("homeParticles"),
+  const homeAtmosphere = createHomeAtmosphere(wheelSvg, document.getElementById("homeNotes"),
     document.getElementById("homeMotion"));
   let replaceRoundId = null;
   let questionExit = null;
@@ -4783,78 +5615,858 @@ const JudgeInterface = (() => {
     return Math.floor(Math.random() * maxExclusive);
   }
 
-  function createHomeDust(canvas) {
+  function createHomeNoteWall(canvas) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
-    const grains = [];
-    let width = 0, height = 0, scale = 0;
-    let seed = 0x716d58c3;
-    function random() {
-      seed = (Math.imul(1664525, seed) + 1013904223) >>> 0;
-      return seed / 0x100000000;
-    }
-    function resize() {
-      const w = canvas.clientWidth, h = canvas.clientHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      if (!w || !h || (w === width && h === height && dpr === scale)) return;
-      width = w;
-      height = h;
-      scale = dpr;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-      ctx.setTransform(canvas.width / w, 0, 0, canvas.height / h, 0, 0);
-      const density = w <= 620 ? 133 : 163;
-      const count = Math.max(12, Math.min(410, Math.round(w * h * density / 1e6)));
-      // 位置以比例保存。旋转屏幕、改变窗口大小时，同一颗微粒仍在原来的相对位置。
-      while (grains.length < count) {
-        const radius = .9 + 1.3 * random() ** 1.65;
-        grains.push({
-          x: random(), y: random(), radius, stretch: 1 + .32 * random(),
-          speed: 4 + 10 * random(), phase: random() * Math.PI * 2,
-          frequency: .16 + .25 * random(), amplitude: 2 + 4 * random(),
-          opacity: .23 + .077 * radius + .04 * random(),
-          color: random() < .40 ? (random() < .6 ? "#9A784E" : "#9C7960") : "#77766C"
-        });
+
+    // 保留四组低饱和度色系，进一步降低与墙面 #F2EFE6 的饱和度及明度对比，
+    // 全不透明纸面，保持纸身、折角反面、纸背与铅笔笔迹之间克制而清晰的层次。
+    const PALETTE = [
+      // [纸身正面, 折角/卷边面, 纸张背面, 抽象笔迹]
+      ["#E8DCC6", "#D2C0A2", "#EFE6D6", "#B6A891"], // 黄褐
+      ["#DFE2D3", "#C5CAB5", "#E8EBDF", "#A5AA96"], // 灰绿
+      ["#E9DAD2", "#D4BEB2", "#F0E5DF", "#B9A59B"], // 浅红
+      ["#D9E1DC", "#BFCBC4", "#E6ECE8", "#A0ADA6"]  // 灰青
+    ];
+
+    const MAX_NOTES = 9;
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    const clamp01 = (v) => (v <= 0 ? 0 : v >= 1 ? 1 : v);
+    const smooth = (t) => { const c = clamp01(t); return c * c * (3 - 2 * c); };
+    const mix = (a, b, t) => a + (b - a) * t;
+    function shuffle(list) {
+      const a = list.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
       }
-      grains.length = count;
+      return a;
     }
-    function paint(seconds, flow) {
-      // 窗口移到另一块屏幕时，CSS 尺寸可能相同，后备画布仍须匹配新像素密度。
-      if (Math.min(window.devicePixelRatio || 1, 2) !== scale) resize();
-      if (!width || !height) return;
-      ctx.clearRect(0, 0, width, height);
-      for (const grain of grains) {
-        grain.x += seconds * grain.speed * flow / (width + 12);
-        grain.x -= Math.floor(grain.x);
-        grain.phase = (grain.phase + seconds * grain.frequency) % (2 * Math.PI);
-        const x = grain.x * (width + 12) - 6;
-        const y = grain.y * height + grain.amplitude * Math.sin(grain.phase);
-        ctx.fillStyle = grain.color;
-        ctx.globalAlpha = grain.opacity;
+
+    // 每张便签在页面初始化时获得唯一且持久的身份；刷新可变化，普通重绘与缩放不重置。
+    const mobilePalette = shuffle([0, 1, 2, 3]);
+    const desktopPalette = shuffle([0, 1, 2, 3, Math.floor(Math.random() * 4)]);
+    const colorOrder = mobilePalette.concat(desktopPalette);
+
+    // 形态与从左向右的主风场一致：多数左下角折起、一部分左下底边自然卷曲、少量平整或轻度他向卷角。
+    const mobileShapes = shuffle(["fold", "fold", "roll", Math.random() < 0.72 ? "flat" : "fold"]);
+    const desktopShapes = shuffle(["fold", "fold", "fold", "roll", Math.random() < 0.62 ? "altFold" : "flat"]);
+    const shapeOrder = mobileShapes.concat(desktopShapes);
+
+    // 分层随机尺寸档位，保证大小自然参差而非整齐划一。
+    const sizeBins = shuffle([0.04, 0.16, 0.28, 0.40, 0.52, 0.64, 0.76, 0.88, 0.96])
+      .map(b => clamp01(b + (Math.random() - 0.5) * 0.10));
+
+    // 释放顺序在左右半区与移动端可见项（0..3）之间交错，避免单侧集中离场或窄屏空窗。
+    const mobileRel = shuffle([0, 1, 2, 3]);
+    const desktopRel = shuffle([4, 5, 6, 7, 8]);
+    const releaseOrder = [
+      mobileRel[0], desktopRel[0], mobileRel[1], desktopRel[1], desktopRel[2],
+      mobileRel[2], desktopRel[3], mobileRel[3], desktopRel[4]
+    ];
+
+    // 每个锚位在桌面端的大致水平比例，用于给每张便签分配与飞行距离匹配且不可变的飞行时程。
+    const nominalXRatio = [0.46, 0.85, 0.08, 0.88, 0.13, 0.60, 0.35, 0.63, 0.30];
+
+    // 轻微遮挡钟表外缘的便签固定选用 10:30 方向（右下轻贴表盘外缘，胶带与左下卷角完整外露）。
+    const rimTuckAngle = (-47 + (Math.random() - 0.5) * 10) * Math.PI / 180;
+
+    function createPaper(index) {
+      const rand = Math.random;
+      const shape = shapeOrder[index];
+      const softness = 0.26 + 0.68 * rand();
+      const markPick = rand();
+      const markCount = markPick < 0.16 ? 0 : markPick < 0.44 ? 1 : markPick < 0.82 ? 2 : 3;
+      const anchor = 0.42 + 0.16 * rand();
+      const leftBound = -anchor + 0.17;
+      const rightBound = 1 - anchor - 0.16;
+      const maxSpan = Math.max(0.24, rightBound - leftBound);
+      const marks = Array.from({ length: markCount }, (_, row) => {
+        const startX = leftBound + rand() * 0.08;
+        const maxLen = Math.max(0.18, rightBound - startX);
+        const frac = row === markCount - 1 && markCount > 1 ? (0.42 + 0.34 * rand()) : (0.58 + 0.34 * rand());
+        return {
+          x: startX,
+          y: 0.25 + row * 0.165 + (rand() - 0.5) * 0.03,
+          len: clamp(maxSpan * frac, 0.18, maxLen),
+          rise: (rand() - 0.5) * 0.055,
+          arch: (rand() - 0.5) * 0.028
+        };
+      });
+      const distRatio = clamp(1.06 - nominalXRatio[index], 0.18, 1.04);
+      return {
+        index,
+        ink: PALETTE[colorOrder[index]],
+        shape,
+        sizeNorm: sizeBins[index],
+        ratio: 0.88 + 0.20 * rand(),
+        lean: (rand() - 0.5) * 0.24,
+        softness,
+        adhesion: 0.5,
+        delay: 0.15 + 0.70 * rand(),
+        phase: rand() * Math.PI * 2,
+        flutterFreq: 1.55 + 0.75 * rand(),
+        lip: shape === "fold" ? (0.17 + 0.075 * rand())
+          : shape === "roll" ? (0.14 + 0.065 * rand())
+          : shape === "altFold" ? (0.13 + 0.05 * rand())
+          : 0.04,
+        anchor,
+        tapeWidth: 0.26 + 0.11 * rand(),
+        tapeHeight: 0.105 + 0.025 * rand(),
+        tapeTilt: (rand() - 0.5) * 0.14,
+        marks,
+        rollDir: rand() < 0.5 ? 1 : -1,
+        rollTurns: 1.75 + 1.45 * rand(),
+        arcLift: 0.65 + 0.75 * rand(),
+        waveAmp: 0.26 + 0.34 * rand(),
+        waveCycles: 1.4 + 0.9 * rand(),
+        // 飞行时程与名义离场距离成正比，左右各处便签风中滑行速度自然一致。
+        flightSpan: 64 + distRatio * 86 + rand() * 14,
+        peelStart: 0,
+        peelSpan: 20,
+        launchT: Infinity,
+        // 静态微风与交互强风共用同一受风弹簧状态（仅附着期参与，离场飞行严格由时间轴驱动）。
+        gust: 0.34,
+        gustVel: 0,
+        pressure: 0
+      };
+    }
+
+    const papers = Array.from({ length: MAX_NOTES }, (_, i) => createPaper(i));
+    let nextWork = 9 + Math.random() * 5;
+    for (let rank = 0; rank < releaseOrder.length; rank++) {
+      const p = papers[releaseOrder[rank]];
+      p.adhesion = (rank + 0.25 + 0.5 * Math.random()) / releaseOrder.length;
+      p.peelStart = nextWork;
+      p.peelSpan = 18 + p.adhesion * 12 + (1 - p.softness) * 5;
+      // 严格错开脱落阈值，避免多张便签同时脱离并重叠飞行。
+      nextWork += 19 + Math.random() * 9;
+    }
+
+    // 统一且柔和的自然呼吸风场：以 ~4.6s 舒缓呼吸节律为基底，叠加左向右行进的微风波与风峰轻颤，
+    // 让便签呈现自然呼吸感与轻柔摇曳，同时避免机械同步或急促抖动。
+    function ambientWind(seconds, nx, ny, paper) {
+      const travel = seconds - nx * 1.45 - ny * 0.34 - paper.delay * 0.72;
+      const envelope = 0.58 + 0.42 * Math.sin(0.39 * travel + 0.75 * Math.sin(0.17 * travel));
+      const breath = Math.sin(1.34 * travel + 0.52 * Math.sin(0.41 * travel)) * (0.34 + 0.22 * envelope);
+      const swell = Math.sin(2.02 * travel - 0.85 * ny + paper.phase * 0.35) * (0.15 + 0.08 * envelope);
+      const base = clamp(0.48 + breath + swell, 0.03, 1.22);
+      const flutter = Math.sin(paper.flutterFreq * 1.35 * travel + paper.phase) * 0.095 * (base * base);
+      return clamp(base + flutter, 0.02, 1.30);
+    }
+
+    // 受约束的建筑感挂点布局：引用真实 DOM 组件坐标，保留刷新变化与缩放身份连续性。
+    function createPaperMounts() {
+      const jitterSeeds = Array.from({ length: MAX_NOTES }, () => ({
+        dx: Math.random() - 0.5,
+        dy: Math.random() - 0.5,
+        ringSeed: Math.random() * Math.PI * 2
+      }));
+
+      function readBox(selector) {
+        const node = document.querySelector(selector);
+        if (!node) return null;
+        const r = node.getBoundingClientRect();
+        if (r.width < 1 || r.height < 1) return null;
+        return {
+          left: r.left + scrollX, right: r.right + scrollX,
+          top: r.top + scrollY, bottom: r.bottom + scrollY,
+          width: r.width, height: r.height
+        };
+      }
+
+      function layout(viewW, viewH) {
+        const page = readBox(".page");
+        const panel = readBox(".panel");
+        const clock = readBox("#wheelWrap");
+        const topbar = readBox(".topbar");
+        const title = readBox(".setup-title");
+        const form = readBox(".setup-form");
+        const filters = readBox("#filtersToggle");
+        if (!page || !panel || !clock || !topbar || !title || !filters) {
+          return papers.map(() => ({ x: 0, y: 0, width: 0, visible: false, deltaY: 0 }));
+        }
+
+        const stacked = matchMedia("(max-width: 980px)").matches;
+        const narrow = viewW <= 620;
+        const tiny = viewW <= 355;
+        const compactDesktop = !stacked && viewW < 1120;
+        const wallH = Math.max(viewH, page.bottom);
+        const limit = tiny ? 3 : narrow ? 4 : stacked ? 5 : compactDesktop ? 8 : MAX_NOTES;
+
+        const dialX = (clock.left + clock.right) / 2;
+        const dialY = (clock.top + clock.bottom) / 2;
+        const radius = clock.width / 2;
+        // 钟表外缘实际白底半径为 300/320 * radius。
+        const faceRadius = radius * (300 / 320);
+
+        const rightEdge = Math.min(viewW - 22, Math.max(page.right, filters.right + 36));
+        const formLeft = form ? form.left : filters.left;
+        const formRight = form ? form.right : filters.right;
+        const formX = (t) => mix(formLeft, formRight, t);
+        const lowerBandTop = filters.bottom + 14;
+        const lowerBandBottom = Math.max(wallH - 16, panel.bottom);
+
+        // 桌面 9 点：打破均匀外框环，左壁 5 点（含 1 点 10:30 轻贴表盘外缘）+ 右壁 4 点，
+        // 不在标题与“开始”之间强行塞入便签；窄屏 3–5 点聚焦标题两侧与表盘外周留白。
+        const targets = stacked ? [
+          [mix(16, title.left, 0.56), mix(title.top, title.top + title.height * 0.46, 0.52)],
+          [mix(title.right, viewW - 16, 0.54), mix(title.top + title.height * 0.52, title.bottom + 24, 0.65)],
+          [mix(12, clock.left, 0.52), dialY + radius * 0.56],
+          [mix(clock.right, viewW - 12, 0.52), dialY - radius * 0.52],
+          [mix(formRight - 24, viewW - 18, 0.45), Math.min(wallH - 36, clock.bottom + 10)]
+        ] : [
+          [mix(clock.right + 16, panel.left - 18, 0.48), dialY - radius * 0.46],
+          [mix(title.right - 36, rightEdge, 0.54), mix(topbar.bottom + 12, title.top - 16, 0.46)],
+          [Math.max(30, dialX - radius * 1.12), dialY + radius * 0.68],
+          [mix(formX(0.76), rightEdge, 0.46), mix(lowerBandTop, lowerBandBottom, 0.46)],
+          [dialX + Math.sin(rimTuckAngle) * (faceRadius + 13), dialY - Math.cos(rimTuckAngle) * (faceRadius + 13)],
+          [mix(panel.left + 26, title.left + 20, 0.50), mix(topbar.bottom + 24, title.top - 12, 0.56)],
+          [dialX + radius * 0.52, mix(clock.bottom + 12, wallH - 22, 0.46)],
+          [formX(0.16), mix(lowerBandTop, lowerBandBottom, 0.68)],
+          [dialX + radius * 0.16, mix(topbar.bottom + 10, clock.top - 14, 0.44)]
+        ];
+
+        // 严格保护所有可见文字、控件、提示、历史入口与分隔线，确保便签绝不覆盖可读内容。
+        const keepSelectors = [
+          ".brand", ".topbar-meta", ".setup-title .brand-latin", ".setup-title-chinese",
+          ".field-head", ".setup-row", ".form-error", ".draw-order-row",
+          ".pool-summary", ".saved-round", "#filtersToggle"
+        ];
+        const keepClear = keepSelectors.map(readBox).filter(Boolean);
+        keepClear.push(stacked
+          ? { left: panel.left, right: panel.right, top: panel.top - 2, bottom: panel.top + 3 }
+          : { left: panel.left - 3, right: panel.left + 4, top: panel.top, bottom: panel.bottom });
+
+        const result = [];
+        for (let i = 0; i < MAX_NOTES; i++) {
+          const p = papers[i];
+          const seed = jitterSeeds[i];
+          const size = tiny ? (19 + p.sizeNorm * 6)
+            : narrow ? (21 + p.sizeNorm * 7)
+            : stacked ? (24 + p.sizeNorm * 9)
+            : (28 + p.sizeNorm * 11.5);
+          const point = { x: 0, y: 0, width: size, visible: false, deltaY: 0 };
+
+          if (i < limit) {
+            const isRimTuck = !stacked && i === 4 && viewW >= 1120;
+            const [tx, ty] = targets[i];
+            const jitterX = narrow ? 20 : 50;
+            const jitterY = narrow ? 18 : 42;
+            const minGapFactor = narrow ? 1.38 : 1.72;
+            const noteH = size * p.ratio;
+            const padX = narrow ? (size * 0.62 + 8) : Math.max(size * 0.80 + 18, 44);
+            const padTop = size * 0.24 + 8;
+            const padBot = noteH + 10;
+
+            if (isRimTuck) {
+              // 极坐标直接锚定在 10:30 表盘外缘：右下约 18–25% 轻藏于不透明表盘后，
+              // 顶部胶带与左下卷角完整外露，永不跳过也不过深遮埋。
+              for (let attempt = 0; attempt < 24; attempt++) {
+                const ang = rimTuckAngle + (attempt % 2 === 0 ? 1 : -1) * Math.floor(attempt / 2) * 0.045;
+                const dist = faceRadius + size * (0.36 + 0.07 * (seed.dx + 0.5));
+                const cx = dialX + Math.sin(ang) * dist;
+                const cy = dialY - Math.cos(ang) * dist;
+                const x = cx - (0.5 - p.anchor) * size;
+                const y = cy - noteH * 0.5;
+                if (x < padX || x > viewW - padX || y < padTop || y > wallH - padBot) continue;
+                if (Math.hypot(x - dialX, y - dialY) < faceRadius + 8) continue;
+                const left = x - p.anchor * size - 6;
+                const right = x + (1 - p.anchor) * size + 6;
+                const top = y - size * 0.16 - 5;
+                const bottom = y + noteH + 6;
+                if (keepClear.some(b => right > b.left && left < b.right && bottom > b.top && top < b.bottom)) continue;
+                if (result.some(o => o.visible && Math.hypot(cx - (o.x + (0.5 - papers[o.index].anchor) * o.width),
+                    cy - (o.y + o.width * papers[o.index].ratio * 0.5)) < (o.width + size) * minGapFactor)) continue;
+                point.x = x;
+                point.y = y;
+                point.index = i;
+                point.visible = true;
+                break;
+              }
+            } else {
+              for (let attempt = 0; attempt < 84; attempt++) {
+                const ring = Math.sqrt(attempt) * (narrow ? 6.5 : 10.5);
+                const theta = attempt * 2.39996 + seed.ringSeed;
+                const x = clamp(tx + seed.dx * jitterX + Math.cos(theta) * ring, padX, viewW - padX);
+                const y = clamp(ty + seed.dy * jitterY + Math.sin(theta) * ring, padTop, wallH - padBot);
+                const cx = x + (0.5 - p.anchor) * size;
+                const cy = y + noteH * 0.5;
+                const distDial = Math.hypot(cx - dialX, cy - dialY);
+                if (distDial < radius + size * 0.52) continue;
+
+                const left = x - p.anchor * size - 6;
+                const right = x + (1 - p.anchor) * size + 6;
+                const top = y - size * 0.16 - 5;
+                const bottom = y + noteH + 6;
+                if (keepClear.some(b => right > b.left && left < b.right && bottom > b.top && top < b.bottom)) continue;
+                if (result.some(o => o.visible && Math.hypot(cx - (o.x + (0.5 - papers[o.index].anchor) * o.width),
+                    cy - (o.y + o.width * papers[o.index].ratio * 0.5)) < (o.width + size) * minGapFactor)) continue;
+
+                point.x = x;
+                point.y = y;
+                point.index = i;
+                point.visible = true;
+                break;
+              }
+            }
+          }
+          result.push(point);
+        }
+
+        // 为离场便签按纵向顺序分配轻微分流的航道，减少飞行中相互靠近或重叠。
+        const visibleRows = result.filter(m => m.visible).sort((a, b) => a.y - b.y);
+        visibleRows.forEach((m, rank) => {
+          const lane = wallH * (rank + 0.5) / Math.max(1, visibleRows.length);
+          m.deltaY = clamp((lane - m.y) * 0.58 + (rank % 2 === 0 ? -18 : 18), -125, 125);
+        });
+        return result;
+      }
+
+      return { layout };
+    }
+
+    function drawPaper(ctx, paper, state) {
+      const { x, y, width, wind, peel, flight, deltaX, deltaY, hover } = state;
+      if (flight >= 1 || width <= 0) return;
+
+      const f = flight;
+      const p = smooth(peel);
+      const tp = smooth((peel - 0.32) / 0.68); // 胶带自左向右剥离进度
+      const arc = Math.sin(Math.PI * f);
+
+      // 水平位移：顺风渐加速（起飞平滑承接剥离动量，离开视口时轻盈加速），加轻微波浪飘动。
+      const moveX = 0.34 * f + 0.66 * f * f;
+      const flutterX = arc * Math.sin(Math.PI * 2 * f + paper.phase) * width * 0.22;
+      // 纵向位移：微升弧线 + 航道分流 + 轻盈纸片飘荡，完全由 f 参数化以保证可逆零漂移。
+      const laneEase = smooth(f);
+      const liftArc = -arc * (20 + width * paper.arcLift);
+      const glideWave = arc * Math.sin(Math.PI * paper.waveCycles * f + paper.phase) * (8 + width * paper.waveAmp);
+      // 剥离末段向风向产生 2–4px 极轻滑移，使剥离与起飞衔接连续。
+      const peelSlipX = tp * tp * width * 0.14;
+      const peelSlipY = -tp * tp * width * 0.06;
+
+      const px = x + peelSlipX + deltaX * moveX + flutterX;
+      const py = y + peelSlipY + deltaY * laneEase + liftArc + glideWave;
+
+      // 受风与形变强度：附着时随呼吸微风自然掀起、舒展与回落，剥离与飞行平滑衔接。
+      const liveAir = clamp(wind, 0, 2.0) * (1 - 0.62 * p * p);
+      const flightFlex = arc * (0.22 + 0.12 * Math.sin(Math.PI * 2.4 * f + paper.phase));
+      const bend = clamp(0.02 + (0.22 + paper.softness * 0.30) * liveAir + p * 0.34 + flightFlex, 0.02, 1.15);
+
+      // 绕顶部胶带附着点轻柔摇摆（常态约 3–6° 呼吸式摆动，风息时轻缓回落）。
+      const swingRad = -(0.068 + 0.064 * paper.softness) * (liveAir - 0.10) - p * 0.22;
+      const flightTilt = arc * (0.32 * Math.sin(Math.PI * 1.9 * f + paper.phase) - 0.15)
+        + f * paper.rollDir * 0.38;
+      const angle = paper.lean + swingRad + flightTilt + hover;
+
+      // 飞行中的柔和翻面与透视压缩：沿纸长加入柔性扭转（底部微滞后于顶部），
+      // 静态受风期附带轻度离墙鼓起（billow），增强纸片被微风轻托的呼吸感。
+      const roll = f * paper.rollTurns * paper.rollDir
+        + arc * 0.32 * Math.sin(Math.PI * 2 * f + paper.phase);
+      const twist = arc * 0.46 * paper.rollDir;
+      const midCos = Math.cos(roll - twist * 0.5);
+      const rawSin = Math.sin(roll - twist * 0.5);
+      const showingFront = midCos >= 0;
+      const topFront = Math.cos(roll) >= 0;
+      const botFront = Math.cos(roll - twist * 0.88) >= 0;
+      const absCos = Math.abs(midCos);
+      const billow = (0.044 + 0.052 * paper.softness) * Math.min(1.25, liveAir) * (1 - p * 0.5);
+      const pitchY = 1 - billow - p * 0.08 - arc * 0.14 * Math.abs(rawSin);
+
+      const left = -paper.anchor;
+      const right = 1 - paper.anchor;
+      const H = paper.ratio;
+      const shear = (0.115 * bend + arc * 0.045) * absCos * (showingFront ? 1 : -1);
+      const edgeBow = rawSin * (1 - absCos) * 0.12 * (arc > 0.01 ? 1 : 0);
+
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(angle);
+      ctx.scale(width, width * pitchY);
+
+      const xMap = (ux, uy) => {
+        const v = clamp01(uy / H);
+        const localCos = Math.cos(roll - twist * v);
+        return ux * localCos + uy * shear + edgeBow * Math.sin(Math.PI * v);
+      };
+      const faceLeft = xMap(left, 0), faceRight = xMap(right, 0);
+
+      const shape = paper.shape;
+      const sFold = clamp(paper.lip + bend * 0.24, 0.14, 0.48);
+      const rollLx = clamp(0.025 + bend * 0.18, 0.02, 0.26);
+      const rollLy = clamp(paper.lip * 0.58 + bend * 0.30, 0.06, 0.44);
+      const flatLx = bend * 0.085;
+      const flatLy = bend * 0.13;
+      const altFold = clamp(paper.lip + bend * 0.11, 0.11, 0.30);
+
+      // 1. 与局部纸张掀起一致的呼吸感贴墙微影（风息贴墙淡隐，风起轻扬柔和加深并微扩）。
+      if (f < 0.14 && showingFront) {
+        const wallFade = 1 - f / 0.14;
+        const shadowAlpha = (0.042 + 0.135 * bend) * wallFade;
+        ctx.fillStyle = "rgba(74, 64, 48, " + shadowAlpha.toFixed(4) + ")";
         ctx.beginPath();
-        const stretch = 1 + .085 * Math.max(0, Math.abs(flow) - 1);
-        ctx.ellipse(x, y, grain.radius * grain.stretch * stretch, grain.radius, 0, 0, Math.PI * 2);
+        if (shape === "fold") {
+          const sx1 = xMap(left + 0.02, H - sFold * 0.94);
+          const sy1 = H - sFold * 0.94;
+          const sx2 = xMap(left + sFold * 1.18 + bend * 0.18, H + 0.01);
+          const sxC = xMap(left + 0.02 + bend * 0.11, H + 0.032 + 0.115 * bend);
+          ctx.moveTo(sx1, sy1);
+          ctx.quadraticCurveTo(sxC, H + 0.040 + 0.125 * bend, sx2, H + 0.018 + 0.02 * bend);
+          ctx.lineTo(xMap(left + sFold * 0.55, H - sFold * 0.24), H - sFold * 0.24);
+          ctx.closePath();
+        } else if (shape === "roll") {
+          const rSpan = clamp(0.56 + bend * 0.20, 0.48, 0.84);
+          ctx.moveTo(xMap(left + 0.02, H - rollLy * 0.78), H - rollLy * 0.78);
+          ctx.quadraticCurveTo(
+            xMap(left + 0.08 + bend * 0.09, H + 0.040 + 0.125 * bend),
+            H + 0.040 + 0.125 * bend,
+            xMap(left + rSpan, H + 0.014 + 0.018 * bend), H + 0.014 + 0.018 * bend
+          );
+          ctx.lineTo(xMap(left + rSpan * 0.5, H - rollLy * 0.28), H - rollLy * 0.28);
+          ctx.closePath();
+        } else if (shape === "altFold") {
+          ctx.moveTo(xMap(left + 0.06, H - 0.02), H - 0.02);
+          ctx.quadraticCurveTo(
+            xMap(left + 0.45, H + 0.024 + 0.085 * bend),
+            H + 0.024 + 0.085 * bend,
+            xMap(right + 0.015, H + 0.028 + 0.075 * bend), H + 0.018 + 0.04 * bend
+          );
+          ctx.lineTo(xMap(right - 0.01, H - altFold * 0.88), H - altFold * 0.88);
+          ctx.lineTo(xMap(right - altFold * 0.45, H - altFold * 0.28), H - altFold * 0.28);
+          ctx.closePath();
+        } else {
+          ctx.moveTo(xMap(left + 0.02, H - 0.08 - bend * 0.06), H - 0.08 - bend * 0.06);
+          ctx.quadraticCurveTo(
+            xMap(left + 0.24 + bend * 0.06, H + 0.026 + 0.105 * bend),
+            H + 0.026 + 0.105 * bend,
+            xMap(right - 0.04, H + 0.010 + 0.015 * bend), H + 0.010 + 0.015 * bend
+          );
+          ctx.lineTo(xMap(right - 0.08, H - 0.03), H - 0.03);
+          ctx.closePath();
+        }
         ctx.fill();
       }
+
+      // 2. 纸身主体轮廓（完全不透明，保留扁平纸张轮廓与柔和风弯）。
+      const topBow = 0.012 * p + arc * 0.028 * rawSin;
+      const rightBowX = 0.026 * bend;
+      const leftBowX = -0.020 * bend;
+      ctx.fillStyle = showingFront ? paper.ink[0] : paper.ink[2];
+      ctx.beginPath();
+      ctx.moveTo(faceLeft, 0);
+      ctx.quadraticCurveTo(xMap(0, 0), topBow, faceRight, 0);
+
+      if (shape === "fold") {
+        const p1y = H - sFold * 1.04;
+        const p2x = left + sFold * 1.12;
+        ctx.quadraticCurveTo(xMap(right + rightBowX, H * 0.52), H * 0.52, xMap(right, H), H);
+        ctx.quadraticCurveTo(xMap(mix(right, p2x, 0.5), H), H + 0.01 * bend, xMap(p2x, H), H);
+        ctx.lineTo(xMap(left, p1y), p1y);
+        ctx.quadraticCurveTo(xMap(left + leftBowX, p1y * 0.52), p1y * 0.52, faceLeft, 0);
+      } else if (shape === "roll") {
+        const cx = left + rollLx;
+        const cy = H - rollLy;
+        ctx.quadraticCurveTo(xMap(right + rightBowX, H * 0.52), H * 0.52, xMap(right, H), H);
+        ctx.quadraticCurveTo(xMap(left + 0.54, H + 0.012 * bend), H + 0.012 * bend, xMap(cx, cy), cy);
+        ctx.quadraticCurveTo(xMap(left + leftBowX, cy * 0.55), cy * 0.55, faceLeft, 0);
+      } else if (shape === "altFold") {
+        const p1x = right - altFold * 1.06;
+        const p2y = H - altFold * 1.02;
+        ctx.quadraticCurveTo(xMap(right + rightBowX, p2y * 0.54), p2y * 0.54, xMap(right, p2y), p2y);
+        ctx.lineTo(xMap(p1x, H), H);
+        ctx.quadraticCurveTo(xMap(left + 0.35, H + 0.01 * bend), H + 0.01 * bend, xMap(left + flatLx, H - flatLy), H - flatLy);
+        ctx.quadraticCurveTo(xMap(left + leftBowX, H * 0.50), H * 0.50, faceLeft, 0);
+      } else {
+        ctx.quadraticCurveTo(xMap(right + rightBowX, H * 0.52), H * 0.52, xMap(right, H), H);
+        ctx.quadraticCurveTo(xMap(left + 0.48, H + 0.012 * bend), H + 0.012 * bend, xMap(left + flatLx, H - flatLy), H - flatLy);
+        ctx.quadraticCurveTo(xMap(left + leftBowX, H * 0.50), H * 0.50, faceLeft, 0);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+      // 3. 折角或卷曲底边的内侧翻折面（扁平明度区分，绝不添厚重阴影或渐变）。
+      if (shape === "fold") {
+        const p1y = H - sFold * 1.04;
+        const p2x = left + sFold * 1.12;
+        const tipX = left + sFold * (0.86 + bend * 0.34);
+        const tipY = H - sFold * (0.76 + bend * 0.28);
+        ctx.fillStyle = botFront ? paper.ink[1] : paper.ink[0];
+        ctx.beginPath();
+        ctx.moveTo(xMap(left, p1y), p1y);
+        ctx.quadraticCurveTo(
+          xMap(left + sFold * 0.56, p1y + sFold * 0.08), p1y + sFold * 0.08,
+          xMap(tipX, tipY), tipY
+        );
+        ctx.quadraticCurveTo(
+          xMap(p2x - sFold * 0.06, H - sFold * 0.44), H - sFold * 0.44,
+          xMap(p2x, H), H
+        );
+        ctx.closePath();
+        ctx.fill();
+      } else if (shape === "roll") {
+        const cx = left + rollLx;
+        const cy = H - rollLy;
+        const spanX = left + clamp(0.54 + bend * 0.18, 0.48, 0.78);
+        const lipThickness = clamp(0.055 + bend * 0.13, 0.05, 0.21);
+        ctx.fillStyle = botFront ? paper.ink[1] : paper.ink[0];
+        ctx.beginPath();
+        ctx.moveTo(xMap(cx, cy), cy);
+        ctx.quadraticCurveTo(
+          xMap(mix(cx, spanX, 0.46), cy + rollLy * 0.45 - lipThickness),
+          cy + rollLy * 0.45 - lipThickness,
+          xMap(spanX, H - 0.008), H - 0.008
+        );
+        ctx.quadraticCurveTo(
+          xMap(mix(cx, spanX, 0.42), H - rollLy * 0.26),
+          H - rollLy * 0.26,
+          xMap(cx, cy), cy
+        );
+        ctx.closePath();
+        ctx.fill();
+      } else if (shape === "altFold") {
+        const p1x = right - altFold * 1.06;
+        const p2y = H - altFold * 1.02;
+        const tipX = right - altFold * (0.82 + bend * 0.20);
+        const tipY = H - altFold * (0.76 + bend * 0.18);
+        ctx.fillStyle = botFront ? paper.ink[1] : paper.ink[0];
+        ctx.beginPath();
+        ctx.moveTo(xMap(right, p2y), p2y);
+        ctx.quadraticCurveTo(
+          xMap(right - altFold * 0.50, p2y + altFold * 0.08), p2y + altFold * 0.08,
+          xMap(tipX, tipY), tipY
+        );
+        ctx.quadraticCurveTo(
+          xMap(p1x + altFold * 0.06, H - altFold * 0.42), H - altFold * 0.42,
+          xMap(p1x, H), H
+        );
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // 4. 抽象手写笔迹（仅正面绘制，随纸身弯曲且在侧视边缘平滑淡隐）。
+      if (showingFront && absCos > 0.16 && paper.marks.length) {
+        ctx.strokeStyle = paper.ink[3];
+        ctx.lineWidth = Math.max(0.017, 0.72 / width);
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        for (const m of paper.marks) {
+          const my0 = m.y * H;
+          const liftBias = m.y * m.y * bend * 0.055;
+          const x0 = xMap(m.x + liftBias, my0);
+          const y0 = my0 - liftBias * 0.65;
+          const x1 = xMap(m.x + m.len + liftBias * 0.5, my0 + m.rise);
+          const y1 = my0 + m.rise - liftBias * 0.35;
+          const xc = xMap(m.x + m.len * 0.48 + liftBias * 0.75, my0 + m.rise * 0.45);
+          const yc = (y0 + y1) * 0.5 + m.arch - bend * 0.014;
+          ctx.moveTo(x0, y0);
+          ctx.quadraticCurveTo(xc, yc, x1, y1);
+        }
+        ctx.stroke();
+      }
+
+      // 5. 顶部哑光纸胶带：附着期稳固贴墙不随纸身摇摆（作为清晰视觉支点，放大纸片呼吸摇曳感），
+      // 剥离期自左端逐步掀起并平滑汇入纸身倾角，飞行期保持材质与身份一致。
+      const halfT = paper.tapeWidth * 0.5;
+      const tTop = -paper.tapeHeight * 0.56;
+      const tBot = paper.tapeHeight * 0.44;
+      const liftL = tp * (0.062 + paper.softness * 0.036);
+      const tapeAngle = paper.tapeTilt - swingRad * (1 - tp);
+      const cosT = Math.cos(tapeAngle), sinT = Math.sin(tapeAngle);
+      const tPt = (tx, ty) => {
+        const rx = tx * cosT - ty * sinT;
+        const ry = tx * sinT + ty * cosT;
+        return [xMap(rx, Math.max(0, ry) * tp), ry];
+      };
+
+      // 胶带附墙半段与叠纸半段用极克制的双段扁平色，呈现哑光和纸胶带质感。
+      const [tlx, tly] = tPt(-halfT + liftL * 0.34, tTop - liftL);
+      const [trx, try_] = tPt(halfT, tTop);
+      const [mrx, mry] = tPt(halfT - 0.006, 0);
+      const [mlx, mly] = tPt(-halfT + 0.005 + liftL * 0.30, -liftL * 0.72);
+      const [brx, bry] = tPt(halfT - 0.003, tBot);
+      const [blx, bly] = tPt(-halfT + 0.010 + liftL * 0.26, tBot - liftL * 0.55);
+
+      if (topFront) {
+        ctx.fillStyle = "#E3DDD0";
+        ctx.beginPath();
+        ctx.moveTo(tlx, tly); ctx.lineTo(trx, try_); ctx.lineTo(mrx, mry); ctx.lineTo(mlx, mly);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = "#D6CCBA";
+        ctx.beginPath();
+        ctx.moveTo(mlx, mly); ctx.lineTo(mrx, mry); ctx.lineTo(brx, bry); ctx.lineTo(blx, bly);
+        ctx.closePath();
+        ctx.fill();
+
+        if (liftL > 0.003 && f < 0.12) {
+          ctx.fillStyle = "rgba(92, 82, 65, " + (0.14 * (1 - f / 0.12)).toFixed(3) + ")";
+          ctx.beginPath();
+          ctx.moveTo(blx, bly);
+          ctx.lineTo(xMap(halfT * 0.15, tBot), tBot);
+          ctx.lineTo(xMap(-halfT + 0.01, tBot), tBot + 0.008);
+          ctx.closePath();
+          ctx.fill();
+        }
+      } else {
+        // 背面翻面时仅在纸身顶部外缘可见胶带探出的一截，保持物体连续性。
+        ctx.fillStyle = "#DFD8CA";
+        ctx.beginPath();
+        ctx.moveTo(tlx, tly); ctx.lineTo(trx, try_); ctx.lineTo(mrx, mry); ctx.lineTo(mlx, mly);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      ctx.restore();
     }
-    return { resize, paint };
+
+    const mounts = createPaperMounts();
+    let width = 0, height = 0, scale = 0, mounted = [];
+    let secondsOnWall = 0, clean = true;
+
+    // 单一可逆时间轴：
+    // cursor 为当前回放指针；frontier 为已探索的最远时间；work 为在 frontier 处累积的有效剥离功；
+    // glides 记录脱落便签自主滑出视口时消耗的“无新增剥离功”时段，确保任意时刻正反向回溯完全一致、零误差。
+    let cursor = 0, goal = 0, frontier = 0, work = 0, direction = 0;
+    const glides = [];
+
+    function workAt(t) {
+      let driven = t;
+      for (const gap of glides) {
+        if (t <= gap.from) break;
+        driven -= Math.min(t, gap.to) - gap.from;
+      }
+      return Math.max(0, driven);
+    }
+
+    function activeGlideEnd(atTime) {
+      let end = 0;
+      for (const p of papers) {
+        if (Number.isFinite(p.launchT) && p.launchT <= atTime + 0.0001) {
+          end = Math.max(end, p.launchT + p.flightSpan);
+        }
+      }
+      return end;
+    }
+
+    function lastVisibleDetach() {
+      let maxD = 0;
+      for (let i = 0; i < papers.length; i++) {
+        if (!mounted.length || mounted[i]?.visible) {
+          maxD = Math.max(maxD, papers[i].peelStart + papers[i].peelSpan);
+        }
+      }
+      return maxD || Math.max(...papers.map(p => p.peelStart + p.peelSpan));
+    }
+
+    function findGlideContaining(t) {
+      for (const gap of glides) {
+        if (t >= gap.from - 0.0001 && t < gap.to - 0.0001) return gap;
+      }
+      return null;
+    }
+
+    function turn(delta, speed) {
+      if (!delta) return;
+      const sign = Math.sign(delta);
+      // 任意时刻改变拨动方向：立刻以当前视觉进度连续转向，无跳变或重置。
+      if (sign !== direction) {
+        goal = cursor;
+        direction = sign;
+      }
+
+      if (delta < 0) {
+        // 逆时针回溯：回拨速度与角度幅度共同决定回溯进度，不施加反向风力。
+        if (goal <= 0) return;
+        const ccwSpeed = Math.abs(speed);
+        const speedBoost = 0.72 + 1.15 * smooth((ccwSpeed - 25) / 235);
+        const inGlide = glides.some(g => goal > g.from && goal <= g.to);
+        const glideBoost = inGlide ? 1.55 : 1.0;
+        goal = Math.max(0, goal + delta * speedBoost * glideBoost);
+        return;
+      }
+
+      // 顺时针推进：慢速拨动仅引起受风形变，达到有效速度阈值后按附着强度逐张剥离。
+      const cwSpeed = Math.max(0, speed);
+      const gain = smooth((cwSpeed - 65) / 95);
+      const retraceAvail = Math.max(0, frontier - goal);
+      const retraceBoost = 0.65 + 0.95 * gain;
+      const retraceStep = Math.min(retraceAvail, delta * retraceBoost);
+      const remainDelta = Math.max(0, delta - retraceStep / retraceBoost);
+
+      const maxWork = lastVisibleDetach();
+      const maxNewWork = Math.max(0, maxWork + 0.05 - work);
+      const newStep = Math.min(maxNewWork, remainDelta * gain);
+      const hardCap = work >= maxWork - 0.0005
+        ? Math.max(frontier, activeGlideEnd(frontier))
+        : frontier + maxNewWork;
+      goal = Math.min(hardCap, goal + retraceStep + newStep);
+    }
+
+    function advance(dt) {
+      const distance = goal - cursor;
+      const drift = 96; // 脱落便签在风中自然滑行的基准时间轴速度（单位/秒）
+      let coastTime = dt;
+
+      if (Math.abs(distance) > 0.0001) {
+        const atFrontier = cursor >= frontier - 0.0001;
+        const glideGap = direction > 0 && !atFrontier ? findGlideContaining(cursor) : null;
+        const canGlide = direction > 0 && (
+          (atFrontier && activeGlideEnd(frontier) > frontier) || Boolean(glideGap)
+        );
+        const followRate = Math.abs(distance) * -Math.expm1(-dt / 0.058);
+        const step = Math.min(Math.abs(distance), dt * 360,
+          Math.max(canGlide ? drift * dt : 0.04, followRate));
+        coastTime = canGlide ? Math.max(0, dt - step / drift) : 0;
+        cursor += Math.sign(distance) * step;
+
+        if (cursor > frontier) {
+          const nextW = work + (cursor - frontier);
+          for (const p of papers) {
+            const detach = p.peelStart + p.peelSpan;
+            if (!Number.isFinite(p.launchT) && nextW >= detach - 0.0005) {
+              p.launchT = frontier + Math.max(0, detach - work);
+            }
+          }
+          work = nextW;
+          frontier = cursor;
+          const maxWork = lastVisibleDetach();
+          if (work >= maxWork - 0.0005) {
+            const end = Math.max(frontier, activeGlideEnd(frontier));
+            goal = Math.min(goal, end);
+            cursor = frontier = Math.min(frontier, end);
+          }
+        }
+
+        // 完全回溯至起点时清理历史轨迹，所有便签精确归位且无累计误差。
+        if (cursor < 0.0001 && goal === 0) {
+          cursor = goal = frontier = work = 0;
+          glides.length = 0;
+          for (const p of papers) p.launchT = Infinity;
+        }
+      }
+
+      // 已脱落但尚未离开视口的便签在顺时针松手后继续轻盈滑出，不会触发未脱落便签自行剥离。
+      if (coastTime > 0 && direction > 0 && Math.abs(goal - cursor) < 0.0005) {
+        if (cursor >= frontier - 0.0001) {
+          const end = activeGlideEnd(frontier);
+          if (end <= frontier + 0.0001) return;
+          const next = Math.min(end, frontier + coastTime * drift);
+          const lastGap = glides[glides.length - 1];
+          if (lastGap && Math.abs(lastGap.to - frontier) < 0.0005) lastGap.to = next;
+          else glides.push({ from: frontier, to: next });
+          cursor = goal = frontier = next;
+        } else {
+          // 若在历史滑行段中重新顺推后松手，仅滑行至当前已记录滑行段末端，绝不越界触发新剥离。
+          const gap = findGlideContaining(cursor);
+          if (gap) {
+            const targetEnd = Math.min(gap.to, activeGlideEnd(cursor));
+            if (targetEnd > cursor + 0.0001) {
+              const next = Math.min(targetEnd, cursor + coastTime * drift);
+              cursor = goal = next;
+            }
+          }
+        }
+      }
+    }
+
+    function resize(measureHome) {
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      if (!w || !h) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      if (w !== width || h !== height || dpr !== scale) {
+        width = w;
+        height = h;
+        scale = dpr;
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        ctx.setTransform(canvas.width / w, 0, 0, canvas.height / h, 0, 0);
+        clean = true;
+      }
+      if (!measureHome) return;
+      mounted = mounts.layout(w, h);
+    }
+
+    function paint(dt, speed) {
+      if (Math.min(window.devicePixelRatio || 1, 2.5) !== scale) resize(false);
+      if (!width || !height) return;
+      const stepDt = Math.min(0.05, Math.max(0, dt));
+      if (stepDt > 0) advance(stepDt);
+      secondsOnWall += stepDt;
+
+      const driven = cursor >= frontier - 0.0001 ? work : workAt(cursor);
+      // 仅顺时针拨动叠加正向强风压力；逆时针仅驱动时间回溯，不制造反向风力。
+      const targetPressure = speed > 0 ? Math.tanh(speed / 195) : 0;
+
+      if (!clean) ctx.clearRect(0, 0, width, height);
+      clean = true;
+
+      for (let i = 0; i < mounted.length; i++) {
+        const mount = mounted[i];
+        const paper = papers[i];
+        if (!mount || !mount.visible) continue;
+
+        if (stepDt > 0) {
+          const pResp = -Math.expm1(-stepDt / (0.075 + paper.delay * 0.16));
+          paper.pressure += (targetPressure - paper.pressure) * pResp;
+
+          // 二阶柔和欠阻尼响应：模拟轻质纸片悬挂在胶带下的柔韧摆动与自然余韵。
+          const targetWind = ambientWind(secondsOnWall, mount.x / width, mount.y / height, paper)
+            + paper.pressure * (1.22 - 0.26 * paper.adhesion);
+          const omega = 4.3 + paper.softness * 2.5;
+          const zeta = 0.54 + (1 - paper.softness) * 0.18;
+          const acc = omega * omega * (targetWind - paper.gust) - 2 * zeta * omega * paper.gustVel;
+          paper.gustVel += acc * stepDt;
+          paper.gust = clamp(paper.gust + paper.gustVel * stepDt, 0, 2.05);
+        }
+
+        if (Number.isFinite(paper.launchT) && cursor >= paper.launchT + paper.flightSpan) continue;
+
+        const peel = clamp01((driven - paper.peelStart) / paper.peelSpan);
+        const flight = Number.isFinite(paper.launchT)
+          ? clamp01((cursor - paper.launchT) / paper.flightSpan)
+          : 0;
+        // 若在回溯途中暂停于空中，保留极微弱空气悬浮感，不改变其精确轨迹位置。
+        const hover = flight > 0 && Math.abs(goal - cursor) < 0.001
+          ? Math.sin(secondsOnWall * 1.4 + paper.phase) * 0.012
+          : 0;
+
+        drawPaper(ctx, paper, {
+          x: mount.x - scrollX,
+          y: mount.y - scrollY,
+          width: mount.width,
+          wind: paper.gust,
+          peel,
+          flight,
+          deltaX: width + mount.width * 2.1 - mount.x,
+          deltaY: mount.deltaY,
+          hover
+        });
+        clean = false;
+      }
+    }
+
+    return { resize, paint, turn };
   }
 
   function createHomeAtmosphere(svg, canvas, toggle) {
     const wheel = svg.parentElement;
     const grip = wheel.querySelector("#minuteGrip"), axis = grip.parentElement;
     const second = svg.querySelector("#secondHand");
-    const dust = createHomeDust(canvas);
+    const wall = createHomeNoteWall(canvas);
     const forcedColors = matchMedia("(forced-colors: active)");
     const preference = "truth-wheel/home-motion/v1";
-    const dustInterval = 1000 / 30, gearStep = 3;
+    const gearStep = 3;
     const calibrationMs = 336;
     let home = false, pageHidden = false, frame = 0, timer = 0;
+    let isNight = document.documentElement.dataset.theme === "night";
+    let notesHideTimer = 0;
     let flight = null, drag = null, offset = 0;
     let calibration = null, touchStart = null, lastTap = null;
     let gearEpoch = null, gearOrigin = 0, dialGear = 0;
     let lastSecond = null, lastWall = 0, lastFrame = 0, ticking = false;
-    let lastPaint = 0, nextPaint = 0, flow = 1, light = 0;
+    let lastPaint = 0, light = 0;
     let shownSecond = null, shownMinute = null;
     try { toggle.checked = localStorage.getItem(preference) !== "off"; } catch { /* 当页仍可切换。 */ }
 
@@ -4918,31 +6530,77 @@ const JudgeInterface = (() => {
     }
     function fade(value) {
       light = value;
-      second.style.opacity = canvas.style.opacity = String(value);
+      second.style.opacity = String(value);
+      if (!isNight) canvas.style.opacity = String(value);
     }
-    function resizeDust() {
-      if (!canvas.hidden) { dust.resize(); dust.paint(0, flow); }
+    function resizeWall() {
+      if (canvas.hidden) return;
+      // Read the home dial before its first transfer transform or once it settles.
+      wall.resize(home && !flight?.visibleBox);
+      wall.paint(0, 0);
     }
-    const observer = dust && window.ResizeObserver ? new ResizeObserver(resizeDust) : null;
+    const observer = wall && window.ResizeObserver ? new ResizeObserver(resizeWall) : null;
     function layers() {
+      clearTimeout(notesHideTimer);
+      notesHideTimer = 0;
       const visible = (home || flight) && !document.hidden && !pageHidden;
       document.body.toggleAttribute("data-clock-ready", Boolean(visible));
-      canvas.hidden = !(visible && dust && toggle.checked && !REDUCED_MOTION.matches && !forcedColors.matches);
+      canvas.hidden = !(visible && wall && toggle.checked && !isNight && !REDUCED_MOTION.matches && !forcedColors.matches);
       if (canvas.hidden) observer?.disconnect();
-      else { resizeDust(); observer?.observe(canvas); }
-    }
-    function paintDust(stamp) {
-      if (canvas.hidden || light === 0 || stamp < nextPaint) return;
-      const dt = Math.min(.2, Math.max(0, stamp - lastPaint) / 1000);
-      lastPaint = stamp;
-      nextPaint += (Math.floor((stamp - nextPaint) / dustInterval) + 1) * dustInterval;
-      let target = 1;
-      if (drag) {
-        const v = drag.speed * Math.exp(-Math.max(0, stamp - drag.lastMove - 36) / 65);
-        target = Math.sign(v) * Math.min(9, 1 - Math.exp(-Math.abs(v) / 12) + Math.abs(v) / 60);
+      else {
+        canvas.style.opacity = String(light);
+        resizeWall();
+        observer?.observe(canvas);
+        if (home) observer?.observe(el.setupView);
       }
-      flow += (target - flow) * (1 - Math.exp(-dt / .13));
-      dust.paint(dt, flow);
+    }
+    function setTheme(nextIsNight, immediate = false) {
+      const target = Boolean(nextIsNight);
+      if (target === isNight && !notesHideTimer) return;
+      isNight = target;
+      clearTimeout(notesHideTimer);
+      notesHideTimer = 0;
+      const visible = (home || flight) && !document.hidden && !pageHidden;
+      const eligible = Boolean(visible && wall && toggle.checked && !REDUCED_MOTION.matches && !forcedColors.matches);
+      if (!eligible) {
+        canvas.hidden = true;
+        observer?.disconnect();
+        return;
+      }
+      if (isNight) {
+        if (immediate) {
+          canvas.hidden = true;
+          observer?.disconnect();
+        } else {
+          canvas.style.opacity = "0";
+          notesHideTimer = setTimeout(() => {
+            notesHideTimer = 0;
+            if (isNight) {
+              canvas.hidden = true;
+              observer?.disconnect();
+            }
+          }, 400);
+        }
+      } else {
+        canvas.hidden = false;
+        resizeWall();
+        observer?.observe(canvas);
+        if (home) observer?.observe(el.setupView);
+        if (immediate) {
+          canvas.style.opacity = String(light);
+        } else {
+          canvas.style.opacity = "0";
+          void canvas.offsetWidth;
+          canvas.style.opacity = String(light);
+        }
+      }
+    }
+    function paintWall(stamp) {
+      if (isNight || canvas.hidden || light === 0) return;
+      const dt = Math.min(.05, Math.max(0, stamp - lastPaint) / 1000);
+      lastPaint = stamp;
+      const speed = drag ? drag.speed * Math.exp(-Math.max(0, stamp - drag.lastMove - 36) / 65) : 0;
+      wall.paint(dt, speed);
     }
     function stopLoop() {
       cancelAnimationFrame(frame); clearTimeout(timer);
@@ -4960,7 +6618,6 @@ const JudgeInterface = (() => {
       if ((!home && !flight) || pageHidden || document.hidden) return;
       const stamp = performance.now();
       lastPaint = stamp;
-      nextPaint = stamp + dustInterval;
       if (!flight) {
         fade(1);
         const delay = paintHome(stamp, true);
@@ -4975,7 +6632,7 @@ const JudgeInterface = (() => {
         if (p >= 1) { finishTransfer(); return; }
         paintTransfer(p, stamp);
       } else paintHome(stamp, false);
-      paintDust(stamp);
+      paintWall(stamp);
       frame = requestAnimationFrame(drawFrame);
     }
 
@@ -5053,6 +6710,7 @@ const JudgeInterface = (() => {
         const dt = Math.max(4, Math.min(160, e.timeStamp - drag.lastMove));
         turnDial(delta);
         drag.speed += (delta * 1000 / dt - drag.speed) * (1 - Math.exp(-dt / 32));
+        if (!canvas.hidden) wall.turn(delta, drag.speed);
       }
       drag.angle = angle;
       drag.lastMove = e.timeStamp;
@@ -5074,6 +6732,7 @@ const JudgeInterface = (() => {
       if (!Number.isFinite(delta)) return;
       e.preventDefault();
       turnDial(delta);
+      if (!canvas.hidden && Object.hasOwn(steps, e.key)) wall.turn(delta, Math.sign(delta) * 180);
     });
 
     function homeControl() {
@@ -5081,7 +6740,7 @@ const JudgeInterface = (() => {
         wheel.disabled = !!flight;
         wheel.setAttribute("role","slider");
         wheel.setAttribute("aria-label","拨动分针");
-        wheel.title = "拖动分针，双击表盘重置钟表";
+        wheel.removeAttribute("title");
         wheel.setAttribute("aria-valuemin","0");
         wheel.setAttribute("aria-valuemax","719");
         wheel.removeAttribute("aria-pressed");
@@ -5180,14 +6839,15 @@ const JudgeInterface = (() => {
       if (event.key !== preference && event.key !== null) return;
       toggle.checked = event.key === null || event.newValue !== "off"; refresh();
     });
-    window.addEventListener("resize", () => { release(); resizeDust(); });
+    window.addEventListener("resize", () => { release(); resizeWall(); });
+    window.addEventListener("scroll", () => { if (!canvas.hidden && light > 0) wall.paint(0, 0); }, { passive: true });
     window.addEventListener("blur", release);
     window.addEventListener("pagehide", () => { pageHidden = true; release(); refresh(); });
     window.addEventListener("pageshow", () => { pageHidden = false; refresh(); });
     document.addEventListener("visibilitychange", () => { if (document.hidden) release(); refresh(); });
     REDUCED_MOTION.addEventListener("change", refresh);
     forcedColors.addEventListener("change", refresh);
-    return { setHome, transfer, get transferring() { return !!flight; } };
+    return { setHome, transfer, setTheme, get transferring() { return !!flight; } };
   }
 
   function createClock(svg, memoryTrack) {
@@ -5926,8 +7586,128 @@ const JudgeInterface = (() => {
     el.startBtn.focus({ preventScroll: true });
   }
 
+  function initTheme() {
+    const THEME_KEY = "truth-wheel/theme/v1";
+    const root = document.documentElement;
+    const schemeMeta = document.querySelector('meta[name="color-scheme"]');
+    const toggles = [...document.querySelectorAll("[data-theme-toggle]")];
+    const easterEgg = document.getElementById("brandThemeTrigger");
+    let transitionTimer = 0;
+    let activeRipple = null;
+
+    const readCurrent = () => (root.dataset.theme === "night" ? "night" : "day");
+    const syncControls = (theme) => {
+      const night = theme === "night";
+      if (schemeMeta) schemeMeta.setAttribute("content", night ? "dark" : "light");
+      for (const button of toggles) button.setAttribute("aria-checked", String(night));
+    };
+
+    function applyDOM(theme, { immediateCanvas = false, persist = true } = {}) {
+      if (theme === "night") root.dataset.theme = "night";
+      else delete root.dataset.theme;
+      syncControls(theme);
+      if (persist) {
+        try { localStorage.setItem(THEME_KEY, theme); } catch { /* 当页仍可切换。 */ }
+      }
+      homeAtmosphere.setTheme(theme === "night", immediateCanvas);
+      document.dispatchEvent(new CustomEvent("themechange", {
+        detail: { theme, immediate: immediateCanvas }
+      }));
+    }
+
+    function switchWithEasing(next, persist = true) {
+      if (activeRipple) {
+        try { activeRipple.skipTransition(); } catch {}
+        activeRipple = null;
+        root.removeAttribute("data-theme-ripple");
+      }
+      clearTimeout(transitionTimer);
+      const reduced = REDUCED_MOTION.matches;
+      if (!reduced) {
+        root.setAttribute("data-theme-transition", "");
+        transitionTimer = setTimeout(() => {
+          transitionTimer = 0;
+          root.removeAttribute("data-theme-transition");
+        }, 420);
+      } else {
+        root.removeAttribute("data-theme-transition");
+      }
+      applyDOM(next, { immediateCanvas: reduced, persist });
+    }
+
+    function switchWithRipple(next) {
+      if (REDUCED_MOTION.matches || typeof document.startViewTransition !== "function" ||
+          homeAtmosphere.transferring || document.querySelector("dialog[open]") || !easterEgg) {
+        switchWithEasing(next, true);
+        return;
+      }
+      clearTimeout(transitionTimer);
+      transitionTimer = 0;
+      root.removeAttribute("data-theme-transition");
+      if (activeRipple) {
+        try { activeRipple.skipTransition(); } catch {}
+        activeRipple = null;
+      }
+      const rect = easterEgg.getBoundingClientRect();
+      const cx = rect.width ? rect.left + rect.width / 2 : 36;
+      const cy = rect.height ? rect.top + rect.height / 2 : 36;
+      const maxR = Math.hypot(
+        Math.max(cx, window.innerWidth - cx),
+        Math.max(cy, window.innerHeight - cy)
+      );
+      root.setAttribute("data-theme-ripple", "");
+      let transition;
+      try {
+        transition = document.startViewTransition(() => {
+          applyDOM(next, { immediateCanvas: true, persist: true });
+        });
+      } catch {
+        root.removeAttribute("data-theme-ripple");
+        switchWithEasing(next, true);
+        return;
+      }
+      activeRipple = transition;
+      transition.ready.then(() => {
+        if (activeRipple !== transition) return;
+        root.animate(
+          { clipPath: [`circle(0px at ${cx}px ${cy}px)`, `circle(${maxR}px at ${cx}px ${cy}px)`] },
+          { duration: 520, easing: "cubic-bezier(.22, .61, .36, 1)", pseudoElement: "::view-transition-new(root)" }
+        );
+      }).catch(() => {});
+      transition.finished.finally(() => {
+        if (activeRipple === transition) {
+          activeRipple = null;
+          root.removeAttribute("data-theme-ripple");
+        }
+      });
+    }
+
+    for (const button of toggles) {
+      button.addEventListener("click", () => {
+        const next = readCurrent() === "night" ? "day" : "night";
+        switchWithEasing(next, true);
+      });
+    }
+
+    if (easterEgg) {
+      easterEgg.addEventListener("click", () => {
+        const next = readCurrent() === "night" ? "day" : "night";
+        switchWithRipple(next);
+      });
+    }
+
+    window.addEventListener("storage", (event) => {
+      if (event.key !== THEME_KEY && event.key !== null) return;
+      const stored = event.key === null ? "day" : (event.newValue === "night" ? "night" : "day");
+      if (stored !== readCurrent()) switchWithEasing(stored, false);
+    });
+
+    syncControls(readCurrent());
+  }
+
   initFilters();
   initMobileMenus();
+  initTheme();
   const questionOverflow = new ResizeObserver(() => {
     if (el.questionCopy.scrollHeight > el.questionCopy.clientHeight) el.questionCopy.tabIndex = 0;
     else el.questionCopy.removeAttribute("tabindex");
@@ -6003,12 +7783,13 @@ const JudgeInterface = (() => {
   const systemScrollbars = matchMedia("(forced-colors: active)");
   function showScrollbar(scroller, active) {
     const previous = getComputedStyle(scroller).scrollbarColor;
+    const thumb = getComputedStyle(document.documentElement).getPropertyValue("--scrollbar-thumb").trim() || "#81827b";
     scrollbarFades.get(scroller)?.cancel();
     scroller.toggleAttribute("data-scroll-active", active);
     if (!REDUCED_MOTION.matches && !systemScrollbars.matches) {
       const fade = scroller.animate([
         { scrollbarColor: previous },
-        { scrollbarColor: active ? "#81827b transparent" : "transparent transparent" }
+        { scrollbarColor: active ? `${thumb} transparent` : "transparent transparent" }
       ], { duration: active ? 144 : 264, easing: "ease-out" });
       scrollbarFades.set(scroller, fade);
     }
