@@ -5,14 +5,98 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>TIME真心话 · 大转盘</title>
+<!-- head-assets:start -->
+<meta name="theme-color" content="#F2EFE6">
+<meta name="description" content="按主题和场景抽题，点表盘开启时间回溯">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TIME真心话">
+<meta property="og:title" content="TIME真心话">
+<meta property="og:description" content="按主题和场景抽题，点表盘开启时间回溯">
+<meta property="og:url" content="https://songshutanzhang.github.io/fun/truth-or-dare/">
+<meta property="og:image" content="https://songshutanzhang.github.io/fun/truth-or-dare/icon-day-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TIME真心话">
+<meta name="twitter:description" content="按主题和场景抽题，点表盘开启时间回溯">
+<meta name="twitter:image" content="https://songshutanzhang.github.io/fun/truth-or-dare/icon-day-512.png">
+<link rel="icon" type="image/png" sizes="180x180" href="./icon-day-180.png" data-theme-icon="png">
+<link rel="icon" type="image/png" sizes="512x512" href="./icon-day-512.png" data-theme-icon="png512">
+<link rel="icon" type="image/svg+xml" href="./icon-day.svg" data-theme-icon="svg">
+<link rel="shortcut icon" href="./icon-day-180.png" data-theme-icon="shortcut">
+<link rel="apple-touch-icon" sizes="180x180" href="./icon-day-180.png" data-theme-icon="apple">
+<script>
+window.__themeIconAssets = {
+  day: {
+    color: "#F2EFE6",
+    png: "./icon-day-180.png",
+    png512: "./icon-day-512.png",
+    svg: "./icon-day.svg",
+    og: "https://songshutanzhang.github.io/fun/truth-or-dare/icon-day-512.png"
+  },
+  night: {
+    color: "#17181B",
+    png: "./icon-night-180.png",
+    png512: "./icon-night-512.png",
+    svg: "./icon-night.svg",
+    og: "https://songshutanzhang.github.io/fun/truth-or-dare/icon-night-512.png"
+  }
+};
+</script>
+<!-- head-assets:end -->
 <script>
 (() => {
-  try {
-    if (localStorage.getItem("truth-wheel/theme/v1") === "night") {
-      document.documentElement.dataset.theme = "night";
-      const scheme = document.querySelector('meta[name="color-scheme"]');
-      if (scheme) scheme.setAttribute("content", "dark");
+  window.__syncThemeMeta = (theme) => {
+    const night = theme === "night";
+    const assets = window.__themeIconAssets?.[night ? "night" : "day"];
+    const scheme = document.querySelector('meta[name="color-scheme"]');
+    if (scheme) scheme.setAttribute("content", night ? "dark" : "light");
+    if (!assets) return;
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) themeColor.setAttribute("content", assets.color);
+    if (assets.og) {
+      for (const sel of ['meta[property="og:image"]', 'meta[name="twitter:image"]']) {
+        const tag = document.querySelector(sel);
+        if (tag) tag.setAttribute("content", assets.og);
+      }
     }
+    const head = document.head;
+    if (!head) return;
+    for (const old of head.querySelectorAll("link[data-theme-icon]")) old.remove();
+    const specs = [];
+    if (assets.png) {
+      specs.push({ rel: "icon", type: "image/png", sizes: "180x180", href: assets.png, kind: "png" });
+      specs.push({ rel: "shortcut icon", href: assets.png, kind: "shortcut" });
+      specs.push({ rel: "apple-touch-icon", sizes: "180x180", href: assets.png, kind: "apple" });
+    }
+    if (assets.png512) {
+      specs.push({ rel: "icon", type: "image/png", sizes: "512x512", href: assets.png512, kind: "png512" });
+    }
+    if (assets.svg) {
+      specs.push({ rel: "icon", type: "image/svg+xml", href: assets.svg, kind: "svg" });
+    }
+    for (const spec of specs) {
+      const link = document.createElement("link");
+      link.rel = spec.rel;
+      if (spec.type) link.type = spec.type;
+      if (spec.sizes) link.sizes = spec.sizes;
+      link.href = spec.href;
+      link.dataset.themeIcon = spec.kind;
+      head.appendChild(link);
+    }
+  };
+  try {
+    const queryTheme = new URLSearchParams(location.search).get("theme");
+    let theme = "day";
+    if (queryTheme === "night" || queryTheme === "day") {
+      theme = queryTheme;
+      try { localStorage.setItem("truth-wheel/theme/v1", theme); } catch {}
+    } else if (localStorage.getItem("truth-wheel/theme/v1") === "night") {
+      theme = "night";
+    }
+    if (theme === "night") document.documentElement.dataset.theme = "night";
+    else delete document.documentElement.dataset.theme;
+    window.__syncThemeMeta(theme);
   } catch {}
 })();
 </script>
@@ -183,8 +267,8 @@
   :root[data-theme="night"] {
     color-scheme: dark;
 
-    /* Theme Tokens — Night Edition (Neutral Charcoal × Antique Brass v3) */
-    --paper: #1C1D20;
+    /* Theme Tokens — Night Edition (Baked Calibration v8) */
+    --paper: #17181B;
     --paper-bright: #25262A;
     --input-bg: #202126;
     --ink: #E8DFD0;
@@ -237,14 +321,14 @@
     --theme-switch-active-icon: #1C1D20;
     --theme-switch-idle-icon: #A6A6A8;
 
-    /* Component Tokens — Mechanical Dial (Night Edition: Baked Calibration v7) */
-    --clock-face: #232325;
+    /* Component Tokens — Mechanical Dial (Night Edition: Baked Calibration v8) */
+    --clock-face: #1D1E21;
     --clock-rim: #76726C;
     --clock-hairline: #77746F;
     --clock-hairline-opacity: 0.34;
     --clock-track-base: #282826;
     --clock-wash: #373633;
-    --clock-tick: #837F74;
+    --clock-tick: #7D7B74;
     --clock-tick-major: #BAB3A5;
     --clock-brass: #987E56;
     --clock-orbit: #937D56;
@@ -254,7 +338,7 @@
     --clock-numeral-stroke: #48463F;
     --clock-engraving: #AB9D81;
     --clock-engraving-fine: #685D47;
-    --clock-engraving-mark: #B59A6C;
+    --clock-engraving-mark: #947A4C;
     --clock-plate-0: #40403F;
     --clock-plate-1: #302F2D;
     --clock-plate-2: #252523;
@@ -517,6 +601,8 @@
   .reset-btn:is(:hover, :active) { color: var(--accent-dark); }
   .reset-btn:hover::after { transform: scaleX(0); }
   a.reset-btn { text-decoration: none; }
+  .share-btn { white-space: nowrap; }
+  .share-btn[data-copied] { color: var(--accent-dark); }
   body[data-view="game"] .fun-return { display: none; }
   #homeTitle { text-align: center; }
 
@@ -751,7 +837,7 @@
     margin: 0;
     text-align: center;
     font-family: var(--serif);
-    font-size: clamp(64px, 6.1vw, 98px);
+    font-size: clamp(58px, 5.35vw, 88px);
     font-weight: 500;
     line-height: 1;
     letter-spacing: .028em;
@@ -2830,6 +2916,8 @@
       <button class="ghost-btn judge-entry" id="judgeEntry" type="button" aria-controls="judgeInline" aria-expanded="false" hidden>
         <span class="judge-avatar" data-judge-avatar aria-hidden="true"></span><span>设置</span>
       </button>
+      <button class="reset-btn share-btn" id="shareBtn" type="button">分享</button>
+      <span class="sr-only" id="shareStatus" role="status" aria-live="polite"></span>
       <a class="reset-btn fun-return" href="/fun/">返回FUN</a>
       <button class="reset-btn" id="homeBtn" type="button" aria-haspopup="dialog" aria-controls="homeChoices" hidden>回到主页</button>
     </div>
@@ -7611,6 +7699,7 @@ const JudgeInterface = (() => {
     const syncControls = (theme) => {
       const night = theme === "night";
       if (schemeMeta) schemeMeta.setAttribute("content", night ? "dark" : "light");
+      window.__syncThemeMeta?.(theme);
       for (const button of toggles) button.setAttribute("aria-checked", String(night));
     };
 
@@ -7715,6 +7804,13 @@ const JudgeInterface = (() => {
     });
 
     syncControls(readCurrent());
+    try {
+      const url = new URL(location.href);
+      if (url.searchParams.has("theme")) {
+        url.searchParams.delete("theme");
+        history.replaceState(null, "", url.pathname + url.search + url.hash);
+      }
+    } catch {}
   }
 
   initFilters();
@@ -7843,6 +7939,82 @@ const JudgeInterface = (() => {
   });
   window.addEventListener("storage", (event) => {
     if (event.key === SAVED_ROUND_KEY || event.key === null) updateSavedRound();
+  });
+})();
+</script>
+<script id="publicShareScript">
+(() => {
+  const shareBtn = document.getElementById("shareBtn");
+  const shareStatus = document.getElementById("shareStatus");
+  if (!shareBtn) return;
+
+  let feedbackTimer = 0;
+
+  function isMobileShareTarget() {
+    const coarse = matchMedia("(pointer: coarse)").matches;
+    const narrow = matchMedia("(max-width: 980px)").matches;
+    const mobileUA = navigator.userAgentData?.mobile === true ||
+      /Android|iPhone|iPad|iPod|Mobile|HarmonyOS/i.test(navigator.userAgent);
+    return mobileUA || (coarse && narrow);
+  }
+
+  function currentSharePayload() {
+    const night = document.documentElement.dataset.theme === "night";
+    window.__syncThemeMeta?.(night ? "night" : "day");
+    const rel = night ? "./night/" : "./";
+    const url = /^https?:$/i.test(location.protocol)
+      ? new URL(rel, location.href).href
+      : (night ? "https://songshutanzhang.github.io/fun/truth-or-dare/night/" : "https://songshutanzhang.github.io/fun/truth-or-dare/");
+    return {
+      title: "TIME真心话",
+      text: "按主题和场景抽题，点表盘开启时间回溯",
+      url
+    };
+  }
+
+  async function copyLink(url) {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(url);
+        return true;
+      } catch {}
+    }
+    const field = document.createElement("textarea");
+    field.value = url;
+    field.setAttribute("readonly", "");
+    field.style.cssText = "position:fixed;top:0;left:-9999px;opacity:0;";
+    document.body.appendChild(field);
+    field.select();
+    field.setSelectionRange(0, url.length);
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch {}
+    field.remove();
+    return ok;
+  }
+
+  function flashFeedback(label) {
+    clearTimeout(feedbackTimer);
+    shareBtn.textContent = label;
+    shareBtn.dataset.copied = "true";
+    if (shareStatus) shareStatus.textContent = label;
+    feedbackTimer = setTimeout(() => {
+      shareBtn.textContent = "分享";
+      delete shareBtn.dataset.copied;
+    }, 1800);
+  }
+
+  shareBtn.addEventListener("click", async () => {
+    const payload = currentSharePayload();
+    if (isMobileShareTarget() && typeof navigator.share === "function") {
+      try {
+        await navigator.share(payload);
+        return;
+      } catch (error) {
+        if (error?.name === "AbortError") return;
+      }
+    }
+    const copied = await copyLink(payload.url);
+    flashFeedback(copied ? "已复制链接" : "复制失败");
   });
 })();
 </script>
