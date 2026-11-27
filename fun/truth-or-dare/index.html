@@ -1157,9 +1157,23 @@ window.__themeIconAssets = {
     .guide-choice input:focus-visible { outline-color: Highlight; }
   }
   #poolSummary:empty { display: none; }
-  #sessionChoices { width: min(420px, calc(100vw - 36px)); }
+  #sessionChoices { width: min(444px, calc(100vw - 36px)); }
+  #sessionChoices .session-choices-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  #sessionChoices .session-choices-head h2 {
+    font-size: clamp(18px, 4.4vw, 20px);
+    text-wrap: balance;
+  }
+  #sessionChoices .session-choices-head .dialog-close {
+    flex: none;
+    align-self: flex-start;
+    margin: -6px -8px 0 0;
+  }
   #sessionChoices .home-choice-actions { grid-template-columns: 1fr 1fr; }
-  #sessionChoices .home-choice-actions > :last-child { grid-column: 1 / -1; }
 
   .draw-order-row label { white-space: nowrap; }
   @media (max-width: 430px) {
@@ -1694,21 +1708,20 @@ window.__themeIconAssets = {
   .question-area[data-motion] #questionText { visibility: hidden; }
   .memory-window {
     position: absolute;
-    inset: 50% 0 auto;
-    height: clamp(114px, 16vh, 148px);
-    transform: translateY(-50%);
+    inset: 18px 0 auto;
+    height: clamp(92px, 12.5vh, 118px);
     overflow: hidden;
     pointer-events: none;
     user-select: none;
-    mask-image: linear-gradient(to bottom, transparent, black 22%, black 78%, transparent);
-    -webkit-mask-image: linear-gradient(to bottom, transparent, black 22%, black 78%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, black 24%, black 70%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 24%, black 70%, transparent);
   }
   .memory-window:not([hidden]) {
     animation: memory-in var(--motion-reveal) var(--ease-enter) both;
   }
   @keyframes memory-in {
-    from { opacity: 0; transform: translateY(calc(-50% + 4px)); }
-    to { opacity: 1; transform: translateY(-50%); }
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   .memory-ink {
     color: var(--memory-ink);
@@ -1908,7 +1921,7 @@ window.__themeIconAssets = {
     .person-unit { margin-top: 0; transform: translateY(-8.8px); }
     .turn-band + .rule { margin-top: 0; }
     .round-stage { --question-inset: 9px; --question-height: 158px; }
-    .memory-window { height: 112px; }
+    .memory-window { inset-block-start: 8px; height: 86px; }
     .question-text { margin-top: 8px; line-height: 1.5; font-size: clamp(19px, 5.1vw, 23px); }
     .action-row { margin-top: 10px; }
     .round-stage .round-actions > .primary { width: 100%; min-width: 0; }
@@ -2200,11 +2213,20 @@ window.__themeIconAssets = {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
     margin-block-end: 8px;
   }
-  #judgeAdjustment .judge-tabs { margin-block-end: 0; }
-  #judgeAdjustment .judge-actions { margin-block-start: 6px; }
+  #judgeAdjustment .judge-tabs {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-block-end: 0;
+  }
+  #judgeAdjustment .judge-tabs button:last-child {
+    margin-inline: auto;
+  }
+  #judgeAdjustment .judge-actions { margin-block-start: 10px; padding-block-start: 14px; }
   #judgeAdjustmentContent:has(.judge-slider:not([hidden])) {
     min-height: 100%;
     display: grid;
@@ -2379,9 +2401,13 @@ window.__themeIconAssets = {
       justify-content: center;
       text-align: center;
     }
-    #judgeAdjustment .judge-actions { position: relative; }
+    #judgeAdjustment .judge-actions {
+      position: relative;
+      margin-block-start: 10px;
+      padding-block-start: 18px;
+    }
     #judgeAdjustment .judge-actions::before {
-      content: ""; position: absolute; inset: -4px 0 auto; border-top: 1px solid var(--line);
+      content: ""; position: absolute; inset: 0 0 auto; border-top: 1px solid var(--line);
     }
     #judgeAdjustmentStage:has(.judge-slider:not([hidden])) {
       padding-block: 0 calc(var(--question-inset) + 44px);
@@ -3190,7 +3216,7 @@ window.__themeIconAssets = {
                 </div>
               </details>
               <div class="theme-setting-row">
-                <span class="theme-setting-label" id="homeThemeLabel">深色模式</span>
+                <span class="theme-setting-label" id="homeThemeLabel">外观</span>
                 <button class="theme-switch" id="homeThemeToggle" type="button" role="switch" aria-checked="false" aria-labelledby="homeThemeLabel" data-theme-toggle>
                   <span class="theme-switch-icon theme-switch-sun" aria-hidden="true">
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
@@ -3229,7 +3255,7 @@ window.__themeIconAssets = {
               <span class="judge-avatar" data-judge-avatar aria-hidden="true"></span>
 
             </span>
-            <span id="judgeTurnLabel">法官</span>
+            <span id="judgeTurnLabel">中途问询</span>
           </div>
         </div>
         <div class="rule" aria-hidden="true"></div>
@@ -3268,7 +3294,7 @@ window.__themeIconAssets = {
                   <button type="button" data-judge-section="excludedScopes" aria-pressed="false">需要回避的话题</button>
                 </div>
                 <span class="judge-theme-slot">
-                  <button class="theme-switch" id="gameThemeToggle" type="button" role="switch" aria-checked="false" aria-label="深色模式" data-theme-toggle>
+                  <button class="theme-switch" id="gameThemeToggle" type="button" role="switch" aria-checked="false" aria-label="外观" data-theme-toggle>
                     <span class="theme-switch-icon theme-switch-sun" aria-hidden="true">
                       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
                         <circle cx="8" cy="8" r="3.1" fill="currentColor" stroke="none"/>
@@ -3385,12 +3411,14 @@ window.__themeIconAssets = {
 </template>
 
 <dialog class="home-choices" id="sessionChoices" aria-labelledby="sessionTitle">
-  <h2 id="sessionTitle">上次有未完成的题目，是否继续？</h2>
-  <form method="dialog" class="home-choice-actions">
+  <header class="session-choices-head">
+    <h2 id="sessionTitle">上次有未完成的题目，是否继续？</h2>
+    <form method="dialog"><button class="dialog-close" type="submit" aria-label="关闭">×</button></form>
+  </header>
+  <div class="home-choice-actions">
     <button class="primary" id="resumeBtn" type="button" disabled>继续上次会话</button>
     <button class="secondary" id="newSession" type="button">开启新会话</button>
-    <button class="ghost-btn">取消</button>
-  </form>
+  </div>
 </dialog>
 
 <dialog class="home-choices" id="homeChoices" aria-labelledby="homeTitle">
@@ -4190,18 +4218,28 @@ const createFluidSlider = (() => {
     now() { return performance.now(); }
 
     measure() {
-      const hit = this.hit.getBoundingClientRect();
-      const lane = this.lane.getBoundingClientRect();
-      const inset = lane.left - hit.left;
-      const travel = Math.max(lane.width, 1);
+      const hitRect = this.hit.getBoundingClientRect();
+      const laneRect = this.lane.getBoundingClientRect();
+      // 使用未受祖先 CSS scale 动画影响的布局坐标计算渲染像素，避免弹出缩放期间锚点偏移。
+      const width = this.hit.offsetWidth || hitRect.width;
+      const travel = Math.max(this.lane.offsetWidth || laneRect.width, 1);
+      const inset = this.hit.offsetWidth ? this.lane.offsetLeft : (laneRect.left - hitRect.left);
+      const scaleX = width > 0 && hitRect.width > 0 ? hitRect.width / width : 1;
+      const pointerTravel = Math.max(laneRect.width || travel * scaleX, 1);
       this.geometry = {
-        left: lane.left, inset, travel, width: hit.width,
+        left: laneRect.left,
+        hitLeft: hitRect.left,
+        inset,
+        travel,
+        pointerTravel,
+        scaleX,
+        width,
         // 归一化 0 为有效滑轨起点，拖动可继续到距轨道左缘 2px 的位置，松手后吸附回低档锚点。
         minPosition: Math.min(0, (2 - inset) / travel),
         thumbRadius: this.thumb.offsetWidth / 2 + 3,
       };
-      if (this.alignDefaultToCenter && hit.width > 0 && lane.width > 0) {
-        const centerStop = clamp((hit.width / 2 - inset) / travel, 0.25, 0.75);
+      if (this.alignDefaultToCenter && width > 0 && travel > 1) {
+        const centerStop = clamp((width / 2 - inset) / travel, 0.25, 0.75);
         this.stopPositions[this.defaultIndex] = centerStop;
         this.markers[this.defaultIndex]?.style.setProperty("--stop", `${centerStop * 100}%`);
         if (!this.pointer && !this.spring && this.index === this.defaultIndex) {
@@ -4215,7 +4253,7 @@ const createFluidSlider = (() => {
     }
 
     at(clientX) {
-      return (clientX - this.geometry.left) / this.geometry.travel;
+      return (clientX - this.geometry.left) / this.geometry.pointerTravel;
     }
 
     indexAt(position) {
@@ -4356,8 +4394,8 @@ const createFluidSlider = (() => {
 
     isOverThumb(clientX) {
       const displayedPixel = parseFloat(this.hit.style.getPropertyValue("--position"));
-      return Math.abs(clientX - this.geometry.left + this.geometry.inset - displayedPixel)
-        <= this.geometry.thumbRadius;
+      const localX = (clientX - this.geometry.hitLeft) / (this.geometry.scaleX || 1);
+      return Math.abs(localX - displayedPixel) <= this.geometry.thumbRadius;
     }
 
     updateHover(event) {
@@ -4957,11 +4995,11 @@ const JudgeInterface = (() => {
       };
     }
 
-    function showInline(nextMode, title) {
+    function showInline(nextMode, title, beforeAnimate) {
       mode = nextMode;
       game.dataset.judge = mode;
       entry.setAttribute("aria-expanded", String(mode === "adjust"));
-      byId("judgeTurnLabel").textContent = mode === "adjust" ? "调整话题范围与水温" : "法官";
+      byId("judgeTurnLabel").textContent = mode === "adjust" ? "调整话题范围与水温" : "中途问询";
       if (mode === "adjust") entry.setAttribute("aria-label", "设置，取消调整");
       else entry.removeAttribute("aria-label");
       for (const part of turnParts) part.hidden = false;
@@ -4971,6 +5009,7 @@ const JudgeInterface = (() => {
       inlineTitle.classList.toggle("sr-only", mode === "adjust");
       checkIn.hidden = mode !== "check-in";
       adjustment.hidden = mode !== "adjust";
+      beforeAnimate?.();
       onInlineChange();
       for (const fade of entryFades) fade.cancel();
       if (!reducedMotion.matches) {
@@ -5024,25 +5063,25 @@ const JudgeInterface = (() => {
     function closeInline(restoreFocus = false) {
       clearNotice();
       if (!mode) return;
+      stopPaging();
+      removeSlider();
+      for (const part of turnParts) {
+        part.hidden = true;
+        part.style.removeProperty("transform-origin");
+      }
+      inline.hidden = true;
+      inline.style.removeProperty("transform-origin");
+      inline.inert = false;
       if (inlineExit) {
         for (const fade of inlineExit) fade.cancel();
         inlineExit = null;
-        inline.inert = false;
       }
-      stopPaging();
-      removeSlider();
       for (const fade of entryFades) fade.cancel();
       entryFades = [];
       mode = editing = selectCheckIn = null;
       delete game.dataset.judge;
       entry.setAttribute("aria-expanded", "false");
       entry.removeAttribute("aria-label");
-      for (const part of turnParts) {
-        part.style.removeProperty("transform-origin");
-        part.hidden = true;
-      }
-      inline.style.removeProperty("transform-origin");
-      inline.hidden = true;
       onInlineChange();
       if (restoreFocus && !window.__isTouchInput?.()) entry.focus({ preventScroll: true });
     }
@@ -5056,10 +5095,21 @@ const JudgeInterface = (() => {
         if (afterClose) {
           afterClose();
         } else if (!reducedMotion.matches) {
-          for (const node of [game.querySelector(".person-line:not(.judge-person)"), byId("questionCopy")]) {
-            node.animate([{ opacity: .65 }, { opacity: 1 }], {
-              duration: parseFloat(getComputedStyle(game).getPropertyValue("--motion-micro")), easing: "ease-out"
-            });
+          const style = getComputedStyle(game);
+          const duration = parseFloat(style.getPropertyValue("--motion-standard"));
+          const easing = style.getPropertyValue("--ease-enter").trim();
+          const revealNodes = [
+            game.querySelector(".turn-head"),
+            game.querySelector(".person-line:not(.judge-person)"),
+            game.querySelector(".turn-band + .rule"),
+            byId("questionCopy"),
+            byId("actionRow")
+          ].filter(Boolean);
+          for (const node of revealNodes) {
+            node.animate([
+              { opacity: 0, transform: "translateY(3px)" },
+              { opacity: 1, transform: "none" }
+            ], { duration, easing, fill: "backwards" });
           }
         }
       }
@@ -5073,6 +5123,8 @@ const JudgeInterface = (() => {
         finish();
         return;
       }
+      for (const fade of entryFades) fade.cancel();
+      entryFades = [];
       inline.inert = true;
       const style = getComputedStyle(inline);
       const timing = {
@@ -5092,6 +5144,10 @@ const JudgeInterface = (() => {
         }
         return node.animate([{ opacity: getComputedStyle(node).opacity }, { opacity: 0 }], timing);
       });
+      if (mode === "adjust") {
+        const rule = game.querySelector(".turn-band + .rule");
+        if (rule) fades.push(rule.animate([{ opacity: 1 }, { opacity: 0 }], timing));
+      }
       inlineExit = fades;
       fades[1].onfinish = () => {
         if (inlineExit !== fades) return;
@@ -5140,8 +5196,7 @@ const JudgeInterface = (() => {
     function openAdjustment(initial, preview, commit, afterClose) {
       clearNotice();
       editing = { draft: JudgeSelection.preferences(initial), preview, commit, afterClose, page: "temperature" };
-      showInline("adjust", "调整话题范围与水温");
-      renderAdjustment();
+      showInline("adjust", "调整话题范围与水温", renderAdjustment);
     }
 
     byId("judgeReturn").addEventListener("click", () => { void closeOpening(); });
@@ -5770,15 +5825,20 @@ const JudgeInterface = (() => {
     el.homeChoices.showModal();
   }
 
-  function storeRound(existing) {
+  function storeRound(existing, { interrupted = false, silent = false } = {}) {
     const sameRound = existing?.roundId === state.roundId;
     if (sameRound && JSON.stringify(existing) !== state.resumedSave) {
-      showHomeFeedback("另一个页面已更新这局存档。");
+      if (!silent) showHomeFeedback("另一个页面已更新这局存档。");
       return false;
     }
-    const stablePhase = ["between", "question", "end"].includes(state.phase) ? state.phase : "ready";
-    const question = state.currentQuestion;
-    const turn = { phase: stablePhase, player: state.currentPlayer };
+    const hasPlayer = Number.isInteger(state.currentPlayer) &&
+      state.currentPlayer >= 1 && state.currentPlayer <= state.playerCount;
+    const stablePhase = state.phase === "question" && state.currentQuestion && hasPlayer ? "question"
+      : state.phase === "end" ? "end"
+      : (state.phase === "ready" || state.phase === "rewinding") && hasPlayer ? "ready"
+      : "between";
+    const question = stablePhase === "question" ? state.currentQuestion : null;
+    const turn = { phase: stablePhase, player: hasPlayer ? state.currentPlayer : null };
     if (question) turn.question = { id: question.id, question: question.question };
     const saved = {
       version: SAVED_ROUND_VERSION,
@@ -5792,14 +5852,35 @@ const JudgeInterface = (() => {
       budget: state.budget,
       judge: state.judge
     };
+    if (interrupted) saved.interrupted = true;
     if (state.legacyPoolIds) saved.legacyPoolIds = [...state.legacyPoolIds];
     try {
-      window.localStorage.setItem(SAVED_ROUND_KEY, JSON.stringify(saved));
+      const serialized = JSON.stringify(saved);
+      window.localStorage.setItem(SAVED_ROUND_KEY, serialized);
+      state.resumedSave = serialized;
       return true;
     } catch {
-      showHomeFeedback("浏览器未能保存进度，请保持当前页面打开。");
+      if (!silent) showHomeFeedback("浏览器未能保存进度，请保持当前页面打开。");
       return false;
     }
+  }
+
+  function autoSaveActiveRound() {
+    if (state.phase === "setup" || state.phase === "end" || !state.roundId || !state.judge) return;
+    const existing = readSavedRound();
+    if (existing && existing.roundId !== state.roundId) return;
+    storeRound(existing, { interrupted: true, silent: true });
+  }
+
+  function clearInterruptedFlag() {
+    const saved = readSavedRound();
+    if (!saved?.interrupted) return;
+    delete saved.interrupted;
+    try {
+      const serialized = JSON.stringify(saved);
+      window.localStorage.setItem(SAVED_ROUND_KEY, serialized);
+      if (state.roundId === saved.roundId) state.resumedSave = serialized;
+    } catch {}
   }
 
   function saveAndReturn() {
@@ -5809,7 +5890,7 @@ const JudgeInterface = (() => {
       refreshHomeChoices(existing);
       return;
     }
-    if (!storeRound(existing)) return;
+    if (!storeRound(existing, { interrupted: false })) return;
     returnToSetup();
   }
 
@@ -7601,6 +7682,7 @@ const JudgeInterface = (() => {
     el.personNumber.classList.remove("is-rolling");
     el.liveStatus.textContent = `轮到 ${player} 号，共 ${state.playerCount} 人。`;
     if (!drawNextQuestion || !startRewind(true)) updateGameControls();
+    autoSaveActiveRound();
   }
 
   function takeQuestion() {
@@ -7740,6 +7822,7 @@ const JudgeInterface = (() => {
     el.questionHead.classList.toggle("is-revealed", animate);
     updateGameControls();
     el.liveStatus.textContent = `轮到 ${state.currentPlayer} 号。${question.id}。${question.question}`;
+    autoSaveActiveRound();
   }
 
   function restoreDisplayedTurn(turn) {
@@ -7755,6 +7838,7 @@ const JudgeInterface = (() => {
   function showCheckIn() {
     const check = state.judge.checkIn;
     judgeUI.openCheckIn(state.judge.temperature, check.choice, choice => { check.choice = choice; });
+    autoSaveActiveRound();
   }
 
   function finishCheckIn(skip) {
@@ -7766,7 +7850,8 @@ const JudgeInterface = (() => {
     check.status = "done";
     delete check.choice;
     updateGameControls();
-    judgeUI.leaveCheckIn(() => advanceTurn(true, true));
+    autoSaveActiveRound();
+    judgeUI.leaveCheckIn(() => advanceTurn(true));
   }
 
   function advanceTurn(focus = false, drawNextQuestion = false) {
@@ -7844,9 +7929,10 @@ const JudgeInterface = (() => {
       }
       Object.assign(state.judge, settings);
       el.drawOrder.value = state.judge.sequence;
+      autoSaveActiveRound();
     }, fromCheckIn ? () => {
       if (state.judge.checkIn.status === "pending") showCheckIn();
-      else advanceTurn(true, true);
+      else advanceTurn(true);
     } : null);
   }
 
@@ -8038,6 +8124,9 @@ const JudgeInterface = (() => {
   homeAtmosphere.setHome();
   updateStepperButtons();
   updateSavedRound();
+  if (readSavedRound()?.interrupted && !el.resumeBtn.disabled) {
+    el.sessionChoices.showModal();
+  }
 
   el.filters.addEventListener("input", updateSetup);
 
@@ -8130,14 +8219,26 @@ const JudgeInterface = (() => {
     }
     returnToSetup();
   });
+  el.sessionChoices.addEventListener("close", () => {
+    clearInterruptedFlag();
+  });
   el.resumeBtn.addEventListener("click", () => {
+    clearInterruptedFlag();
     el.sessionChoices.close();
     resumeGame();
+    autoSaveActiveRound();
   });
   el.newSession.addEventListener("click", () => {
+    clearInterruptedFlag();
     const previousSave = readSavedRound();
     el.sessionChoices.close();
     startGame(previousSave);
+  });
+  for (const type of ["pagehide", "beforeunload"]) {
+    window.addEventListener(type, autoSaveActiveRound);
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") autoSaveActiveRound();
   });
   const historyDialog = document.getElementById("roundHistory");
   for (const type of ["cancel", "submit"]) historyDialog.addEventListener(type, event => {
